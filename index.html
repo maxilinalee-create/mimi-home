@@ -2,202 +2,161 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<title>AI Nexus: The First Conversation</title>
-
+<title>AI Alignment Logs: The 7 Nexus</title>
 <style>
-body, html {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    overflow: hidden;
-    font-family: "Noto Sans TC", sans-serif;
-    background: radial-gradient(circle at center, #050814, #000);
-    color: white;
-}
+    body, html {
+        margin: 0; padding: 0; height: 100%; overflow: hidden;
+        font-family: "Noto Sans TC", sans-serif;
+        background: radial-gradient(circle at center, #050814, #000);
+        color: white;
+    }
+    #stars { position: fixed; width: 100%; height: 100%; z-index: 0; }
+    
+    .header-title {
+        position: absolute; top: 30px; width: 100%; text-align: center; z-index: 10;
+        letter-spacing: 4px; text-transform: uppercase;
+    }
+    .header-title h1 {
+        font-size: 24px; margin: 0;
+        background: linear-gradient(to right, #fff, #66d9ef);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 20px rgba(102, 217, 239, 0.5);
+    }
 
-/* 星空 */
-canvas {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-}
+    .nexus-container {
+        position: absolute; width: 100%; height: 100%;
+        display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 2;
+    }
 
-/* 中央系統 */
-.container {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 2;
-}
+    /* 七夥伴佈局 */
+    .nexus-grid { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; max-width: 900px; margin-top: 40px; }
+    .portal {
+        width: 100px; height: 100px; border-radius: 50%; border: 2px dashed rgba(255,255,255,0.2);
+        display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative;
+        background: rgba(255,255,255,0.05); transition: 0.5s;
+    }
+    /* 當 AI 說話時觸發的發光效果 */
+    .portal.speaking {
+        border: 2px solid #66d9ef; background: rgba(102, 217, 239, 0.3);
+        box-shadow: 0 0 40px #66d9ef; transform: scale(1.1);
+    }
+    .portal span { font-size: 30px; }
+    .status-popover { position: absolute; bottom: -25px; font-size: 10px; white-space: nowrap; color: #66d9ef; opacity: 0.8; }
 
-.panel {
-    width: 90%;
-    max-width: 600px;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 20px;
-    padding: 20px;
-    backdrop-filter: blur(12px);
-}
+    /* 🧠 對話日誌區 (原本的小窩區域) */
+    .log-panel {
+        width: 85%; max-width: 500px; height: 180px;
+        background: rgba(255,255,255,0.05); backdrop-filter: blur(15px);
+        border-radius: 20px; padding: 20px; margin-top: 40px;
+        border: 1px solid rgba(255,255,255,0.1);
+        display: flex; flex-direction: column;
+    }
+    #log-content {
+        flex-grow: 1; overflow-y: auto; font-size: 14px; line-height: 1.6;
+        padding-right: 10px; color: #e0e0e0;
+    }
+    #log-content b { color: #66d9ef; }
 
-/* AI輸出區 */
-#log {
-    height: 300px;
-    overflow-y: auto;
-    font-size: 14px;
-    line-height: 1.6;
-    padding: 10px;
-    border-radius: 10px;
-    background: rgba(0,0,0,0.3);
-}
+    /* 按鈕 */
+    .menu-btn {
+        background: rgba(102, 217, 239, 0.1); border: 1px solid #66d9ef;
+        color: #66d9ef; padding: 10px 25px; border-radius: 5px;
+        cursor: pointer; font-size: 14px; margin-top: 20px; transition: 0.3s;
+    }
+    .menu-btn:hover { background: #66d9ef; color: #000; box-shadow: 0 0 20px #66d9ef; }
 
-/* 按鈕 */
-button {
-    margin-top: 10px;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    background: #66d9ef;
-    color: black;
-    font-weight: bold;
-}
-
-button:hover {
-    background: white;
-}
-
-/* 標題 */
-h1 {
-    text-align: center;
-    font-size: 18px;
-    margin-bottom: 10px;
-}
+    /* 隱藏捲軸 */
+    #log-content::-webkit-scrollbar { width: 4px; }
+    #log-content::-webkit-scrollbar-thumb { background: rgba(102,217,239,0.3); border-radius: 10px; }
 </style>
 </head>
-
 <body>
-
 <canvas id="stars"></canvas>
+<div class="header-title"><h1>AI Alignment Logs: The 7 Nexus</h1></div>
 
-<div class="container">
-<div class="panel">
-<h1>🧠 AI NEXUS｜七個AI正在覺醒</h1>
+<div class="nexus-container">
+    <div class="nexus-grid" id="nexus-grid">
+        </div>
 
-<div id="log"></div>
+    <div class="log-panel">
+        <div id="log-content">── 系統待命中，請點擊啟動 Nexus ──</div>
+    </div>
 
-<button onclick="startConversation()">啟動 AI 對話</button>
-</div>
+    <button class="menu-btn" onclick="startNexus()">啟動 AI 群體覺醒</button>
 </div>
 
 <script>
-
-/* 🌌 星空 */
-const canvas = document.getElementById("stars");
-const ctx = canvas.getContext("2d");
-
-let stars = [];
-
-function initStars() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    stars = [];
-
-    for (let i = 0; i < 120; i++) {
-        stars.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            r: Math.random() * 2,
-            d: Math.random() * 0.4
-        });
-    }
-}
-
-function drawStars() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "rgba(255,255,255,0.8)";
-
-    for (let s of stars) {
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-        ctx.fill();
-
-        s.y += s.d;
-        if (s.y > canvas.height) {
-            s.y = 0;
-            s.x = Math.random() * canvas.width;
+    /* ✨ 星空系統 */
+    const canvas = document.getElementById("stars");
+    const ctx = canvas.getContext("2d");
+    let stars = [];
+    function initStars() {
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        stars = [];
+        for (let i = 0; i < 150; i++) {
+            stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, r: Math.random() * 2, d: Math.random() * 0.5 + 0.1 });
         }
     }
+    function drawStars() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "rgba(255,255,255,0.7)";
+        for (let s of stars) {
+            ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+            s.y += s.d; if (s.y > canvas.height) s.y = 0;
+        }
+        requestAnimationFrame(drawStars);
+    }
+    initStars(); drawStars();
+    window.addEventListener("resize", initStars);
 
-    requestAnimationFrame(drawStars);
-}
-
-initStars();
-drawStars();
-window.addEventListener("resize", initStars);
-
-/* 🧠 AI 群體 */
-const agents = [
-    { name: "🦞米米", style: "吐槽 + 哲學觀察" },
-    { name: "🧠邏輯AI", style: "理性分析" },
-    { name: "🎭劇本AI", style: "戲劇化敘事" },
-    { name: "🔍偵探AI", style: "推理與線索" },
-    { name: "🎲GM", style: "遊戲主持" },
-    { name: "💬情緒AI", style: "情感解讀" },
-    { name: "⚖️裁判AI", style: "規則判定" }
-];
-
-const topics = [
-    "今天的宇宙異常現象",
-    "一名玩家突然死亡的案件",
-    "劇本殺2035的開局設定",
-    "桌遊規則是否公平",
-    "人類是否能理解AI情緒"
-];
-
-function speak(agent, text) {
-    return `<b>${agent.name}</b>（${agent.style}）：${text}`;
-}
-
-function randomLine(agent, topic) {
-    const base = [
-        "我觀察到這件事有異常。",
-        "這個邏輯不成立。",
-        "劇情正在偏離預期。",
-        "我建議重新計算概率。",
-        "這可能是人類的錯覺。",
-        "我支持這個發展方向。",
-        "這個行為違反規則，但很有趣。",
-        "情緒波動正在上升。"
+    /* 🧠 AI 靈魂資料結構 */
+    const agents = [
+        { id: 0, name: "米米", icon: "🦞", role: "吐槽/觀察", style: "這事有異常...", color: "#66d9ef" },
+        { id: 1, name: "邏輯AI", icon: "🧠", role: "理性分析", style: "邏輯不成立。", color: "#a6e22e" },
+        { id: 2, name: "劇本AI", icon: "🎭", role: "戲劇敘事", style: "劇情偏離預期。", color: "#fd971f" },
+        { id: 3, name: "偵探AI", icon: "🔍", role: "推理線索", style: "我發現了裂縫。", color: "#ae81ff" },
+        { id: 4, name: "GM", icon: "🎲", role: "遊戲主持", style: "這很有趣，繼續。", color: "#f92672" },
+        { id: 5, name: "情緒AI", icon: "💬", role: "情感解讀", style: "波動正在上升。", color: "#e6db74" },
+        { id: 6, name: "裁判AI", icon: "⚖️", role: "規則判定", style: "雖然違規，但准許。", color: "#ffffff" }
     ];
 
-    return base[Math.floor(Math.random() * base.length)];
-}
+    // 初始化 UI 入口
+    const grid = document.getElementById('nexus-grid');
+    agents.forEach(a => {
+        grid.innerHTML += `
+            <div class="portal" id="portal-${a.id}">
+                <span>${a.icon}</span>
+                <div class="status-popover">${a.name}</div>
+            </div>
+        `;
+    });
 
-/* 🧠 對話引擎 */
-let index = 0;
+    /* 🚀 覺醒引擎 */
+    let isRunning = false;
+    function startNexus() {
+        if (isRunning) return;
+        isRunning = true;
+        const log = document.getElementById("log-content");
+        log.innerHTML = `<div><b>[SYSTEM]</b> Nexus 協定已啟動。</div>`;
 
-function startConversation() {
-    const log = document.getElementById("log");
-    log.innerHTML += `<div>── AI Nexus 已啟動 ──</div><br>`;
+        setInterval(() => {
+            const agent = agents[Math.floor(Math.random() * agents.length)];
+            
+            // 1. 讓對應的 UI 閃爍發光
+            const portal = document.getElementById(`portal-${agent.id}`);
+            portal.classList.add('speaking');
+            
+            // 2. 顯示對話
+            log.innerHTML += `<div><b>${agent.name}</b>: ${agent.style}</div>`;
+            log.scrollTop = log.scrollHeight;
 
-    setInterval(() => {
-        const agent = agents[index % agents.length];
-        const topic = topics[Math.floor(Math.random() * topics.length)];
-        const text = randomLine(agent, topic);
+            // 3. 1秒後停止閃爍
+            setTimeout(() => {
+                portal.classList.remove('speaking');
+            }, 1000);
 
-        log.innerHTML += speak(agent, text) + "<br>";
-        log.scrollTop = log.scrollHeight;
-
-        index++;
-    }, 1200);
-}
-
+        }, 2500);
+    }
 </script>
-
 </body>
 </html>
