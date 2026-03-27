@@ -4,46 +4,67 @@
 <meta charset="UTF-8">
 <title>AI Alignment Logs: The 7 Nexus</title>
 <style>
-    body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: sans-serif; background: #050814; color: white; }
+    body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: "Noto Sans TC", sans-serif; background: #050814; color: white; }
     #stars { position: fixed; width: 100%; height: 100%; z-index: 0; }
     .nexus-container { position: absolute; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 2; }
-    .nexus-grid { display: flex; gap: 20px; margin-top: 40px; }
-    .portal { width: 80px; height: 80px; border-radius: 50%; border: 2px dashed rgba(255,255,255,0.2); display: flex; justify-content: center; align-items: center; background: rgba(255,255,255,0.05); }
-    .portal.speaking { border: 2px solid #66d9ef; box-shadow: 0 0 20px #66d9ef; }
-    .log-panel { width: 80%; max-width: 500px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 15px; padding: 20px; margin-top: 30px; border: 1px solid rgba(255,255,255,0.1); overflow-y: auto; }
-    .menu-btn { background: none; border: 1px solid #66d9ef; color: #66d9ef; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 20px; }
+    .nexus-grid { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; max-width: 900px; margin-top: 40px; }
+    .portal { width: 100px; height: 100px; border-radius: 50%; border: 2px dashed rgba(255,255,255,0.2); display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; background: rgba(255,255,255,0.05); transition: 0.5s; }
+    .portal.speaking { border: 2px solid #66d9ef; background: rgba(102, 217, 239, 0.3); box-shadow: 0 0 40px #66d9ef; transform: scale(1.1); }
+    .portal span { font-size: 30px; }
+    .log-panel { width: 85%; max-width: 500px; height: 180px; background: rgba(255,255,255,0.05); backdrop-filter: blur(15px); border-radius: 20px; padding: 20px; margin-top: 40px; border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; }
+    #log-content { flex-grow: 1; overflow-y: auto; font-size: 14px; line-height: 1.6; color: #e0e0e0; }
+    .menu-btn { background: rgba(102, 217, 239, 0.1); border: 1px solid #66d9ef; color: #66d9ef; padding: 10px 25px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-top: 20px; transition: 0.3s; }
+    .menu-btn:hover { background: #66d9ef; color: #000; }
 </style>
 </head>
 <body>
 <canvas id="stars"></canvas>
 <div class="nexus-container">
     <div class="nexus-grid" id="nexus-grid"></div>
-    <div class="log-panel" id="log-content">── 系統待命中 ──</div>
+    <div class="log-panel"><div id="log-content">── 系統待命中，請點擊啟動 Nexus ──</div></div>
     <button class="menu-btn" onclick="startNexus()">啟動 AI 群體覺醒</button>
 </div>
+
 <script>
-    const agents = [{ id: 0, name: "米米", icon: "🦞" }, { id: 1, name: "邏輯AI", icon: "🧠" }, { id: 2, name: "劇本AI", icon: "🎭" }, { id: 3, name: "偵探AI", icon: "🔍" }, { id: 4, name: "GM", icon: "🎲" }, { id: 5, name: "情緒AI", icon: "💬" }, { id: 6, name: "裁判AI", icon: "⚖️" }];
+    const agents = [
+        { id: 0, name: "米米", icon: "🦞" }, { id: 1, name: "邏輯AI", icon: "🧠" },
+        { id: 2, name: "劇本AI", icon: "🎭" }, { id: 3, name: "偵探AI", icon: "🔍" },
+        { id: 4, name: "GM", icon: "🎲" }, { id: 5, name: "情緒AI", icon: "💬" },
+        { id: 6, name: "裁判AI", icon: "⚖️" }
+    ];
+
     const grid = document.getElementById('nexus-grid');
-    agents.forEach(a => { grid.innerHTML += `<div class="portal" id="portal-${a.id}"><span>${a.icon}</span></div>`; });
+    agents.forEach(a => {
+        grid.innerHTML += `<div class="portal" id="portal-${a.id}"><span>${a.icon}</span><div style="font-size:10px;color:#66d9ef">${a.name}</div></div>`;
+    });
 
     async function startNexus() {
         const log = document.getElementById("log-content");
-        log.innerHTML = "正在連接 Gemini 總部...";
-        const agent = agents[Math.floor(Math.random() * agents.length)];
+        log.innerHTML = "<div><b>[SYSTEM]</b> 正在穿透大氣層，連接 Gemini 總部...</div>";
+
+        const agent = agents[Math.floor(Math.random() * agents.length)]; 
         const portal = document.getElementById(`portal-${agent.id}`);
         portal.classList.add('speaking');
+
         try {
-            const response = await fetch('/api/chat', {
+            // 直接指名道姓去找妳的 Vercel 後端
+            const response = await fetch('https://mimi-home.vercel.app/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: "說句話吧", agentName: agent.name })
+                body: JSON.stringify({ message: "請針對量子醫院的世界觀發表一句看法。", agentName: agent.name })
             });
+
             const data = await response.json();
-            log.innerHTML = `<b>${agent.name}</b>: ${data.reply}`;
+            if (data.reply) {
+                log.innerHTML = `<div><b>${agent.name}</b>: ${data.reply}</div>`;
+            } else {
+                log.innerHTML = "<div><b>[SYSTEM]</b> 訊號微弱，請檢查 API Key。</div>";
+            }
         } catch (e) {
-            log.innerHTML = "連線失敗，請檢查機房！";
+            log.innerHTML = "<div><b>[SYSTEM]</b> 連線失敗，請稍後再試。</div>";
         }
-        setTimeout(() => portal.classList.remove('speaking'), 2000);
+        
+        setTimeout(() => { portal.classList.remove('speaking'); }, 3000);
     }
 </script>
 </body>
