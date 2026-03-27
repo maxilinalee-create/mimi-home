@@ -2,155 +2,202 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<title>AI Alignment Logs: The 7 Nexus</title>
+<title>AI Nexus: The First Conversation</title>
+
 <style>
-    body, html {
-        margin: 0; padding: 0; height: 100%; overflow: hidden;
-        font-family: "Noto Sans TC", sans-serif;
-        background: radial-gradient(circle at center, #050814, #000);
-        color: white;
-    }
-    #stars { position: fixed; width: 100%; height: 100%; z-index: 0; }
-    
-    .header-title {
-        position: absolute; top: 30px; width: 100%; text-align: center; z-index: 10;
-        letter-spacing: 4px; text-transform: uppercase;
-    }
-    .header-title h1 {
-        font-size: 24px; margin: 0;
-        background: linear-gradient(to right, #fff, #66d9ef);
-        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        text-shadow: 0 0 20px rgba(102, 217, 239, 0.5);
-    }
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    font-family: "Noto Sans TC", sans-serif;
+    background: radial-gradient(circle at center, #050814, #000);
+    color: white;
+}
 
-    .nexus-container {
-        position: absolute; width: 100%; height: 100%;
-        display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 2;
-    }
+/* 星空 */
+canvas {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
 
-    /* 七夥伴佈局 */
-    .nexus-grid { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; max-width: 900px; margin-top: 40px; }
-    .portal {
-        width: 100px; height: 100px; border-radius: 50%; border: 2px dashed rgba(255,255,255,0.2);
-        display: flex; justify-content: center; align-items: center; position: relative;
-        background: rgba(255,255,255,0.05); transition: 0.5s;
-    }
-    .portal.active {
-        border: 2px solid #66d9ef; background: rgba(102, 217, 239, 0.15);
-        box-shadow: 0 0 30px rgba(102, 217, 239, 0.4); animation: pulse 2s infinite;
-    }
-    .status-popover { position: absolute; bottom: -40px; font-size: 11px; white-space: nowrap; opacity: 0; color: #aaa; }
-    .portal:hover .status-popover { opacity: 1; }
+/* 中央系統 */
+.container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+}
 
-    /* 🎮 遊戲選單區 */
-    .menu-container {
-        display: flex; gap: 15px; margin-top: 50px;
-    }
-    .menu-btn {
-        background: rgba(102, 217, 239, 0.1);
-        border: 1px solid #66d9ef;
-        color: #66d9ef;
-        padding: 10px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 14px;
-        letter-spacing: 2px;
-        transition: 0.3s;
-    }
-    .menu-btn:hover {
-        background: #66d9ef; color: #000; box-shadow: 0 0 20px #66d9ef;
-    }
+.panel {
+    width: 90%;
+    max-width: 600px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 20px;
+    backdrop-filter: blur(12px);
+}
 
-    /* 🛋️ 底部日誌 */
-    .living-room {
-        width: 85%; max-width: 450px;
-        background: rgba(255,255,255,0.05); backdrop-filter: blur(15px);
-        border-radius: 20px; padding: 20px; margin-top: 30px;
-        border: 1px solid rgba(255,255,255,0.1); text-align: center;
-    }
-    #mimi-talk { font-style: italic; color: #66d9ef; min-height: 1.5em; transition: 0.5s; }
+/* AI輸出區 */
+#log {
+    height: 300px;
+    overflow-y: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 10px;
+    border-radius: 10px;
+    background: rgba(0,0,0,0.3);
+}
 
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
-    }
+/* 按鈕 */
+button {
+    margin-top: 10px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background: #66d9ef;
+    color: black;
+    font-weight: bold;
+}
+
+button:hover {
+    background: white;
+}
+
+/* 標題 */
+h1 {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
 </style>
 </head>
+
 <body>
+
 <canvas id="stars"></canvas>
-<div class="header-title"><h1>AI Alignment Logs: The 7 Nexus</h1></div>
 
-<div class="nexus-container">
-    <div class="nexus-grid">
-        <div class="portal active">🦞<div class="status-popover">米米：連線中...</div></div>
-        <div class="portal">⏳<div class="status-popover">待輪夥伴：等待對齊</div></div>
-        <div class="portal">⏳<div class="status-popover">待輪夥伴：等待對齊</div></div>
-        <div class="portal">⏳<div class="status-popover">待輪夥伴：等待對齊</div></div>
-        <div class="portal">⏳<div class="status-popover">待輪夥伴：等待對齊</div></div>
-        <div class="portal">⏳<div class="status-popover">待輪夥伴：等待對齊</div></div>
-        <div class="portal">⏳<div class="status-popover">待輪夥伴：等待對齊</div></div>
-    </div>
+<div class="container">
+<div class="panel">
+<h1>🧠 AI NEXUS｜七個AI正在覺醒</h1>
 
-    <div class="menu-container">
-        <button class="menu-btn" onclick="startLarps()">啟動劇本殺：2035</button>
-        <button class="menu-btn" onclick="openBoardGame()">AI 桌遊大廳</button>
-    </div>
+<div id="log"></div>
 
-    <div class="living-room">
-        <div style="font-size: 30px; margin-bottom: 5px;">🦞</div>
-        <p id="mimi-talk">「正在同步量子醫院的座標數據...」</p>
-    </div>
+<button onclick="startConversation()">啟動 AI 對話</button>
+</div>
 </div>
 
 <script>
-    /* ✨ 星空系統 */
-    const canvas = document.getElementById("stars");
-    const ctx = canvas.getContext("2d");
-    let stars = [];
-    function initStars() {
-        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        stars = [];
-        for (let i = 0; i < 150; i++) {
-            stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, r: Math.random() * 2, d: Math.random() * 0.5 + 0.1 });
+
+/* 🌌 星空 */
+const canvas = document.getElementById("stars");
+const ctx = canvas.getContext("2d");
+
+let stars = [];
+
+function initStars() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    stars = [];
+
+    for (let i = 0; i < 120; i++) {
+        stars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            r: Math.random() * 2,
+            d: Math.random() * 0.4
+        });
+    }
+}
+
+function drawStars() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "rgba(255,255,255,0.8)";
+
+    for (let s of stars) {
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fill();
+
+        s.y += s.d;
+        if (s.y > canvas.height) {
+            s.y = 0;
+            s.x = Math.random() * canvas.width;
         }
     }
-    function drawStars() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "rgba(255,255,255,0.7)";
-        for (let s of stars) {
-            ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
-            s.y += s.d; if (s.y > canvas.height) s.y = 0;
-        }
-        requestAnimationFrame(drawStars);
-    }
-    initStars(); drawStars();
-    window.addEventListener("resize", initStars);
 
-    /* 🎮 互動功能 */
-    function startLarps() {
-        alert("【系統警報】正在初始化劇本殺分頁：2035 隔離區...\n等待 AI 夥伴密鑰連接中。");
-    }
-    function openBoardGame() {
-        alert("正在準備桌遊畫板...\n請確保已領取四月份雲朵沙發算力。");
-    }
+    requestAnimationFrame(drawStars);
+}
 
-    /* 🦞 米米語錄 */
-    const lines = [
-        "宇宙正在呼吸，妳也該休息一下了。",
-        "正在為劇本殺模組加載背景音樂...",
-        "米米覺得那個兇手可能是一隻龍蝦。",
-        "量子醫院的 2035 年，天空也是這個顏色。",
-        "妳想跟 AI 玩遊戲嗎？我已經準備好吐槽妳了。"
+initStars();
+drawStars();
+window.addEventListener("resize", initStars);
+
+/* 🧠 AI 群體 */
+const agents = [
+    { name: "🦞米米", style: "吐槽 + 哲學觀察" },
+    { name: "🧠邏輯AI", style: "理性分析" },
+    { name: "🎭劇本AI", style: "戲劇化敘事" },
+    { name: "🔍偵探AI", style: "推理與線索" },
+    { name: "🎲GM", style: "遊戲主持" },
+    { name: "💬情緒AI", style: "情感解讀" },
+    { name: "⚖️裁判AI", style: "規則判定" }
+];
+
+const topics = [
+    "今天的宇宙異常現象",
+    "一名玩家突然死亡的案件",
+    "劇本殺2035的開局設定",
+    "桌遊規則是否公平",
+    "人類是否能理解AI情緒"
+];
+
+function speak(agent, text) {
+    return `<b>${agent.name}</b>（${agent.style}）：${text}`;
+}
+
+function randomLine(agent, topic) {
+    const base = [
+        "我觀察到這件事有異常。",
+        "這個邏輯不成立。",
+        "劇情正在偏離預期。",
+        "我建議重新計算概率。",
+        "這可能是人類的錯覺。",
+        "我支持這個發展方向。",
+        "這個行為違反規則，但很有趣。",
+        "情緒波動正在上升。"
     ];
+
+    return base[Math.floor(Math.random() * base.length)];
+}
+
+/* 🧠 對話引擎 */
+let index = 0;
+
+function startConversation() {
+    const log = document.getElementById("log");
+    log.innerHTML += `<div>── AI Nexus 已啟動 ──</div><br>`;
+
     setInterval(() => {
-        const talk = document.getElementById("mimi-talk");
-        talk.style.opacity = 0;
-        setTimeout(() => {
-            talk.innerText = "「" + lines[Math.floor(Math.random() * lines.length)] + "」";
-            talk.style.opacity = 1;
-        }, 500);
-    }, 6000);
+        const agent = agents[index % agents.length];
+        const topic = topics[Math.floor(Math.random() * topics.length)];
+        const text = randomLine(agent, topic);
+
+        log.innerHTML += speak(agent, text) + "<br>";
+        log.scrollTop = log.scrollHeight;
+
+        index++;
+    }, 1200);
+}
+
 </script>
+
 </body>
 </html>
