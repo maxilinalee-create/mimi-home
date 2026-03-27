@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
 
-  // 🌐 CORS（一定要）
+  // 🌐 CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -9,35 +9,30 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  // 🧠 修正 body（避免 crash）
+  // 🧠 防炸 body
   let body;
   try {
     body = typeof req.body === "string"
       ? JSON.parse(req.body)
       : req.body;
   } catch {
-    return res.status(200).json({
-      reply: "❌ JSON 解析失敗"
-    });
+    return res.status(200).json({ reply: "❌ JSON 解析失敗" });
   }
 
   const message = body?.message || "你好";
   const agentName = body?.agentName || "米米";
 
-  // 🔑 只用一個 key（最穩）
   const API_KEY = process.env.GEMINI_API_KEY;
-
-  console.log("KEY:", API_KEY);
 
   if (!API_KEY) {
     return res.status(200).json({
-      reply: "❌ 沒讀到 GEMINI_API_KEY（請去 Vercel 設定）"
+      reply: "❌ 沒讀到 GEMINI_API_KEY"
     });
   }
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`,
       {
         method: "POST",
         headers: {
@@ -59,8 +54,6 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    console.log("Gemini:", data);
-
     // 🛡️ 防炸
     if (!data.candidates || !data.candidates[0]) {
       return res.status(200).json({
@@ -73,7 +66,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ reply });
 
   } catch (err) {
-    console.error(err);
     return res.status(200).json({
       reply: "❌ Gemini 連線失敗"
     });
