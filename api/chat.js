@@ -1,3 +1,4 @@
+console.log("ENV TEST:", process.env.GEMINI_API_KEY);
 export default async function handler(req, res) {
   const { message, agentName } = req.body;
   const API_KEY = process.env.GEMINI_API_KEY;
