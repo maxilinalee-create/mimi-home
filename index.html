@@ -1,93 +1,121 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<title>米米的小窩</title>
+  <meta charset="UTF-8">
+  <title>米米的小窩</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(to bottom, #e6f0ff, #ffffff);
+      overflow-x: hidden;
+    }
 
-<style>
-body {
-  margin: 0;
-  height: 100vh;
-  overflow: hidden;
-  font-family: Arial, sans-serif;
-  color: white;
+    /* 雲朵背景 */
+    .cloud {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      opacity: 0.7;
+      filter: blur(10px);
+      animation: float 20s infinite linear;
+    }
 
-  /* 更亮的宇宙背景 */
-  background: linear-gradient(to bottom, #0b1a3a, #02040f);
-}
+    @keyframes float {
+      from { transform: translateX(-200px); }
+      to { transform: translateX(120vw); }
+    }
 
-/* ✨ 星星背景 */
-.stars {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background-image: radial-gradient(white 1px, transparent 1px);
-  background-size: 30px 30px;
-  opacity: 0.4;
-}
+    /* 主區塊 */
+    .container {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
 
-/* 標題 */
-.title {
-  position: absolute;
-  top: 60px;
-  width: 100%;
-  text-align: center;
-  z-index: 2;
-}
+    h1 {
+      font-size: 42px;
+      color: #444;
+    }
 
-/* 球 */
-.ball {
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #7fd1ff, #1f5cff);
-  box-shadow: 0 0 50px #4aa3ff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  transition: 0.3s;
+    p {
+      color: #666;
+      margin-top: 10px;
+    }
 
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 2;
-}
+    /* 能量球 */
+    .orb {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #7aaeff, #3a6cff);
+      box-shadow: 0 0 40px rgba(100,150,255,0.8);
+      margin: 30px 0;
+      animation: pulse 2s infinite;
+    }
 
-.ball:hover {
-  transform: translate(-50%, -50%) scale(1.1);
-  box-shadow: 0 0 90px #6ec1ff;
-}
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.9; }
+    }
 
-/* 底部文字 */
-.subtitle {
-  position: absolute;
-  bottom: 60px;
-  width: 100%;
-  text-align: center;
-  opacity: 0.8;
-  z-index: 2;
-}
-</style>
+    /* 按鈕 */
+    .enter-btn {
+      padding: 12px 28px;
+      background: #4a7cff;
+      color: white;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: 0.3s;
+      text-decoration: none;
+    }
 
+    .enter-btn:hover {
+      background: #2f5bdb;
+    }
+
+    /* 客廳預覽 */
+    .living-preview {
+      margin-top: 40px;
+      width: 80%;
+      max-width: 600px;
+      height: 180px;
+      background: rgba(255,255,255,0.6);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #555;
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="stars"></div>
+  <!-- 雲朵 -->
+  <div class="cloud" style="width:200px;height:80px;top:20%;animation-duration:30s;"></div>
+  <div class="cloud" style="width:150px;height:60px;top:50%;animation-duration:25s;"></div>
+  <div class="cloud" style="width:180px;height:70px;top:70%;animation-duration:35s;"></div>
 
-<div class="title">
-  <h1>米米的小窩</h1>
-</div>
+  <div class="container">
+    <h1>米米的小窩</h1>
+    <p>這是一個將現實轉換為能量的空間</p>
 
-<div class="ball">
-  進入客廳
-</div>
+    <!-- 能量球 -->
+    <div class="orb"></div>
 
-<div class="subtitle">
-  這是一個將現實轉換為能量的空間
-</div>
+    <!-- 進入 -->
+    <a href="/mimi" class="enter-btn">進入客廳</a>
+
+    <!-- 客廳預覽 -->
+    <div class="living-preview">
+      米米正在客廳等你回來 ✨
+    </div>
+  </div>
 
 </body>
 </html>
