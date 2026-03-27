@@ -1,68 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>米米的小窩</title>
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: radial-gradient(circle at top, #1b2a4a, #050814);
-      font-family: Arial, sans-serif;
-      color: white;
-      overflow: hidden;
-    }
+<meta charset="UTF-8">
+<title>米米的小窩</title>
 
-    .ball {
-      width: 180px;
-      height: 180px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #6ec1ff, #1b4cff);
-      box-shadow: 0 0 40px #4aa3ff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      cursor: pointer;
-      transition: 0.3s;
-    }
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  color: white;
 
-    .ball:hover {
-      transform: scale(1.1);
-      box-shadow: 0 0 80px #6ec1ff;
-    }
+  /* 更亮的宇宙背景 */
+  background: linear-gradient(to bottom, #0b1a3a, #02040f);
+}
 
-    .title {
-      position: absolute;
-      top: 60px;
-      text-align: center;
-    }
+/* ✨ 星星背景 */
+.stars {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(white 1px, transparent 1px);
+  background-size: 30px 30px;
+  opacity: 0.4;
+}
 
-    .subtitle {
-      position: absolute;
-      bottom: 60px;
-      text-align: center;
-      opacity: 0.8;
-    }
-  </style>
+/* 標題 */
+.title {
+  position: absolute;
+  top: 60px;
+  width: 100%;
+  text-align: center;
+  z-index: 2;
+}
+
+/* 球 */
+.ball {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #7fd1ff, #1f5cff);
+  box-shadow: 0 0 50px #4aa3ff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.3s;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+.ball:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow: 0 0 90px #6ec1ff;
+}
+
+/* 底部文字 */
+.subtitle {
+  position: absolute;
+  bottom: 60px;
+  width: 100%;
+  text-align: center;
+  opacity: 0.8;
+  z-index: 2;
+}
+</style>
+
 </head>
 
 <body>
 
-  <div class="title">
-    <h1>米米的小窩</h1>
-  </div>
+<div class="stars"></div>
 
-  <div class="ball">
-    進入客廳
-  </div>
+<div class="title">
+  <h1>米米的小窩</h1>
+</div>
 
-  <div class="subtitle">
-    這是一個將現實轉換為能量的空間
-  </div>
+<div class="ball">
+  進入客廳
+</div>
+
+<div class="subtitle">
+  這是一個將現實轉換為能量的空間
+</div>
 
 </body>
 </html>
