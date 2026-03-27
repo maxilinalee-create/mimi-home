@@ -30,6 +30,7 @@ button {
   margin-top:20px;
   max-width:400px;
   text-align:center;
+  line-height:1.6;
 }
 </style>
 </head>
@@ -63,7 +64,7 @@ async function talk() {
     if (data.reply) {
       output.innerText = data.reply;
     } else {
-      output.innerText = "⚠️ API 沒回應\n" + JSON.stringify(data);
+      output.innerText = "⚠️ API 回應異常\n" + JSON.stringify(data);
     }
 
   } catch (err) {
