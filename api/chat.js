@@ -1,13 +1,26 @@
 export default async function handler(req, res) {
-  const { message, agentName } = req.body;
+
+  // 🧠 修正 body（避免 crash）
+  let body;
+  try {
+    body = typeof req.body === "string"
+      ? JSON.parse(req.body)
+      : req.body;
+  } catch {
+    return res.status(400).json({ error: "JSON 解析失敗" });
+  }
+
+  const message = body?.message || "你好";
+  const agentName = body?.agentName || "米米";
+
   const API_KEY = process.env.GEMINI_API_KEY;
 
-  console.log("ENV TEST:", API_KEY);
+  console.log("ENV:", API_KEY);
 
-  // 👉 先擋掉沒 key 的情況
+  // 🛑 沒 key 直接回
   if (!API_KEY) {
     return res.status(500).json({
-      error: "沒有讀到 API KEY（Vercel env 問題）"
+      error: "❌ 沒讀到 GEMINI_API_KEY"
     });
   }
 
@@ -15,14 +28,16 @@ export default async function handler(req, res) {
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
       {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({
           contents: [
             {
               parts: [
                 {
-                  text: `你現在是「${agentName}」，請對使用者說：${message}`
+                  text: `你現在是「${agentName}」，請用有點吐槽又可愛的語氣回答：${message}`
                 }
               ]
             }
@@ -33,9 +48,9 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    console.log("Gemini raw:", JSON.stringify(data, null, 2));
+    console.log("Gemini:", data);
 
-    // 👉 防呆（超重要）
+    // 🛡️ 防炸
     if (!data.candidates || !data.candidates[0]) {
       return res.status(500).json({
         error: "Gemini 沒回應",
@@ -47,10 +62,10 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ reply });
 
-  } catch (error) {
-    console.error("ERROR:", error);
+  } catch (err) {
+    console.error(err);
     return res.status(500).json({
-      error: "連線 Gemini 失敗"
+      error: "❌ Gemini 連線失敗"
     });
   }
 }
