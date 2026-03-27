@@ -1,53 +1,46 @@
 export default async function handler(req, res) {
-    // 1. 處理跨網域 (CORS) 問題
-    res.setHeader('Access-Control-Allow-Credentials', true);
+    // 1. 設定跨網域權限
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
-    }
-
-    const { message, agentName } = req.body;
-
-    // 2. 讀取妳剛才在 Vercel 設定的兩把鑰匙
-    const keys = [
-        process.env.Gemini_API_1,
-        process.env.Gemini_API_2
-    ].filter(k => k); // 過濾掉空的鑰匙
-
-    if (keys.length === 0) {
-        return res.status(200).json({ reply: "❌ 系統錯誤：Vercel 找不到任何 API Key，請檢查環境變數設定。" });
-    }
-
-    // 3. 隨機挑選一把鑰匙使用
-    const API_KEY = keys[Math.floor(Math.random() * keys.length)];
+    if (req.method === 'OPTIONS') return res.status(200).end();
 
     try {
-        const response = await fetch(https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY} `, {
+        const { message, agentName } = req.body;
+        
+        // 2. 取得妳在 Vercel 設定的兩把鑰匙
+        const key1 = process.env.Gemini_API_1;
+        const key2 = process.env.Gemini_API_2;
+        const API_KEY = key1 || key2; // 優先用第一把，沒有就用第二把
+
+        if (!API_KEY) {
+            return res.status(200).json({ reply: "❌ Vercel 環境變數讀取失敗，請確認 Key 名稱是否正確。" });
+        }
+
+        // 3. 發送請求給 Google (使用最新穩定版本號)
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                contents: [{ 
-                    parts: [{ 
-                        text: `你現在是「${agentName}」，請用這個角色的口吻對使用者說一句話（量子醫院世界觀）：${message}` 
-                    }] 
+                contents: [{
+                    parts: [{ text: `你現在是量子醫院中的角色「${agentName}」，請用其口吻回覆這封訊息：${message}` }]
                 }]
             })
         });
 
         const data = await response.json();
-        
-        if (data.error) {
-            return res.status(200).json({ reply: `[API 報錯] ${data.error.message}` });
+
+        // 4. 檢查 Google 回傳的內容
+        if (data.candidates && data.candidates[0].content) {
+            const reply = data.candidates[0].content.parts[0].text;
+            return res.status(200).json({ reply });
+        } else {
+            return res.status(200).json({ reply: `❌ Google 拒絕請求：${JSON.stringify(data.error || "未知錯誤")}` });
         }
 
-        const reply = data.candidates[0].content.parts[0].text;
-        res.status(200).json({ reply });
-        
     } catch (error) {
-        res.status(200).json({ reply: `[量子連線中斷] ${error.message}` });
+        // 5. 如果程式碼當掉，回傳具體錯誤訊息
+        return res.status(200).json({ reply: `⚠️ 量子斷層錯誤：${error.message}` });
     }
 }
