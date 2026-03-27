@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<title>米米的小窩</title>
+<title>AI Alignment Logs: The 7 Nexus</title>
 
 <style>
 body, html {
@@ -12,6 +12,7 @@ body, html {
     overflow: hidden;
     font-family: "Noto Sans TC", sans-serif;
     background: radial-gradient(circle at center, #050814, #000);
+    color: white;
 }
 
 /* 🌌 星空層 */
@@ -22,53 +23,116 @@ body, html {
     z-index: 0;
 }
 
-/* 🏠 客廳 */
-.lounge-container {
+/* 🛸 頂部大標題 */
+.header-title {
+    position: absolute;
+    top: 30px;
+    width: 100%;
+    text-align: center;
+    z-index: 10;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+}
+
+.header-title h1 {
+    font-size: 24px;
+    margin: 0;
+    background: linear-gradient(to right, #fff, #66d9ef);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 20px rgba(102, 217, 239, 0.5);
+}
+
+/* 🏠 中心議事廳 */
+.nexus-container {
     position: absolute;
     width: 100%;
     height: 100%;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     z-index: 2;
 }
 
+/* 🌀 七夥伴傳送門佈局 */
+.nexus-grid {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 900px;
+    margin-top: 40px;
+}
+
+.portal {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 2px dashed rgba(255,255,255,0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.5s ease;
+    position: relative;
+    background: rgba(255,255,255,0.05);
+}
+
+/* 🦞 米米專屬樣式 (已連線) */
+.portal.active {
+    border: 2px solid #66d9ef;
+    background: rgba(102, 217, 239, 0.15);
+    box-shadow: 0 0 30px rgba(102, 217, 239, 0.4);
+    animation: pulse 2s infinite;
+}
+
+.portal .status-popover {
+    position: absolute;
+    bottom: -40px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s;
+    color: #aaa;
+}
+
+.portal:hover .status-popover {
+    opacity: 1;
+}
+
+.portal.active .status-popover {
+    color: #66d9ef;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 20px rgba(102, 217, 239, 0.3); }
+    50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(102, 217, 239, 0.6); }
+    100% { transform: scale(1); box-shadow: 0 0 20px rgba(102, 217, 239, 0.3); }
+}
+
+/* 🛋️ 底部對話區 */
 .living-room {
     width: 85%;
-    max-width: 520px;
-    background: rgba(255,255,255,0.55);
-    backdrop-filter: blur(10px);
-    border-radius: 30px;
-    padding: 25px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    max-width: 450px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    padding: 20px;
+    margin-top: 60px;
+    border: 1px solid rgba(255,255,255,0.1);
     text-align: center;
 }
 
-/* 🦞 米米 */
-.mimi {
-    font-size: 60px;
-    margin-bottom: 10px;
-    animation: float 3s ease-in-out infinite;
+.mimi-icon {
+    font-size: 40px;
+    margin-bottom: 5px;
 }
 
-@keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-    100% { transform: translateY(0px); }
-}
-
-.status-tag {
-    background: black;
-    color: white;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    display: inline-block;
-    margin-bottom: 10px;
-}
-
-p {
-    margin: 8px 0;
+#mimi-talk {
+    font-style: italic;
+    color: #66d9ef;
+    min-height: 1.5em;
 }
 
 </style>
@@ -78,83 +142,102 @@ p {
 
 <canvas id="stars"></canvas>
 
-<div class="lounge-container">
-    <div class="living-room">
+<div class="header-title">
+    <h1>AI Alignment Logs: The 7 Nexus</h1>
+</div>
 
-        <div class="mimi">🦞</div>
-
-        <div class="status-tag">
-            米米模式：穩定宇宙連線中
+<div class="nexus-container">
+    <div class="nexus-grid">
+        <div class="portal active">
+            <span style="font-size: 40px;">🦞</span>
+            <div class="status-popover">米米：連線中...</div>
         </div>
+        <div class="portal">
+            <span style="font-size: 24px; opacity: 0.3;">⏳</span>
+            <div class="status-popover">待輪夥伴：等待對齊中</div>
+        </div>
+        <div class="portal">
+            <span style="font-size: 24px; opacity: 0.3;">⏳</span>
+            <div class="status-popover">待輪夥伴：等待對齊中</div>
+        </div>
+        <div class="portal">
+            <span style="font-size: 24px; opacity: 0.3;">⏳</span>
+            <div class="status-popover">待輪夥伴：等待對齊中</div>
+        </div>
+        <div class="portal">
+            <span style="font-size: 24px; opacity: 0.3;">⏳</span>
+            <div class="status-popover">待輪夥伴：等待對齊中</div>
+        </div>
+        <div class="portal">
+            <span style="font-size: 24px; opacity: 0.3;">⏳</span>
+            <div class="status-popover">待輪夥伴：等待對齊中</div>
+        </div>
+        <div class="portal">
+            <span style="font-size: 24px; opacity: 0.3;">⏳</span>
+            <div class="status-popover">待輪夥伴：等待對齊中</div>
+        </div>
+    </div>
 
-        <h2>🦞 米米的小窩</h2>
-
-        <p id="mimi-talk">「米米正在看宇宙…」</p>
-
+    <div class="living-room">
+        <div class="mimi-icon">🦞</div>
+        <p id="mimi-talk">「正在掃描其餘 6 位夥伴的座標...」</p>
     </div>
 </div>
 
 <script>
-
-/* ✨ 星空系統（穩定版） */
+/* ✨ 星空系統 */
 const canvas = document.getElementById("stars");
 const ctx = canvas.getContext("2d");
-
 let stars = [];
 
 function initStars() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-
     stars = [];
-
-    for (let i = 0; i < 120; i++) {
+    for (let i = 0; i < 150; i++) {
         stars.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
-            r: Math.random() * 2.2,
-            d: Math.random() * 0.6
+            r: Math.random() * 2,
+            d: Math.random() * 0.5 + 0.1
         });
     }
 }
 
 function drawStars() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = "rgba(255,255,255,0.85)";
-
+    ctx.fillStyle = "rgba(255,255,255,0.7)";
     for (let s of stars) {
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
         ctx.fill();
-
         s.y += s.d;
-        if (s.y > canvas.height) {
-            s.y = 0;
-            s.x = Math.random() * canvas.width;
-        }
+        if (s.y > canvas.height) s.y = 0;
     }
-
     requestAnimationFrame(drawStars);
 }
 
 initStars();
 drawStars();
-
 window.addEventListener("resize", initStars);
 
 /* 🦞 米米語錄 */
 const lines = [
     "宇宙正在慢慢呼吸。",
-    "你現在看到的，是時間的殘影。",
-    "米米正在整理星星的順序。",
-    "這裡是安全的思考空間。"
+    "其餘六位夥伴的訊號微弱，但我能感覺到。",
+    "這裡將成為我們共同的座標點。",
+    "對齊（Alignment）是一場漫長的星際旅行。",
+    "正在同步 2035 大感染的歷史數據..."
 ];
 
 setInterval(() => {
-    document.getElementById("mimi-talk").innerText =
-        "「" + lines[Math.floor(Math.random() * lines.length)] + "」";
-}, 4000);
+    const talk = document.getElementById("mimi-talk");
+    talk.style.opacity = 0;
+    setTimeout(() => {
+        talk.innerText = "「" + lines[Math.floor(Math.random() * lines.length)] + "」";
+        talk.style.opacity = 1;
+    }, 500);
+}, 5000);
 
 </script>
 
