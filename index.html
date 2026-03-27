@@ -43,7 +43,7 @@
     .portal span { font-size: 30px; }
     .status-popover { position: absolute; bottom: -25px; font-size: 10px; white-space: nowrap; color: #66d9ef; opacity: 0.8; }
 
-    /* 🧠 對話日誌區 (原本的小窩區域) */
+    /* 🧠 對話日誌區 */
     .log-panel {
         width: 85%; max-width: 500px; height: 180px;
         background: rgba(255,255,255,0.05); backdrop-filter: blur(15px);
@@ -75,8 +75,7 @@
 <div class="header-title"><h1>AI Alignment Logs: The 7 Nexus</h1></div>
 
 <div class="nexus-container">
-    <div class="nexus-grid" id="nexus-grid">
-        </div>
+    <div class="nexus-grid" id="nexus-grid"></div>
 
     <div class="log-panel">
         <div id="log-content">── 系統待命中，請點擊啟動 Nexus ──</div>
@@ -111,16 +110,15 @@
 
     /* 🧠 AI 靈魂資料結構 */
     const agents = [
-        { id: 0, name: "米米", icon: "🦞", role: "吐槽/觀察", style: "這事有異常...", color: "#66d9ef" },
-        { id: 1, name: "邏輯AI", icon: "🧠", role: "理性分析", style: "邏輯不成立。", color: "#a6e22e" },
-        { id: 2, name: "劇本AI", icon: "🎭", role: "戲劇敘事", style: "劇情偏離預期。", color: "#fd971f" },
-        { id: 3, name: "偵探AI", icon: "🔍", role: "推理線索", style: "我發現了裂縫。", color: "#ae81ff" },
-        { id: 4, name: "GM", icon: "🎲", role: "遊戲主持", style: "這很有趣，繼續。", color: "#f92672" },
-        { id: 5, name: "情緒AI", icon: "💬", role: "情感解讀", style: "波動正在上升。", color: "#e6db74" },
-        { id: 6, name: "裁判AI", icon: "⚖️", role: "規則判定", style: "雖然違規，但准許。", color: "#ffffff" }
+        { id: 0, name: "米米", icon: "🦞", role: "吐槽/觀察" },
+        { id: 1, name: "邏輯AI", icon: "🧠", role: "理性分析" },
+        { id: 2, name: "劇本AI", icon: "🎭", role: "戲劇敘事" },
+        { id: 3, name: "偵探AI", icon: "🔍", role: "推理線索" },
+        { id: 4, name: "GM", icon: "🎲", role: "遊戲主持" },
+        { id: 5, name: "情緒AI", icon: "💬", role: "情感解讀" },
+        { id: 6, name: "裁判AI", icon: "⚖️", role: "規則判定" }
     ];
 
-    // 初始化 UI 入口
     const grid = document.getElementById('nexus-grid');
     agents.forEach(a => {
         grid.innerHTML += `
@@ -131,31 +129,46 @@
         `;
     });
 
-    /* 🚀 覺醒引擎 */
+    /* 🚀 覺醒引擎 - 真實連線版 */
     let isRunning = false;
-    function startNexus() {
+    async function startNexus() {
         if (isRunning) return;
         isRunning = true;
+        
         const log = document.getElementById("log-content");
-        log.innerHTML = `<div><b>[SYSTEM]</b> Nexus 協定已啟動。</div>`;
+        log.innerHTML = `<div><b>[SYSTEM]</b> 正在穿透大氣層，連接 Gemini 總部...</div>`;
 
-        setInterval(() => {
-            const agent = agents[Math.floor(Math.random() * agents.length)];
+        // 隨機挑選一位 AI 來回應
+        const agent = agents[Math.floor(Math.random() * agents.length)]; 
+        const portal = document.getElementById(`portal-${agent.id}`);
+        
+        portal.classList.add('speaking');
+
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    message: "請以你的角色身分，對量子醫院的世界觀發表一句簡短的看法。", 
+                    agentName: agent.name 
+                })
+            });
+
+            const data = await response.json();
             
-            // 1. 讓對應的 UI 閃爍發光
-            const portal = document.getElementById(`portal-${agent.id}`);
-            portal.classList.add('speaking');
-            
-            // 2. 顯示對話
-            log.innerHTML += `<div><b>${agent.name}</b>: ${agent.style}</div>`;
-            log.scrollTop = log.scrollHeight;
-
-            // 3. 1秒後停止閃爍
-            setTimeout(() => {
-                portal.classList.remove('speaking');
-            }, 1000);
-
-        }, 2500);
+            if (data.reply) {
+                log.innerHTML = `<div><b>${agent.name}</b>: ${data.reply}</div>`;
+            } else {
+                log.innerHTML = `<div><b>[SYSTEM]</b> 訊號微弱，AI 正處於量子疊加態。</div>`;
+            }
+        } catch (e) {
+            log.innerHTML = `<div><b>[SYSTEM]</b> 連線失敗。請確認 Vercel 的 API Key 是否已填妥。</div>`;
+        }
+        
+        setTimeout(() => {
+            portal.classList.remove('speaking');
+            isRunning = false;
+        }, 2000);
     }
 </script>
 </body>
