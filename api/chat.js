@@ -18,3 +18,4 @@ export default async function handler(req, res) {
     res.status(500).json({ error: "連線失敗" });
   }
 }
+// 量子連線測試
