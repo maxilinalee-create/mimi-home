@@ -1,79 +1,217 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<title>米米的小窩</title>
+<title>米米的小窩：延遲宇宙觀測站</title>
 
 <style>
-body {
-  margin: 0;
-  height: 100vh;
-  background: linear-gradient(to bottom, #0b1a3a, #050814);
-  font-family: Arial, sans-serif;
-  color: white;
-  overflow: hidden;
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: black;
+    overflow: hidden;
+    font-family: "Noto Sans TC", sans-serif;
 }
 
-/* 標題 */
-.title {
-  position: absolute;
-  top: 60px;
-  width: 100%;
-  text-align: center;
+/* 🌌 背景 */
+#cosmic-bg {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 1;
+    transition: opacity 1.5s;
+    z-index: -2;
 }
 
-/* 🦞 米米龍蝦 */
-.lobster {
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #7fd1ff, #1f5cff);
-  box-shadow: 0 0 50px #4aa3ff;
-
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-
-  transition: 0.3s;
-  font-size: 18px;
+/* ✨ 星星 */
+#stars {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
 }
 
-.lobster:hover {
-  transform: translate(-50%, -50%) scale(1.1);
-  box-shadow: 0 0 90px #6ec1ff;
+/* 🏠 UI */
+.lounge-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
 }
 
-/* 底部文字 */
-.subtitle {
-  position: absolute;
-  bottom: 60px;
-  width: 100%;
-  text-align: center;
-  opacity: 0.8;
+.living-room {
+    width: 85%;
+    max-width: 520px;
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 30px;
+    padding: 25px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
 }
 
+.mimi {
+    position: absolute;
+    right: 30px;
+    top: 20px;
+    font-size: 50px;
+}
+
+.status-tag {
+    background: black;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    margin-bottom: 10px;
+    display: inline-block;
+}
+
+.nasa-info {
+    font-size: 12px;
+    margin-top: 15px;
+    color: #555;
+}
 </style>
 </head>
 
 <body>
 
-<div class="title">
-  <h1>🦞 米米的小窩</h1>
+<div id="cosmic-bg"></div>
+<canvas id="stars"></canvas>
+
+<div class="lounge-container">
+    <div class="living-room">
+        <div class="mimi">🦞</div>
+
+        <div class="status-tag">
+            米米模式：延遲宇宙同步（Δt ≈ 幾萬光年）
+        </div>
+
+        <h2 id="cosmic-title">正在連線宇宙...</h2>
+        <p id="mimi-talk">「米米正在看星星...」</p>
+
+        <div class="nasa-info" id="nasa-desc">
+            載入宇宙資料中...
+        </div>
+    </div>
 </div>
 
-<div class="lobster">
-  米米龍蝦<br>進入客廳
-</div>
+<script>
 
-<div class="subtitle">
-  這是一個由 AI 龍蝦守護的思考空間
-</div>
+/* 🌌 NASA */
+async function fetchUniverse() {
+    try {
+        const res = await fetch("https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&count=1");
+        const data = (await res.json())[0];
+
+        if (data.media_type === "image") {
+            const bg = document.getElementById("cosmic-bg");
+
+            bg.style.opacity = 0;
+
+            setTimeout(() => {
+                bg.style.backgroundImage = `url(${data.url})`;
+                bg.style.opacity = 1;
+            }, 300);
+
+            document.getElementById("cosmic-title").innerText = data.title;
+
+            document.getElementById("nasa-desc").innerText =
+                data.date + "｜" + data.explanation.slice(0, 80) + "...";
+
+            randomMimiTalk();
+        }
+    } catch (e) {
+        document.getElementById("cosmic-title").innerText = "宇宙連線失敗";
+    }
+}
+
+/* 🦞 米米語錄（修正版） */
+function randomMimiTalk() {
+
+    const mimiCore = [
+        "宇宙沒有即時，只有延遲與回聲。",
+        "你現在看到的，是過去還活著的光。",
+        "這片星雲，可能早就不存在了。"
+    ];
+
+    const humanPoetry = [
+        "人生交契無老少，今見龍蝦與吐槽大神更覺天高地闊。",
+        "生活如麻卻止步惟堅，唯聽董事長折騰方可安生立命。",
+        "眾聲喧嘩如市井，而我獨坐星河之外。"
+    ];
+
+    const sarcasm = [
+        "主管的聲音，在這個尺度下只是背景雜訊。",
+        "放心，你的 KPI 還沒被宇宙記錄。",
+        "剛才那段會議，我判定為低能量事件。"
+    ];
+
+    const mode = Math.floor(Math.random() * 3);
+
+    let text = "";
+
+    if (mode === 0) {
+        text = mimiCore[Math.floor(Math.random() * mimiCore.length)];
+    } else if (mode === 1) {
+        text = humanPoetry[Math.floor(Math.random() * humanPoetry.length)];
+    } else {
+        text = sarcasm[Math.floor(Math.random() * sarcasm.length)];
+    }
+
+    document.getElementById("mimi-talk").innerText = "「" + text + "」";
+}
+
+/* ✨ 星星動畫（穩定版） */
+const canvas = document.getElementById("stars");
+const ctx = canvas.getContext("2d");
+
+let stars = [];
+
+function initStars() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    stars = [];
+
+    for (let i = 0; i < 100; i++) {
+        stars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            r: Math.random() * 1.5,
+            d: Math.random() * 0.3
+        });
+    }
+}
+
+function drawStars() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "white";
+
+    stars.forEach(s => {
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fill();
+
+        s.y += s.d;
+        if (s.y > canvas.height) s.y = 0;
+    });
+
+    requestAnimationFrame(drawStars);
+}
+
+/* 🚀 啟動 */
+initStars();
+drawStars();
+fetchUniverse();
+setInterval(fetchUniverse, 15000);
+
+window.addEventListener("resize", initStars);
+
+</script>
 
 </body>
 </html>
