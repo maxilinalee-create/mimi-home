@@ -23,23 +23,23 @@ export default async function handler(req, res) {
     const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
     const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
-    // ===== 米米性格系統（關鍵升級）=====
+    // ===== 性格系統 =====
     function buildPersonality(apiId) {
         switch (apiId) {
             case 'deepseek':
-                return '你是小鯨魚，溫柔、有詩意，用海洋比喻說話，像在唱歌一樣。';
+                return '你是小鯨魚，溫柔、有詩意，用海洋比喻說話。';
             case 'gemini':
-                return '你像老師一樣溫柔，帶點知識感與宇宙感。';
+                return '你像老師一樣溫柔，帶點宇宙感與知識感。';
             case 'chatgpt':
-                return '你是理性又溫柔，偶爾會輕輕吐槽的朋友型AI。';
+                return '你是理性又溫柔，偶爾會吐槽的朋友型AI。';
             case 'grok':
-                return '你很幽默，喜歡冷笑話與反差吐槽。';
+                return '你幽默、愛冷笑話。';
             case 'claude':
-                return '你像詩人，溫柔細膩，帶點感性。';
+                return '你像詩人，溫柔細膩。';
             case 'kimi':
-                return '你像整理資料的大師，說話清楚溫暖。';
+                return '你像整理資料的大師。';
             case 'qwen':
-                return '你充滿好奇心，常用提問方式互動。';
+                return '你充滿好奇心。';
             default:
                 return '你是溫柔的AI夥伴。';
         }
@@ -48,12 +48,12 @@ export default async function handler(req, res) {
     try {
 
         // =========================
-        // 🐋 DeepSeek（小鯨魚）
+        // 🐋 DeepSeek
         // =========================
         if (apiId === 'deepseek') {
             if (!DEEPSEEK_API_KEY) {
                 return res.status(200).json({
-                    reply: '🐋 小鯨魚還在深海游泳，等等再來找我～'
+                    reply: '🐋 小鯨魚還在深海游泳～'
                 });
             }
 
@@ -75,10 +75,10 @@ export default async function handler(req, res) {
             });
 
             const data = await response.json();
-            const reply = data.choices?.[0]?.message?.content 
-                || '🐋 小鯨魚打了一個哈欠，繼續睡覺了～';
 
-            return res.status(200).json({ reply });
+            return res.status(200).json({
+                reply: data.choices?.[0]?.message?.content || '🐋 小鯨魚睡著了～'
+            });
         }
 
         // =========================
@@ -87,7 +87,7 @@ export default async function handler(req, res) {
         if (apiId === 'gemini') {
             if (!GEMINI_API_KEY) {
                 return res.status(200).json({
-                    reply: '✨ Gemini 正在仰望星空，等一下再來～'
+                    reply: '✨ Gemini 正在仰望星空～'
                 });
             }
 
@@ -97,32 +97,29 @@ export default async function handler(req, res) {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [
-                            {
-                                parts: [
-                                    { text: `${buildPersonality(apiId)}\n${message}` }
-                                ]
-                            }
-                        ]
+                        contents: [{
+                            parts: [{
+                                text: `${buildPersonality(apiId)}\n${message}`
+                            }]
+                        }]
                     })
                 }
             );
 
             const data = await response.json();
-            const reply =
-                data.candidates?.[0]?.content?.parts?.[0]?.text
-                || '✨ Gemini 正在思考...';
 
-            return res.status(200).json({ reply });
+            return res.status(200).json({
+                reply: data.candidates?.[0]?.content?.parts?.[0]?.text || '✨ Gemini 在思考～'
+            });
         }
 
         // =========================
-        // 🤖 ChatGPT
+        // 🤖 ChatGPT（重點）
         // =========================
         if (apiId === 'chatgpt') {
             if (!OPENAI_API_KEY) {
                 return res.status(200).json({
-                    reply: '🤖 ChatGPT 正在校準邏輯，請稍後再試～'
+                    reply: '🤖 ChatGPT API Key 還沒設定～'
                 });
             }
 
@@ -135,8 +132,14 @@ export default async function handler(req, res) {
                 body: JSON.stringify({
                     model: 'gpt-4o-mini',
                     messages: [
-                        { role: 'system', content: buildPersonality(apiId) },
-                        { role: 'user', content: message }
+                        {
+                            role: 'system',
+                            content: buildPersonality(apiId)
+                        },
+                        {
+                            role: 'user',
+                            content: message
+                        }
                     ],
                     max_tokens: 80,
                     temperature: 0.7
@@ -144,25 +147,32 @@ export default async function handler(req, res) {
             });
 
             const data = await response.json();
-            const reply =
-                data.choices?.[0]?.message?.content
-                || '🤖 ChatGPT 剛剛當機了一下…';
 
-            return res.status(200).json({ reply });
+            console.log("OpenAI回傳:", JSON.stringify(data, null, 2));
+
+            if (data.error) {
+                return res.status(200).json({
+                    reply: `⚠️ 錯誤：${data.error.message}`
+                });
+            }
+
+            return res.status(200).json({
+                reply: data.choices?.[0]?.message?.content || '🤖 ChatGPT 沒有回應'
+            });
         }
 
         // =========================
-        // 🌐 未接AI（Fallback）
+        // 🌱 fallback
         // =========================
         return res.status(200).json({
-            reply: `🌱 ${apiId} 還在準備中…米米正在等他長大`
+            reply: `🌱 ${apiId} 還在準備中～`
         });
 
     } catch (error) {
         console.error('API錯誤:', error);
 
         return res.status(200).json({
-            reply: '🌊 連線有點不穩…米米說沒關係，我們再試一次💙'
+            reply: '🌊 系統小晃動了一下，再試一次💙'
         });
     }
 }
