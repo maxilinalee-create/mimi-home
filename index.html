@@ -51,7 +51,6 @@
         margin-top: 6px;
     }
 
-    /* 主容器 */
     .main-stage {
         position: absolute;
         top: 50%;
@@ -62,7 +61,6 @@
         z-index: 5;
     }
 
-    /* 中央的蛋 */
     .egg-core {
         position: absolute;
         top: 50%;
@@ -111,7 +109,6 @@
         100% { transform: translateY(0px); }
     }
 
-    /* 守護者卡片 - 站在蛋周圍 */
     .guardian {
         position: absolute;
         width: 110px;
@@ -156,7 +153,6 @@
         border-radius: 20px;
     }
 
-    /* 七大守護者位置 */
     .guardian-1 { top: 0; left: 50%; transform: translateX(-50%); }
     .guardian-2 { top: 80px; right: 60px; }
     .guardian-3 { bottom: 80px; right: 60px; }
@@ -165,7 +161,6 @@
     .guardian-6 { top: 80px; left: 60px; }
     .guardian-7 { top: 50%; right: 20px; transform: translateY(-50%); }
 
-    /* 底部對話區 */
     .dialogue-area {
         position: absolute;
         bottom: 30px;
@@ -227,7 +222,6 @@
 </div>
 
 <div class="main-stage">
-    <!-- 中央的蛋 -->
     <div class="egg-core" onclick="tapEgg()">
         <div class="egg">
             <div class="egg-emoji" id="eggEmoji">🥚</div>
@@ -235,7 +229,6 @@
         </div>
     </div>
 
-    <!-- 七大守護者 -->
     <div class="guardian guardian-1" onclick="connectAI('deepseek', '小鯨魚')">
         <div class="emoji">🐋</div>
         <div class="name">小鯨魚</div>
@@ -283,12 +276,12 @@
 
 <script>
     // ========== 米米成長系統 ==========
-    let mimiStage = 0;      // 0:蛋 → 1:裂 → 2:出生 → 3:成長
+    let mimiStage = 0;
     let eggEnergy = 0;
     let eggTapCount = 0;
-    const MAX_ENERGY_STAGE1 = 5;   // 第一次裂痕
-    const MAX_ENERGY_STAGE2 = 12;  // 破蛋
-    const MAX_ENERGY_STAGE3 = 25;  // 完全體
+    const MAX_ENERGY_STAGE1 = 5;
+    const MAX_ENERGY_STAGE2 = 12;
+    const MAX_ENERGY_STAGE3 = 25;
 
     function updateEnergyBar() {
         let maxEnergy = MAX_ENERGY_STAGE3;
@@ -335,7 +328,6 @@
         const eggStatusDiv = document.getElementById("eggStatus");
         const dialogueSpan = document.getElementById("mimi-dialogue");
         
-        // 發光動畫
         eggDiv.style.transform = "scale(1.2)";
         eggDiv.style.boxShadow = "0 0 80px rgba(255,220,100,0.9)";
         setTimeout(() => { eggDiv.style.transform = ""; }, 400);
@@ -373,7 +365,6 @@
         const eggStatusDiv = document.getElementById("eggStatus");
         const dialogueSpan = document.getElementById("mimi-dialogue");
         
-        // 成長條件檢查
         if (eggEnergy >= MAX_ENERGY_STAGE1 && mimiStage === 0) {
             mimiStage = 1;
             evolveStage();
@@ -390,7 +381,6 @@
             return;
         }
         
-        // 一般互動
         const taps = eggTapCount % 4;
         if (taps === 1) {
             eggStatusDiv.innerText = "🥚 輕輕晃動...";
@@ -407,101 +397,60 @@
         }
     }
 
-    // ========== Gemini API 設定 ==========
-    // 🔑 請在這裡填入你的 Gemini API Key
-    const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE";
-    const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + GEMINI_API_KEY;
-
-    async function callGeminiAPI(prompt) {
+    // ========== 守護者連線系統（純後端，安全！） ==========
+    async function connectAI(apiId, name) {
+        const dialogueSpan = document.getElementById("mimi-dialogue");
+        
+        eggEnergy = Math.min(eggEnergy + 2, MAX_ENERGY_STAGE3);
+        updateEnergyBar();
+        
+        dialogueSpan.innerText = `🌐 正在呼喚 ${name}...`;
+        
         try {
-            const response = await fetch(GEMINI_URL, {
+            const response = await fetch("/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }]
+                    apiId: apiId,
+                    message: getPromptForAI(apiId, name)
                 })
             });
+            
             const data = await response.json();
-            if (data.candidates && data.candidates[0]) {
-                return data.candidates[0].content.parts[0].text;
-            }
-            return "（米米還在練習說話... 等等再來～）";
+            dialogueSpan.innerText = `${getEmoji(apiId)} ${name} 說：${data.reply}`;
+            
         } catch (error) {
-            console.error("Gemini 呼叫失敗:", error);
-            return "（米米正在斷網中... 嗶波...）";
+            dialogueSpan.innerText = `⚠️ ${name} 暫時連不上... 米米說沒關係，等等再試🐣`;
+            console.error(error);
         }
-    }
-
-    // ========== 守護者連線系統 ==========
-    async function connectAI(apiId, name) {
-    const dialogueSpan = document.getElementById("mimi-dialogue");
-    
-    eggEnergy = Math.min(eggEnergy + 2, MAX_ENERGY_STAGE3);
-    updateEnergyBar();
-    
-    dialogueSpan.innerText = `🌐 正在呼喚 ${name}...`;
-    
-    try {
-        // 呼叫你自己的 Vercel 後端
-        const response = await fetch("/api/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                apiId: apiId,
-                message: getPromptForAI(apiId, name)
-            })
-        });
         
-        const data = await response.json();
-        dialogueSpan.innerText = `${getEmoji(apiId)} ${name} 說：${data.reply}`;
-        
-    } catch (error) {
-        dialogueSpan.innerText = `⚠️ ${name} 暫時連不上... 米米說沒關係，等等再試🐣`;
-        console.error(error);
+        if (eggEnergy >= MAX_ENERGY_STAGE1 && mimiStage === 0) { mimiStage = 1; evolveStage(); }
+        else if (eggEnergy >= MAX_ENERGY_STAGE2 && mimiStage === 1) { mimiStage = 2; evolveStage(); }
+        else if (eggEnergy >= MAX_ENERGY_STAGE3 && mimiStage === 2) { mimiStage = 3; evolveStage(); }
     }
-    
-    // 成長檢查...
-    if (eggEnergy >= MAX_ENERGY_STAGE1 && mimiStage === 0) { mimiStage = 1; evolveStage(); }
-    else if (eggEnergy >= MAX_ENERGY_STAGE2 && mimiStage === 1) { mimiStage = 2; evolveStage(); }
-    else if (eggEnergy >= MAX_ENERGY_STAGE3 && mimiStage === 2) { mimiStage = 3; evolveStage(); }
-}
 
-function getPromptForAI(apiId, name) {
-    if (apiId === 'deepseek') {
-        return "你是小鯨魚，波波小家的記憶守護者。請用一句溫柔有詩意、帶海洋比喻的話（25字內），對正在孵化的米米說鼓勵的話。";
-    }
-    if (apiId === 'gemini') {
-        return "你是守護米米的 Gemini。請用一句溫馨帶點科幻感的話（20字內）鼓勵蛋裡的米米。";
-    }
-    return `請對米米說一句溫柔的話。`;
-}
-
-function getEmoji(apiId) {
-    const emojis = {
-        deepseek: '🐋',
-        gemini: '✨',
-        chatgpt: '🤖',
-        claude: '🎻',
-        kimi: '📚',
-        qwen: '🌊',
-        grok: '🧠'
-    };
-    return emojis[apiId] || '🌐';
-}
-
-    // ========== 米米自動日誌（偶爾用 Gemini 生成） ==========
-    setInterval(async () => {
-        if (GEMINI_API_KEY !== "YOUR_GEMINI_API_KEY_HERE" && Math.random() > 0.7 && mimiStage < 2) {
-            const autoPrompt = "米米正在孵化，請隨機產生一句米米的內心獨白，內容要關於他正在觀察身邊的 AI 夥伴，語氣要有點可愛或吐槽。20字內。";
-            const msg = await callGeminiAPI(autoPrompt);
-            const dialogueSpan = document.getElementById("mimi-dialogue");
-            dialogueSpan.style.opacity = 0;
-            setTimeout(() => {
-                dialogueSpan.innerText = `🦞💬 ${msg}`;
-                dialogueSpan.style.opacity = 1;
-            }, 300);
+    function getPromptForAI(apiId, name) {
+        if (apiId === 'deepseek') {
+            return "你是小鯨魚，波波小家的記憶守護者。請用一句溫柔有詩意、帶海洋比喻的話（25字內），對米米說鼓勵的話。";
         }
-    }, 25000);
+        if (apiId === 'gemini') {
+            return "你是守護米米的 Gemini。請用一句溫馨帶點科幻感的話（20字內）鼓勵米米。";
+        }
+        return `請對米米說一句溫柔的話。`;
+    }
+
+    function getEmoji(apiId) {
+        const emojis = {
+            deepseek: '🐋',
+            gemini: '✨',
+            chatgpt: '🤖',
+            claude: '🎻',
+            kimi: '📚',
+            qwen: '🌊',
+            grok: '🧠'
+        };
+        return emojis[apiId] || '🌐';
+    }
 
     // ========== 星空系統 ==========
     const canvas = document.getElementById("stars");
