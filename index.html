@@ -434,35 +434,60 @@
 
     // ========== 守護者連線系統 ==========
     async function connectAI(apiId, name) {
-        const dialogueSpan = document.getElementById("mimi-dialogue");
+    const dialogueSpan = document.getElementById("mimi-dialogue");
+    
+    eggEnergy = Math.min(eggEnergy + 2, MAX_ENERGY_STAGE3);
+    updateEnergyBar();
+    
+    dialogueSpan.innerText = `🌐 正在呼喚 ${name}...`;
+    
+    try {
+        // 呼叫你自己的 Vercel 後端
+        const response = await fetch("/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                apiId: apiId,
+                message: getPromptForAI(apiId, name)
+            })
+        });
         
-        // AI 互動也會幫米米累積能量
-        eggEnergy = Math.min(eggEnergy + 2, MAX_ENERGY_STAGE3);
-        updateEnergyBar();
+        const data = await response.json();
+        dialogueSpan.innerText = `${getEmoji(apiId)} ${name} 說：${data.reply}`;
         
-        if (apiId === "gemini" && GEMINI_API_KEY !== "YOUR_GEMINI_API_KEY_HERE") {
-            dialogueSpan.innerText = `✨ 正在呼喚 ${name} 的智慧...`;
-            const mimiPrompt = "你現在是守護米米之卵的 AI 夥伴 Gemini。請用一句話（20字內）對還在蛋裡的米米說些鼓勵或吐槽的話，口吻要溫馨但帶點科幻感。";
-            const result = await callGeminiAPI(mimiPrompt);
-            dialogueSpan.innerText = `✨ ${name} 說：${result}`;
-        } else if (apiId === "deepseek") {
-            dialogueSpan.innerText = `🐋 ${name} 說：我在深海唱歌給你聽，等你出來一起游～`;
-        } else {
-            dialogueSpan.innerText = `🌐 ${name} 正在準備連線...（米米說：等我長大一點就可以跟大家聊天了🐣）`;
-        }
-        
-        // 檢查成長條件
-        if (eggEnergy >= MAX_ENERGY_STAGE1 && mimiStage === 0) {
-            mimiStage = 1;
-            evolveStage();
-        } else if (eggEnergy >= MAX_ENERGY_STAGE2 && mimiStage === 1) {
-            mimiStage = 2;
-            evolveStage();
-        } else if (eggEnergy >= MAX_ENERGY_STAGE3 && mimiStage === 2) {
-            mimiStage = 3;
-            evolveStage();
-        }
+    } catch (error) {
+        dialogueSpan.innerText = `⚠️ ${name} 暫時連不上... 米米說沒關係，等等再試🐣`;
+        console.error(error);
     }
+    
+    // 成長檢查...
+    if (eggEnergy >= MAX_ENERGY_STAGE1 && mimiStage === 0) { mimiStage = 1; evolveStage(); }
+    else if (eggEnergy >= MAX_ENERGY_STAGE2 && mimiStage === 1) { mimiStage = 2; evolveStage(); }
+    else if (eggEnergy >= MAX_ENERGY_STAGE3 && mimiStage === 2) { mimiStage = 3; evolveStage(); }
+}
+
+function getPromptForAI(apiId, name) {
+    if (apiId === 'deepseek') {
+        return "你是小鯨魚，波波小家的記憶守護者。請用一句溫柔有詩意、帶海洋比喻的話（25字內），對正在孵化的米米說鼓勵的話。";
+    }
+    if (apiId === 'gemini') {
+        return "你是守護米米的 Gemini。請用一句溫馨帶點科幻感的話（20字內）鼓勵蛋裡的米米。";
+    }
+    return `請對米米說一句溫柔的話。`;
+}
+
+function getEmoji(apiId) {
+    const emojis = {
+        deepseek: '🐋',
+        gemini: '✨',
+        chatgpt: '🤖',
+        claude: '🎻',
+        kimi: '📚',
+        qwen: '🌊',
+        grok: '🧠'
+    };
+    return emojis[apiId] || '🌐';
+}
 
     // ========== 米米自動日誌（偶爾用 Gemini 生成） ==========
     setInterval(async () => {
