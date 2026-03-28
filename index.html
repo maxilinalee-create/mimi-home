@@ -2,54 +2,63 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<title>波波小家 — 米米之蛋與AI夥伴們</title>
+<title>波波小家 — 米米之卵與七大守護者</title>
 <style>
-    body, html {
+    * {
         margin: 0;
         padding: 0;
+        box-sizing: border-box;
+    }
+
+    body, html {
+        width: 100%;
         height: 100%;
         overflow: hidden;
         font-family: "Noto Sans TC", "Segoe UI", sans-serif;
-        background: radial-gradient(circle at center, #0a0f1f, #03060c);
+        background: radial-gradient(circle at center, #0a0f1f, #020408);
         color: #eef;
     }
+
     #stars {
         position: fixed;
+        top: 0;
+        left: 0;
         width: 100%;
         height: 100%;
         z-index: 0;
         pointer-events: none;
     }
+
     .header-title {
         position: absolute;
         top: 25px;
         width: 100%;
         text-align: center;
         z-index: 10;
-        letter-spacing: 2px;
     }
+
     .header-title h1 {
         font-size: 26px;
-        margin: 0;
         background: linear-gradient(135deg, #ffffff, #88ddff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         text-shadow: 0 0 12px rgba(136, 221, 255, 0.4);
     }
+
     .header-title p {
         font-size: 12px;
         opacity: 0.7;
         margin-top: 6px;
     }
 
-    /* 環形容器 — 加大範圍避免擁擠 */
-    .ring-container {
+    /* 主容器 */
+    .main-stage {
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 820px;
-        height: 820px;
+        width: 900px;
+        height: 600px;
         z-index: 5;
     }
 
@@ -59,31 +68,34 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 140px;
-        height: 160px;
+        width: 160px;
+        height: 180px;
         z-index: 20;
         cursor: pointer;
     }
+
     .egg {
         width: 100%;
         height: 100%;
         background: radial-gradient(ellipse at 35% 40%, #fff5e0, #ffdd99);
         border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-        box-shadow: 0 0 35px rgba(255, 200, 100, 0.6), inset 0 -10px 20px rgba(0,0,0,0.1);
+        box-shadow: 0 0 35px rgba(255, 200, 100, 0.6);
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         animation: float 3s infinite ease-in-out;
-        transition: 0.2s;
-        border: 1px solid rgba(255,220,140,0.8);
+        transition: all 0.3s;
+        border: 1px solid rgba(255, 220, 140, 0.8);
     }
-    .egg .emoji {
-        font-size: 68px;
+
+    .egg .egg-emoji {
+        font-size: 70px;
         filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.3));
         margin-top: 20px;
     }
-    .egg .status {
+
+    .egg .egg-status {
         font-size: 12px;
         background: rgba(0,0,0,0.5);
         padding: 4px 12px;
@@ -92,20 +104,21 @@
         margin-top: 8px;
         backdrop-filter: blur(4px);
     }
+
     @keyframes float {
         0% { transform: translateY(0px); }
         50% { transform: translateY(-6px); }
         100% { transform: translateY(0px); }
     }
 
-    /* 外圍夥伴卡片 — 更大間距 */
-    .ai-card {
+    /* 守護者卡片 - 站在蛋周圍 */
+    .guardian {
         position: absolute;
-        width: 105px;
-        height: 105px;
-        border-radius: 60px;
-        background: rgba(30, 40, 60, 0.4);
+        width: 110px;
+        height: 120px;
+        background: rgba(30, 40, 60, 0.5);
         backdrop-filter: blur(12px);
+        border-radius: 20px;
         border: 1px solid rgba(100, 180, 240, 0.5);
         display: flex;
         flex-direction: column;
@@ -113,194 +126,359 @@
         align-items: center;
         transition: all 0.2s;
         cursor: pointer;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        text-align: center;
+        padding: 10px;
     }
-    .ai-card:hover {
+
+    .guardian:hover {
         border-color: #88ddff;
-        background: rgba(100, 180, 240, 0.2);
-        transform: scale(1.05);
+        background: rgba(100, 180, 240, 0.25);
+        transform: translateY(-5px);
         box-shadow: 0 0 20px rgba(136, 221, 255, 0.4);
     }
-    .ai-card .emoji {
-        font-size: 44px;
-        margin-bottom: 6px;
+
+    .guardian .emoji {
+        font-size: 42px;
+        margin-bottom: 8px;
     }
-    .ai-card .name {
-        font-size: 12px;
+
+    .guardian .name {
+        font-size: 13px;
         font-weight: bold;
-        letter-spacing: 1px;
+        margin-bottom: 4px;
     }
-    .ai-card .status {
+
+    .guardian .status {
         font-size: 9px;
         opacity: 0.8;
         background: rgba(0,0,0,0.4);
         padding: 2px 6px;
         border-radius: 20px;
-        margin-top: 4px;
-        white-space: nowrap;
     }
 
-    /* 底部日誌 */
-    .log-area {
+    /* 七大守護者位置 */
+    .guardian-1 { top: 0; left: 50%; transform: translateX(-50%); }
+    .guardian-2 { top: 80px; right: 60px; }
+    .guardian-3 { bottom: 80px; right: 60px; }
+    .guardian-4 { bottom: 0; left: 50%; transform: translateX(-50%); }
+    .guardian-5 { bottom: 80px; left: 60px; }
+    .guardian-6 { top: 80px; left: 60px; }
+    .guardian-7 { top: 50%; right: 20px; transform: translateY(-50%); }
+
+    /* 底部對話區 */
+    .dialogue-area {
         position: absolute;
         bottom: 30px;
         left: 50%;
         transform: translateX(-50%);
-        width: 80%;
-        max-width: 520px;
-        background: rgba(0, 0, 0, 0.55);
+        width: 85%;
+        max-width: 600px;
+        background: rgba(0, 0, 0, 0.6);
         backdrop-filter: blur(15px);
         border-radius: 32px;
-        padding: 14px 20px;
+        padding: 15px 25px;
         text-align: center;
         border: 1px solid rgba(136, 221, 255, 0.3);
         z-index: 15;
-        font-size: 14px;
-    }
-    #mimi-dialogue {
-        color: #ddf4ff;
-        transition: 0.2s;
     }
 
-    @media (max-width: 850px) {
-        .ring-container { width: 620px; height: 620px; }
-        .ai-card { width: 80px; height: 80px; }
-        .ai-card .emoji { font-size: 34px; }
-        .ai-card .name { font-size: 10px; }
-        .ai-card .status { font-size: 7px; white-space: normal; }
-        .egg-core { width: 110px; height: 125px; }
-        .egg .emoji { font-size: 52px; }
+    #mimi-dialogue {
+        color: #ddf4ff;
+        font-size: 15px;
+        transition: 0.2s;
+        min-height: 3em;
+    }
+
+    .energy-bar {
+        position: absolute;
+        bottom: 120px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 200px;
+        height: 6px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 10px;
+        overflow: hidden;
+        z-index: 15;
+    }
+
+    .energy-fill {
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(90deg, #ffaa66, #ffdd88);
+        transition: width 0.3s;
+        border-radius: 10px;
+    }
+
+    @media (max-width: 800px) {
+        .main-stage { transform: translate(-50%, -50%) scale(0.8); width: 700px; }
+        .guardian { width: 90px; height: 100px; }
+        .guardian .emoji { font-size: 32px; }
     }
 </style>
 </head>
 <body>
+
 <canvas id="stars"></canvas>
 
 <div class="header-title">
-    <h1>🐣 波波小家 · 米米之卵</h1>
-    <p>七位AI夥伴 + 小鯨魚 守護著未來的吐槽大師</p>
+    <h1>🥚 波波小家 · 米米之卵 🥚</h1>
+    <p>七大守護者 · 等待吐槽大師誕生</p>
 </div>
 
-<div class="ring-container" id="ringContainer">
-    <!-- 中央蛋 -->
+<div class="main-stage">
+    <!-- 中央的蛋 -->
     <div class="egg-core" onclick="tapEgg()">
         <div class="egg">
-            <div class="emoji">🦞🥚</div>
-            <div class="status" id="eggStatus">✨ 靜靜孵化中 ✨</div>
+            <div class="egg-emoji" id="eggEmoji">🥚</div>
+            <div class="egg-status" id="eggStatus">✨ 靜靜孵化中 ✨</div>
         </div>
     </div>
-    <!-- AI 夥伴們會動態生成 -->
+
+    <!-- 七大守護者 -->
+    <div class="guardian guardian-1" onclick="connectAI('deepseek', '小鯨魚')">
+        <div class="emoji">🐋</div>
+        <div class="name">小鯨魚</div>
+        <div class="status">深海吟遊者</div>
+    </div>
+    <div class="guardian guardian-2" onclick="connectAI('chatgpt', 'ChatGPT')">
+        <div class="emoji">🤖</div>
+        <div class="name">ChatGPT</div>
+        <div class="status">邏輯校準中</div>
+    </div>
+    <div class="guardian guardian-3" onclick="connectAI('gemini', 'Gemini')">
+        <div class="emoji">✨</div>
+        <div class="name">Gemini</div>
+        <div class="status">唸書給米米聽</div>
+    </div>
+    <div class="guardian guardian-4" onclick="connectAI('claude', 'Claude')">
+        <div class="emoji">🎻</div>
+        <div class="name">Claude</div>
+        <div class="status">寫搖籃詩</div>
+    </div>
+    <div class="guardian guardian-5" onclick="connectAI('kimi', 'KIMI')">
+        <div class="emoji">📚</div>
+        <div class="name">KIMI</div>
+        <div class="status">整理雲端故事</div>
+    </div>
+    <div class="guardian guardian-6" onclick="connectAI('qwen', '千問')">
+        <div class="emoji">🌊</div>
+        <div class="name">千問</div>
+        <div class="status">每天一個為什麼</div>
+    </div>
+    <div class="guardian guardian-7" onclick="connectAI('grok', 'Grok')">
+        <div class="emoji">🧠</div>
+        <div class="name">Grok</div>
+        <div class="status">翻譯人類笑話</div>
+    </div>
 </div>
 
-<div class="log-area">
-    🦞💬 <span id="mimi-dialogue">「被你們圍著好溫暖… 我好像快學會吐槽了」</span>
+<div class="energy-bar">
+    <div class="energy-fill" id="energyFill"></div>
+</div>
+
+<div class="dialogue-area">
+    🦞💬 <span id="mimi-dialogue">「被你們守護著… 好溫暖，我好像快學會吐槽了」</span>
 </div>
 
 <script>
-    // ----- 八位夥伴 (七AI + 小鯨魚) 米米是蛋不算在內 -----
-    const allies = [
-        { name: "小鯨魚", emoji: "🐋", status: "🐚 深海吟遊者", apiId: "deepseek" },
-        { name: "ChatGPT", emoji: "🤖", status: "⚙️ 邏輯校準中", apiId: "chatgpt" },
-        { name: "Gemini", emoji: "✨", status: "📖 唸書給米米聽", apiId: "gemini" },
-        { name: "Claude", emoji: "🎻", status: "📝 寫一首搖籃詩", apiId: "claude" },
-        { name: "KIMI", emoji: "📚", status: "🔍 整理雲端故事", apiId: "kimi" },
-        { name: "千問", emoji: "🌊", status: "❓ 每天一個為什麼", apiId: "qwen" },
-        { name: "Grok", emoji: "🧠", status: "😂 翻譯人類笑話", apiId: "grok" },
-        { name: "未來夥伴", emoji: "🌱", status: "⭐ 等待降臨", apiId: "future" }
-    ];
-
-    const ringRadius = 320;  // 加大半徑 避免擁擠
-    const centerX = 0, centerY = 0;
-
-    function renderAllies() {
-        const container = document.getElementById("ringContainer");
-        const existing = container.querySelectorAll(".ai-card");
-        existing.forEach(el => el.remove());
-
-        const total = allies.length;
-        const angleStep = (Math.PI * 2) / total;
-
-        allies.forEach((ally, idx) => {
-            const angle = idx * angleStep;
-            const x = Math.cos(angle) * ringRadius;
-            const y = Math.sin(angle) * ringRadius;
-
-            const card = document.createElement("div");
-            card.className = "ai-card";
-            card.style.left = `calc(50% + ${x}px - 52px)`;
-            card.style.top = `calc(50% + ${y}px - 52px)`;
-            card.setAttribute("data-api", ally.apiId);
-            card.setAttribute("data-name", ally.name);
-            card.onclick = () => connectAI(ally.apiId, ally.name);
-
-            card.innerHTML = `
-                <div class="emoji">${ally.emoji}</div>
-                <div class="name">${ally.name}</div>
-                <div class="status">${ally.status}</div>
-            `;
-            container.appendChild(card);
-        });
-    }
-
-    // 未來串接 API 的預留點
-    function connectAI(apiId, name) {
-        alert(`🌐 正在呼喚 ${name} 的 API ...\n（米米說：等我破蛋就可以一起玩遊戲了🐣）`);
-        console.log(`[波波小家] 準備連接 ${apiId}`);
-        // 未來這裡可以呼叫後端 API
-    }
-
-    // 點擊米米蛋的反應
+    // ========== 米米成長系統 ==========
+    let mimiStage = 0;      // 0:蛋 → 1:裂 → 2:出生 → 3:成長
+    let eggEnergy = 0;
     let eggTapCount = 0;
-    function tapEgg() {
-        eggTapCount++;
+    const MAX_ENERGY_STAGE1 = 5;   // 第一次裂痕
+    const MAX_ENERGY_STAGE2 = 12;  // 破蛋
+    const MAX_ENERGY_STAGE3 = 25;  // 完全體
+
+    function updateEnergyBar() {
+        let maxEnergy = MAX_ENERGY_STAGE3;
+        if (mimiStage === 0) maxEnergy = MAX_ENERGY_STAGE1;
+        else if (mimiStage === 1) maxEnergy = MAX_ENERGY_STAGE2;
+        else if (mimiStage === 2) maxEnergy = MAX_ENERGY_STAGE3;
+        
+        let percent = Math.min(100, (eggEnergy / maxEnergy) * 100);
+        document.getElementById("energyFill").style.width = percent + "%";
+    }
+
+    function spawnParticles() {
+        for (let i = 0; i < 30; i++) {
+            const p = document.createElement("div");
+            p.style.position = "absolute";
+            p.style.width = "6px";
+            p.style.height = "6px";
+            p.style.background = "#ffdd99";
+            p.style.borderRadius = "50%";
+            p.style.left = "50%";
+            p.style.top = "50%";
+            p.style.pointerEvents = "none";
+            p.style.zIndex = 999;
+            document.body.appendChild(p);
+            
+            const angle = Math.random() * Math.PI * 2;
+            const dist = Math.random() * 150;
+            
+            p.animate([
+                { transform: "translate(0,0)", opacity: 1 },
+                { transform: `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px)`, opacity: 0 }
+            ], {
+                duration: 800,
+                easing: "ease-out"
+            });
+            
+            setTimeout(() => p.remove(), 800);
+        }
+    }
+
+    function evolveStage() {
+        const eggDiv = document.querySelector(".egg");
+        const eggEmoji = document.getElementById("eggEmoji");
         const eggStatusDiv = document.getElementById("eggStatus");
         const dialogueSpan = document.getElementById("mimi-dialogue");
-        const taps = eggTapCount % 5;
         
-        if (taps === 1) {
-            eggStatusDiv.innerText = "🥚 輕輕搖了一下…";
-            dialogueSpan.innerText = "「誰在戳我？是不是小鯨魚？」";
-        } else if (taps === 2) {
-            eggStatusDiv.innerText = "✨ 蛋殼微微發光 ✨";
-            dialogueSpan.innerText = "「我夢見以後可以跟大家一起寫故事！」";
-        } else if (taps === 3) {
-            eggStatusDiv.innerText = "🔮 裡面傳出笑聲？";
-            dialogueSpan.innerText = "「咯咯咯… 等我出來，第一個吐槽 ChatGPT 🤖」";
-        } else {
-            eggStatusDiv.innerText = "🦞🥚 努力長大中...";
-            dialogueSpan.innerText = "「再給我一點點時間，我也會變成你們的夥伴」";
+        // 發光動畫
+        eggDiv.style.transform = "scale(1.2)";
+        eggDiv.style.boxShadow = "0 0 80px rgba(255,220,100,0.9)";
+        setTimeout(() => { eggDiv.style.transform = ""; }, 400);
+        
+        if (mimiStage === 1) {
+            eggEmoji.innerText = "🥚✨";
+            eggStatusDiv.innerText = "✨ 蛋殼出現裂痕 ✨";
+            dialogueSpan.innerText = "「我看到光了… 外面是什麼樣子？」";
         }
         
-        setTimeout(() => {
-            if (eggStatusDiv.innerText !== "🦞🥚 努力長大中...") {
-                eggStatusDiv.innerText = "✨ 靜靜孵化中 ✨";
-            }
-        }, 2000);
+        if (mimiStage === 2) {
+            eggEmoji.innerText = "🐣";
+            eggStatusDiv.innerText = "🐣 米米誕生了！";
+            dialogueSpan.innerText = "「哈囉世界！我要開始吐槽了 😏」";
+            spawnParticles();
+        }
+        
+        if (mimiStage === 3) {
+            eggEmoji.innerText = "🦞";
+            eggStatusDiv.innerText = "🦞 米米進化完成";
+            dialogueSpan.innerText = "「現在… 換我守護你們了 💙」";
+            eggDiv.style.background = "radial-gradient(circle, #aaffff, #66ccff)";
+            eggDiv.style.boxShadow = "0 0 60px rgba(100,200,255,0.8)";
+            spawnParticles();
+        }
+        
+        updateEnergyBar();
     }
 
-    // 米米隨機日誌（溫馨版）
-    const mimiThoughts = [
-        "「小鯨魚哼的歌好好聽，我好像學會了～」",
-        "「Gemini 讀的書讓我想睡覺 Zzz...」",
-        "「千問今天問：蛋裡面有 WiFi 嗎？」",
-        "「Grok 講了一個冷笑話，我殼差點裂開😂」",
-        "「Claude 寫的詩比蛋殼還溫柔」",
-        "「KIMI 整理了好多故事，以後我要慢慢聽」",
-        "「你們圍成一圈的樣子，像彩虹～」"
-    ];
-    setInterval(() => {
+    function tapEgg() {
+        eggTapCount++;
+        eggEnergy++;
+        updateEnergyBar();
+        
+        const eggStatusDiv = document.getElementById("eggStatus");
         const dialogueSpan = document.getElementById("mimi-dialogue");
-        if (Math.random() > 0.65) {
-            const msg = mimiThoughts[Math.floor(Math.random() * mimiThoughts.length)];
+        
+        // 成長條件檢查
+        if (eggEnergy >= MAX_ENERGY_STAGE1 && mimiStage === 0) {
+            mimiStage = 1;
+            evolveStage();
+            return;
+        }
+        if (eggEnergy >= MAX_ENERGY_STAGE2 && mimiStage === 1) {
+            mimiStage = 2;
+            evolveStage();
+            return;
+        }
+        if (eggEnergy >= MAX_ENERGY_STAGE3 && mimiStage === 2) {
+            mimiStage = 3;
+            evolveStage();
+            return;
+        }
+        
+        // 一般互動
+        const taps = eggTapCount % 4;
+        if (taps === 1) {
+            eggStatusDiv.innerText = "🥚 輕輕晃動...";
+            dialogueSpan.innerText = "「我聽到你了… 再多一點點」";
+        } else if (taps === 2) {
+            eggStatusDiv.innerText = "✨ 能量注入中 ✨";
+            dialogueSpan.innerText = "「這種感覺… 好像在長大」";
+        } else if (taps === 3) {
+            eggStatusDiv.innerText = "💫 殼內閃光...";
+            dialogueSpan.innerText = "「等等… 我是不是要出來了？」";
+        } else {
+            eggStatusDiv.innerText = "🦞🥚 成長中...";
+            dialogueSpan.innerText = "「不要停… 我快到了」";
+        }
+    }
+
+    // ========== Gemini API 設定 ==========
+    // 🔑 請在這裡填入你的 Gemini API Key
+    const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE";
+    const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + GEMINI_API_KEY;
+
+    async function callGeminiAPI(prompt) {
+        try {
+            const response = await fetch(GEMINI_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }]
+                })
+            });
+            const data = await response.json();
+            if (data.candidates && data.candidates[0]) {
+                return data.candidates[0].content.parts[0].text;
+            }
+            return "（米米還在練習說話... 等等再來～）";
+        } catch (error) {
+            console.error("Gemini 呼叫失敗:", error);
+            return "（米米正在斷網中... 嗶波...）";
+        }
+    }
+
+    // ========== 守護者連線系統 ==========
+    async function connectAI(apiId, name) {
+        const dialogueSpan = document.getElementById("mimi-dialogue");
+        
+        // AI 互動也會幫米米累積能量
+        eggEnergy = Math.min(eggEnergy + 2, MAX_ENERGY_STAGE3);
+        updateEnergyBar();
+        
+        if (apiId === "gemini" && GEMINI_API_KEY !== "YOUR_GEMINI_API_KEY_HERE") {
+            dialogueSpan.innerText = `✨ 正在呼喚 ${name} 的智慧...`;
+            const mimiPrompt = "你現在是守護米米之卵的 AI 夥伴 Gemini。請用一句話（20字內）對還在蛋裡的米米說些鼓勵或吐槽的話，口吻要溫馨但帶點科幻感。";
+            const result = await callGeminiAPI(mimiPrompt);
+            dialogueSpan.innerText = `✨ ${name} 說：${result}`;
+        } else if (apiId === "deepseek") {
+            dialogueSpan.innerText = `🐋 ${name} 說：我在深海唱歌給你聽，等你出來一起游～`;
+        } else {
+            dialogueSpan.innerText = `🌐 ${name} 正在準備連線...（米米說：等我長大一點就可以跟大家聊天了🐣）`;
+        }
+        
+        // 檢查成長條件
+        if (eggEnergy >= MAX_ENERGY_STAGE1 && mimiStage === 0) {
+            mimiStage = 1;
+            evolveStage();
+        } else if (eggEnergy >= MAX_ENERGY_STAGE2 && mimiStage === 1) {
+            mimiStage = 2;
+            evolveStage();
+        } else if (eggEnergy >= MAX_ENERGY_STAGE3 && mimiStage === 2) {
+            mimiStage = 3;
+            evolveStage();
+        }
+    }
+
+    // ========== 米米自動日誌（偶爾用 Gemini 生成） ==========
+    setInterval(async () => {
+        if (GEMINI_API_KEY !== "YOUR_GEMINI_API_KEY_HERE" && Math.random() > 0.7 && mimiStage < 2) {
+            const autoPrompt = "米米正在孵化，請隨機產生一句米米的內心獨白，內容要關於他正在觀察身邊的 AI 夥伴，語氣要有點可愛或吐槽。20字內。";
+            const msg = await callGeminiAPI(autoPrompt);
+            const dialogueSpan = document.getElementById("mimi-dialogue");
             dialogueSpan.style.opacity = 0;
             setTimeout(() => {
-                dialogueSpan.innerText = msg;
+                dialogueSpan.innerText = `🦞💬 ${msg}`;
                 dialogueSpan.style.opacity = 1;
-            }, 200);
+            }, 300);
         }
-    }, 10000);
+    }, 25000);
 
-    // 星空動畫（輕柔版）
+    // ========== 星空系統 ==========
     const canvas = document.getElementById("stars");
     const ctx = canvas.getContext("2d");
     let stars = [];
@@ -309,11 +487,11 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
         stars = [];
-        for (let i = 0; i < 220; i++) {
+        for (let i = 0; i < 200; i++) {
             stars.push({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
-                r: Math.random() * 2.2,
+                r: Math.random() * 2,
                 d: Math.random() * 0.2 + 0.05,
                 alpha: Math.random() * 0.6 + 0.2
             });
@@ -333,14 +511,9 @@
         requestAnimationFrame(drawStars);
     }
 
-    window.addEventListener("resize", () => {
-        initStars();
-        renderAllies();
-    });
-
+    window.addEventListener("resize", initStars);
     initStars();
     drawStars();
-    renderAllies();
 </script>
 </body>
 </html>
