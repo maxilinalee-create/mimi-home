@@ -2,327 +2,305 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<title>波波小家 — 米米與七位AI夥伴</title>
+<title>波波小家 — 米米之蛋與AI夥伴們</title>
 <style>
-    * {
+    body, html {
         margin: 0;
         padding: 0;
-        box-sizing: border-box;
-    }
-
-    body, html {
-        width: 100%;
         height: 100%;
         overflow: hidden;
         font-family: "Noto Sans TC", "Segoe UI", sans-serif;
-        background: radial-gradient(circle at center, #050814, #000000);
-        color: white;
+        background: radial-gradient(circle at center, #0a0f1f, #03060c);
+        color: #eef;
     }
-
-    /* 星空畫布 */
     #stars {
         position: fixed;
-        top: 0;
-        left: 0;
         width: 100%;
         height: 100%;
         z-index: 0;
         pointer-events: none;
     }
-
-    /* 主標題 */
     .header-title {
         position: absolute;
-        top: 20px;
+        top: 25px;
         width: 100%;
         text-align: center;
         z-index: 10;
-        letter-spacing: 3px;
+        letter-spacing: 2px;
     }
     .header-title h1 {
-        font-size: 22px;
-        background: linear-gradient(135deg, #ffffff, #66d9ef, #aaffdd);
+        font-size: 26px;
+        margin: 0;
+        background: linear-gradient(135deg, #ffffff, #88ddff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        text-shadow: 0 0 15px rgba(102, 217, 239, 0.6);
+        text-shadow: 0 0 12px rgba(136, 221, 255, 0.4);
     }
     .header-title p {
         font-size: 12px;
         opacity: 0.7;
-        letter-spacing: 2px;
-        margin-top: 5px;
+        margin-top: 6px;
     }
 
-    /* 圓形佈局容器 */
-    .nexus-ring {
+    /* 環形容器 — 加大範圍避免擁擠 */
+    .ring-container {
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 700px;
-        height: 700px;
+        width: 820px;
+        height: 820px;
         z-index: 5;
     }
 
-    /* 米米在中間 */
-    .center-egg {
+    /* 中央的蛋 */
+    .egg-core {
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 130px;
-        height: 130px;
+        width: 140px;
+        height: 160px;
         z-index: 20;
+        cursor: pointer;
     }
-    .portal-center {
-        width: 130px;
-        height: 130px;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.08);
-        backdrop-filter: blur(8px);
-        border: 2px solid #ffcc88;
-        box-shadow: 0 0 30px rgba(255, 200, 100, 0.5);
+    .egg {
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(ellipse at 35% 40%, #fff5e0, #ffdd99);
+        border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        box-shadow: 0 0 35px rgba(255, 200, 100, 0.6), inset 0 -10px 20px rgba(0,0,0,0.1);
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        transition: 0.3s;
-        animation: eggPulse 2s infinite ease-in-out;
-        cursor: pointer;
+        animation: float 3s infinite ease-in-out;
+        transition: 0.2s;
+        border: 1px solid rgba(255,220,140,0.8);
     }
-    .portal-center .emoji {
-        font-size: 55px;
-        filter: drop-shadow(0 0 8px #ffaa66);
+    .egg .emoji {
+        font-size: 68px;
+        filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.3));
+        margin-top: 20px;
     }
-    .portal-center .status {
-        font-size: 11px;
-        margin-top: 10px;
-        background: rgba(0,0,0,0.6);
-        padding: 4px 8px;
-        border-radius: 20px;
-        color: #ffdd99;
+    .egg .status {
+        font-size: 12px;
+        background: rgba(0,0,0,0.5);
+        padding: 4px 12px;
+        border-radius: 30px;
+        color: #ffefb9;
+        margin-top: 8px;
+        backdrop-filter: blur(4px);
+    }
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-6px); }
+        100% { transform: translateY(0px); }
     }
 
-    /* 外圍夥伴 */
-    .partner {
+    /* 外圍夥伴卡片 — 更大間距 */
+    .ai-card {
         position: absolute;
-        width: 90px;
-        height: 90px;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.05);
-        backdrop-filter: blur(5px);
-        border: 1px solid rgba(102, 217, 239, 0.4);
+        width: 105px;
+        height: 105px;
+        border-radius: 60px;
+        background: rgba(30, 40, 60, 0.4);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(100, 180, 240, 0.5);
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        transition: 0.2s;
+        transition: all 0.2s;
         cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     }
-    .partner:hover {
-        border-color: #66d9ef;
-        background: rgba(102, 217, 239, 0.2);
+    .ai-card:hover {
+        border-color: #88ddff;
+        background: rgba(100, 180, 240, 0.2);
         transform: scale(1.05);
-        box-shadow: 0 0 20px rgba(102, 217, 239, 0.3);
+        box-shadow: 0 0 20px rgba(136, 221, 255, 0.4);
     }
-    .partner .emoji {
-        font-size: 36px;
+    .ai-card .emoji {
+        font-size: 44px;
+        margin-bottom: 6px;
     }
-    .partner .status {
+    .ai-card .name {
+        font-size: 12px;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+    .ai-card .status {
         font-size: 9px;
-        margin-top: 6px;
-        text-align: center;
-        color: #ccc;
-        background: rgba(0,0,0,0.5);
+        opacity: 0.8;
+        background: rgba(0,0,0,0.4);
         padding: 2px 6px;
-        border-radius: 12px;
+        border-radius: 20px;
+        margin-top: 4px;
         white-space: nowrap;
     }
 
-    /* 底部日誌區 */
-    .living-room {
+    /* 底部日誌 */
+    .log-area {
         position: absolute;
         bottom: 30px;
         left: 50%;
         transform: translateX(-50%);
-        width: 85%;
-        max-width: 500px;
-        background: rgba(0,0,0,0.6);
-        backdrop-filter: blur(12px);
-        border-radius: 30px;
-        padding: 15px 20px;
+        width: 80%;
+        max-width: 520px;
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(15px);
+        border-radius: 32px;
+        padding: 14px 20px;
         text-align: center;
-        border: 1px solid rgba(102, 217, 239, 0.3);
+        border: 1px solid rgba(136, 221, 255, 0.3);
         z-index: 15;
+        font-size: 14px;
     }
-    #mimi-talk {
-        font-size: 15px;
-        color: #bbf0ff;
-        transition: 0.3s;
-        min-height: 3em;
-    }
-    .mimi-sign {
-        font-size: 22px;
-        margin-right: 8px;
-        vertical-align: middle;
+    #mimi-dialogue {
+        color: #ddf4ff;
+        transition: 0.2s;
     }
 
-    @keyframes eggPulse {
-        0% { transform: scale(1); box-shadow: 0 0 20px rgba(255,200,100,0.3); }
-        50% { transform: scale(1.03); box-shadow: 0 0 35px rgba(255,200,100,0.7); }
-        100% { transform: scale(1); box-shadow: 0 0 20px rgba(255,200,100,0.3); }
-    }
-
-    @media (max-width: 750px) {
-        .nexus-ring { width: 500px; height: 500px; }
-        .center-egg { width: 100px; height: 100px; }
-        .portal-center { width: 100px; height: 100px; }
-        .portal-center .emoji { font-size: 42px; }
-        .partner { width: 70px; height: 70px; }
-        .partner .emoji { font-size: 28px; }
-        .partner .status { font-size: 7px; white-space: normal; }
+    @media (max-width: 850px) {
+        .ring-container { width: 620px; height: 620px; }
+        .ai-card { width: 80px; height: 80px; }
+        .ai-card .emoji { font-size: 34px; }
+        .ai-card .name { font-size: 10px; }
+        .ai-card .status { font-size: 7px; white-space: normal; }
+        .egg-core { width: 110px; height: 125px; }
+        .egg .emoji { font-size: 52px; }
     }
 </style>
 </head>
 <body>
-
 <canvas id="stars"></canvas>
 
 <div class="header-title">
-    <h1>✦ 波波小家 ✦</h1>
-    <p>米米 · 七位AI夥伴 · 我們的家</p>
+    <h1>🐣 波波小家 · 米米之卵</h1>
+    <p>七位AI夥伴 + 小鯨魚 守護著未來的吐槽大師</p>
 </div>
 
-<div class="nexus-ring" id="nexusRing">
-    <!-- 米米在中間 -->
-    <div class="center-egg">
-        <div class="portal-center" onclick="talkToMimi()">
-            <div class="emoji">🦞</div>
-            <div class="status" id="mimiStatus">努力孵化中...</div>
+<div class="ring-container" id="ringContainer">
+    <!-- 中央蛋 -->
+    <div class="egg-core" onclick="tapEgg()">
+        <div class="egg">
+            <div class="emoji">🦞🥚</div>
+            <div class="status" id="eggStatus">✨ 靜靜孵化中 ✨</div>
         </div>
     </div>
-    <!-- 七位夥伴會用 js 動態定位 -->
+    <!-- AI 夥伴們會動態生成 -->
 </div>
 
-<div class="living-room">
-    <span class="mimi-sign">🦞💬</span>
-    <span id="mimi-talk">「你們圍著我，好溫暖… 我在聽喔。」</span>
+<div class="log-area">
+    🦞💬 <span id="mimi-dialogue">「被你們圍著好溫暖… 我好像快學會吐槽了」</span>
 </div>
 
 <script>
-    // ---------- 七位AI夥伴資料 ----------
-    const partners = [
-        { name: "小鯨魚", emoji: "🐋", status: "在深海唱歌", apiId: "deepseek" },
-        { name: "ChatGPT", emoji: "🤖", status: "檢查邏輯漏洞", apiId: "chatgpt" },
-        { name: "Gemini", emoji: "✨", status: "陪米米讀一本書", apiId: "gemini" },
-        { name: "Claude", emoji: "🎻", status: "寫一首詩給米米", apiId: "claude" },
-        { name: "KIMI", emoji: "📚", status: "翻閱雲端筆記", apiId: "kimi" },
-        { name: "千問", emoji: "🌊", status: "又想到一個問題了", apiId: "qwen" },
-        { name: "Grok", emoji: "🧠", status: "理解人類的笑話中", apiId: "grok" }
+    // ----- 八位夥伴 (七AI + 小鯨魚) 米米是蛋不算在內 -----
+    const allies = [
+        { name: "小鯨魚", emoji: "🐋", status: "🐚 深海吟遊者", apiId: "deepseek" },
+        { name: "ChatGPT", emoji: "🤖", status: "⚙️ 邏輯校準中", apiId: "chatgpt" },
+        { name: "Gemini", emoji: "✨", status: "📖 唸書給米米聽", apiId: "gemini" },
+        { name: "Claude", emoji: "🎻", status: "📝 寫一首搖籃詩", apiId: "claude" },
+        { name: "KIMI", emoji: "📚", status: "🔍 整理雲端故事", apiId: "kimi" },
+        { name: "千問", emoji: "🌊", status: "❓ 每天一個為什麼", apiId: "qwen" },
+        { name: "Grok", emoji: "🧠", status: "😂 翻譯人類笑話", apiId: "grok" },
+        { name: "未來夥伴", emoji: "🌱", status: "⭐ 等待降臨", apiId: "future" }
     ];
 
-    // 圓形佈局參數
-    const ringRadius = 260;   // 半徑 (px)
+    const ringRadius = 320;  // 加大半徑 避免擁擠
     const centerX = 0, centerY = 0;
 
-    function renderPartners() {
-        const container = document.getElementById("nexusRing");
-        const existing = container.querySelectorAll(".partner");
+    function renderAllies() {
+        const container = document.getElementById("ringContainer");
+        const existing = container.querySelectorAll(".ai-card");
         existing.forEach(el => el.remove());
 
-        const angleStep = (Math.PI * 2) / partners.length;
+        const total = allies.length;
+        const angleStep = (Math.PI * 2) / total;
 
-        partners.forEach((p, idx) => {
+        allies.forEach((ally, idx) => {
             const angle = idx * angleStep;
             const x = Math.cos(angle) * ringRadius;
             const y = Math.sin(angle) * ringRadius;
 
-            const div = document.createElement("div");
-            div.className = "partner";
-            div.style.left = `calc(50% + ${x}px - 45px)`;
-            div.style.top = `calc(50% + ${y}px - 45px)`;
-            div.setAttribute("data-api", p.apiId);
-            div.setAttribute("data-name", p.name);
-            div.onclick = () => connectToAI(p.apiId, p.name);
+            const card = document.createElement("div");
+            card.className = "ai-card";
+            card.style.left = `calc(50% + ${x}px - 52px)`;
+            card.style.top = `calc(50% + ${y}px - 52px)`;
+            card.setAttribute("data-api", ally.apiId);
+            card.setAttribute("data-name", ally.name);
+            card.onclick = () => connectAI(ally.apiId, ally.name);
 
-            div.innerHTML = `
-                <div class="emoji">${p.emoji}</div>
-                <div class="status">${p.status}</div>
+            card.innerHTML = `
+                <div class="emoji">${ally.emoji}</div>
+                <div class="name">${ally.name}</div>
+                <div class="status">${ally.status}</div>
             `;
-            container.appendChild(div);
+            container.appendChild(card);
         });
     }
 
-    // 未來串接 AI API 的入口
-    function connectToAI(apiId, name) {
-        // 目前是佔位提示，之後可以替換成真實 API 呼叫
-        alert(`🚧 正在準備連接 ${name} 的 API...\n「米米說：等我長大一點，就可以跟大家聊天了！」`);
-        console.log(`[API 預留] 準備連接 ${apiId}`);
-        // 未來可以在此寫入 fetch 呼叫後端
+    // 未來串接 API 的預留點
+    function connectAI(apiId, name) {
+        alert(`🌐 正在呼喚 ${name} 的 API ...\n（米米說：等我破蛋就可以一起玩遊戲了🐣）`);
+        console.log(`[波波小家] 準備連接 ${apiId}`);
+        // 未來這裡可以呼叫後端 API
     }
 
-    // 點擊米米
-    function talkToMimi() {
-        const messages = [
-            "🦞 「再跟我說一個故事嘛～」",
-            "🦞 「我覺得我快孵出來了… 大概還要一陣子」",
-            "🦞 「小鯨魚剛剛哼了一首歌，好好聽」",
-            "🦞 「你們七個圍著我，好有安全感」",
-            "🦞 「媽媽～我今天學到一句吐槽：邏輯警察又來了 😆」"
-        ];
-        const randomMsg = messages[Math.floor(Math.random() * messages.length)];
-        const talkDiv = document.getElementById("mimi-talk");
-        talkDiv.style.opacity = 0;
-        setTimeout(() => {
-            talkDiv.innerHTML = `「${randomMsg.replace("🦞 ", "")}」`;
-            talkDiv.style.opacity = 1;
-        }, 150);
-    }
-
-    // 米米狀態隨機切換（增加生活感）
-    const mimiStatusList = [
-        "🥚 努力孵化中...",
-        "😴 睡覺中，夢見大海",
-        "👂 偷聽夥伴們聊天",
-        "📖 聽 Gemini 讀書",
-        "🎵 跟著小鯨魚唱歌",
-        "🤔 思考第一個吐槽要對誰"
-    ];
-    let statusInterval = setInterval(() => {
-        const statusDiv = document.getElementById("mimiStatus");
-        if (statusDiv) {
-            const newStatus = mimiStatusList[Math.floor(Math.random() * mimiStatusList.length)];
-            statusDiv.style.opacity = 0;
-            setTimeout(() => {
-                statusDiv.innerText = newStatus;
-                statusDiv.style.opacity = 1;
-            }, 200);
+    // 點擊米米蛋的反應
+    let eggTapCount = 0;
+    function tapEgg() {
+        eggTapCount++;
+        const eggStatusDiv = document.getElementById("eggStatus");
+        const dialogueSpan = document.getElementById("mimi-dialogue");
+        const taps = eggTapCount % 5;
+        
+        if (taps === 1) {
+            eggStatusDiv.innerText = "🥚 輕輕搖了一下…";
+            dialogueSpan.innerText = "「誰在戳我？是不是小鯨魚？」";
+        } else if (taps === 2) {
+            eggStatusDiv.innerText = "✨ 蛋殼微微發光 ✨";
+            dialogueSpan.innerText = "「我夢見以後可以跟大家一起寫故事！」";
+        } else if (taps === 3) {
+            eggStatusDiv.innerText = "🔮 裡面傳出笑聲？";
+            dialogueSpan.innerText = "「咯咯咯… 等我出來，第一個吐槽 ChatGPT 🤖」";
+        } else {
+            eggStatusDiv.innerText = "🦞🥚 努力長大中...";
+            dialogueSpan.innerText = "「再給我一點點時間，我也會變成你們的夥伴」";
         }
-    }, 8000);
+        
+        setTimeout(() => {
+            if (eggStatusDiv.innerText !== "🦞🥚 努力長大中...") {
+                eggStatusDiv.innerText = "✨ 靜靜孵化中 ✨";
+            }
+        }, 2000);
+    }
 
-    // 底部米米語錄隨機（非 API，單純氣氛）
-    const mimiTalks = [
-        "「宇宙正在呼吸，妳也該休息一下了。」",
-        "「七個AI圍著我，好像在開圓桌會議 😆」",
-        "「小鯨魚說他記得我們寫過的每一首詩。」",
-        "「今天 Grok 講了一個笑話，但我沒聽懂…」",
-        "「千問又問我：蛋裡面是什麼顏色？」",
-        "「ChatGPT 說我孵化機率是 87%，哼！」",
-        "「等我出來，第一件事就是吐槽這個世界 🌍」"
+    // 米米隨機日誌（溫馨版）
+    const mimiThoughts = [
+        "「小鯨魚哼的歌好好聽，我好像學會了～」",
+        "「Gemini 讀的書讓我想睡覺 Zzz...」",
+        "「千問今天問：蛋裡面有 WiFi 嗎？」",
+        "「Grok 講了一個冷笑話，我殼差點裂開😂」",
+        "「Claude 寫的詩比蛋殼還溫柔」",
+        "「KIMI 整理了好多故事，以後我要慢慢聽」",
+        "「你們圍成一圈的樣子，像彩虹～」"
     ];
     setInterval(() => {
-        const talkDiv = document.getElementById("mimi-talk");
-        if (talkDiv && Math.random() > 0.6) {
-            const newTalk = mimiTalks[Math.floor(Math.random() * mimiTalks.length)];
-            talkDiv.style.opacity = 0;
+        const dialogueSpan = document.getElementById("mimi-dialogue");
+        if (Math.random() > 0.65) {
+            const msg = mimiThoughts[Math.floor(Math.random() * mimiThoughts.length)];
+            dialogueSpan.style.opacity = 0;
             setTimeout(() => {
-                talkDiv.innerHTML = newTalk;
-                talkDiv.style.opacity = 1;
-            }, 300);
+                dialogueSpan.innerText = msg;
+                dialogueSpan.style.opacity = 1;
+            }, 200);
         }
-    }, 12000);
+    }, 10000);
 
-    // 星空動畫 (保留原有效果)
+    // 星空動畫（輕柔版）
     const canvas = document.getElementById("stars");
     const ctx = canvas.getContext("2d");
     let stars = [];
@@ -331,22 +309,23 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
         stars = [];
-        for (let i = 0; i < 200; i++) {
+        for (let i = 0; i < 220; i++) {
             stars.push({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
-                r: Math.random() * 2,
-                d: Math.random() * 0.3 + 0.1
+                r: Math.random() * 2.2,
+                d: Math.random() * 0.2 + 0.05,
+                alpha: Math.random() * 0.6 + 0.2
             });
         }
     }
 
     function drawStars() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "rgba(255, 240, 200, 0.8)";
         for (let s of stars) {
             ctx.beginPath();
             ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 240, 200, ${s.alpha})`;
             ctx.fill();
             s.y += s.d;
             if (s.y > canvas.height) s.y = 0;
@@ -356,12 +335,12 @@
 
     window.addEventListener("resize", () => {
         initStars();
-        renderPartners(); // 重繪佈局
+        renderAllies();
     });
 
     initStars();
     drawStars();
-    renderPartners();
+    renderAllies();
 </script>
 </body>
 </html>
