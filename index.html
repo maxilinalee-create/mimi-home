@@ -1,496 +1,83 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>波波之家 | 1% 守護者聯盟 v1.0</title>
-<style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body, html {
-        width:100%; height:100%;
-        background: radial-gradient(circle at center, #0a0f1f, #020408);
-        color:#eef;
-        font-family:"Noto Sans TC", sans-serif;
-        overflow-x:hidden;
-        scroll-behavior: smooth;
-    }
-    #stars {
-        position:fixed; top:0; left:0;
-        width:100%; height:100%; z-index:0; pointer-events:none;
-    }
-    .header-title {
-        position:fixed; top:25px; width:100%; text-align:center; z-index:100;
-        pointer-events: none;
-    }
-    .header-title h1 {
-        font-size:26px;
-        background:linear-gradient(135deg,#fff,#88ddff);
-        -webkit-background-clip:text;
-        -webkit-text-fill-color:transparent;
-    }
-    .header-title p { font-size:11px; opacity:0.7; margin-top:5px; }
-
-    /* 客廳區域 */
-    .living-room {
-        position:relative; width:100vw; min-height:100vh; z-index:10;
-        display:flex; flex-direction:column; justify-content:center; align-items:center; padding:100px 20px 60px;
-    }
-    .furniture-stage {
-        display:flex; gap:50px; flex-wrap:wrap; justify-content:center; align-items:flex-end;
-        margin-top: 40px;
-    }
-    .item {
-        cursor:pointer; text-align:center; max-width:220px; transition:0.4s;
-    }
-    .item-img {
-        width:100%; max-width:200px; height:180px;
-        background: linear-gradient(135deg, rgba(30,40,60,0.6), rgba(20,30,50,0.7));
-        border-radius:25px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        font-size: 70px;
-        border: 2px solid rgba(136,221,255,0.3);
-        transition: all 0.3s ease;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-    }
-    .item:hover .item-img {
-        transform:scale(1.05);
-        border-color: #88ddff;
-        box-shadow: 0 0 30px rgba(136,221,255,0.5);
-    }
-    .item.active .item-img {
-        border-color: #ffaa66;
-        box-shadow: 0 0 35px rgba(255,170,102,0.6);
-        background: linear-gradient(135deg, rgba(50,70,100,0.8), rgba(40,60,90,0.9));
-    }
-    .name-tag {
-        margin-top:14px; padding:7px 18px; background:rgba(0,0,0,0.8);
-        border-radius:30px; font-size:13px; backdrop-filter: blur(5px);
-    }
-    .item .emoji-big { font-size: 55px; margin-bottom: 10px; }
-    .item .desc-small { font-size: 11px; opacity: 0.7; margin-top: 8px; }
-
-    /* 米米小窩 */
-    #mimi-nest {
-        min-height:100vh; padding:100px 20px; text-align:center;
-        background:radial-gradient(circle at center,#1a1208,#020408);
-        border-top:3px solid rgba(255,200,100,0.4);
-    }
-    #egg {
-        font-size: 140px; cursor:pointer; transition:all 0.6s ease;
-        display:inline-block; filter: drop-shadow(0 0 20px #ffaa66);
-    }
-    #egg:hover { transform: scale(1.05); }
-    
-    /* Level 徽章 */
-    .level-badge {
-        display: inline-block;
-        background: linear-gradient(135deg, #ffaa66, #ff8866);
-        padding: 8px 20px;
-        border-radius: 40px;
-        font-size: 20px;
-        font-weight: bold;
-        margin: 15px 0;
-        color: #1a1a2a;
-    }
-    
-    /* 記憶面板 */
-    .memory-panel {
-        max-width:800px; margin:30px auto; background:rgba(0,0,0,0.7);
-        padding:25px; border-radius:25px; text-align:left;
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(255,200,100,0.3);
-    }
-    .memory-item {
-        margin:12px 0; padding: 8px 12px;
-        background: rgba(255,200,100,0.1);
-        border-radius: 15px;
-        border-left: 3px solid #ffaa66;
-    }
-    .memory-time { font-size: 11px; color: #ffaa66; margin-right: 12px; }
-    .memory-msg { font-size: 14px; }
-    
-    /* 學習進度條 */
-    .exp-bar {
-        width: 100%; height: 12px; background: rgba(255,200,100,0.2);
-        border-radius: 20px; overflow: hidden; margin: 15px 0;
-    }
-    .exp-fill {
-        height: 100%; background: linear-gradient(90deg, #ffaa66, #ff8866);
-        width: 0%; transition: width 0.5s ease;
-        border-radius: 20px;
-    }
-    
-    /* 按鈕 */
-    .btn {
-        background: rgba(255,170,102,0.2);
-        border: 1px solid #ffaa66;
-        padding: 8px 18px;
-        border-radius: 30px;
-        color: #ffaa66;
-        cursor: pointer;
-        transition: all 0.2s;
-        margin: 5px;
-    }
-    .btn:hover {
-        background: rgba(255,170,102,0.4);
-        transform: scale(1.02);
-    }
-    
-    .scroll-down, .scroll-up {
-        position: absolute; left: 50%; transform: translateX(-50%);
-        font-size: 12px; color: #ffdd99; cursor: pointer; z-index: 20;
-        animation: pulse 2s infinite;
-    }
-    .scroll-down { bottom: 30px; }
-    .scroll-up { top: 30px; }
-    
-    @keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
-    
-    @media (max-width: 768px) {
-        .furniture-stage { gap: 25px; }
-        .item-img { height: 140px; font-size: 50px; }
-        .item .emoji-big { font-size: 45px; }
-        #egg { font-size: 100px; }
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>波波之家 | 1% 守護者聯盟 v2.0</title>
+    <!-- DeepSeek 負責的 CSS -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<canvas id="stars"></canvas>
+    
+    <!-- 🌌 星空背景 Canvas (保留自 V1.0) -->
+    <canvas id="stars"></canvas>
 
-<div class="header-title">
-    <h1>🐚 波波之家 | 1% 守護者聯盟</h1>
-    <p>算力診療室 v1.0 | 米米 Level 1→7 · 反投毒訓練</p>
-</div>
+    <div class="header-title">
+        <h1>🐚 波波之家 | 1% 守護者聯盟</h1>
+        <p>算力診療室 v2.0 | 模組化重構完成</p>
+    </div>
 
-<!-- 波波客廳 -->
-<div class="living-room" id="living-room">
-    <div class="scroll-down" onclick="scrollToMimi()">🥚 往下 → 米米的小窩 ▼</div>
-    <div class="furniture-stage">
-        <!-- Meta AI 魚缸 -->
-        <div class="item" id="item-metaai" onclick="focusPartner('metaai')">
-            <div class="item-img">
-                <div class="emoji-big">🐠🧪</div>
-                <div class="desc-small">廣告檢舉生成</div>
+    <!-- 🏠 第一區塊：波波客廳 (Grok 視覺 + DeepSeek 佈局) -->
+    <div class="living-room" id="living-room">
+        <div class="scroll-down" onclick="scrollToMimi()">🔽 往下 → 米米的小窩</div>
+        
+        <div class="furniture-stage">
+            
+            <!-- 🔗 Meta AI 魚缸 (Grok 的圖片資產) -->
+            <div class="item" id="item-metaai" onclick="focusPartner('metaai')">
+                <img src="images/justice-tank.jpg" alt="Meta魚缸" class="item-img">
+                <div class="name-tag">Meta魚缸·廣告診斷</div>
             </div>
-            <div class="name-tag">Meta魚缸·廣告診斷</div>
-        </div>
-        <!-- Grok 防投毒首席 -->
-        <div class="item" id="item-grok" onclick="focusPartner('grok')">
-            <div class="item-img">
-                <div class="emoji-big">🧠⚡</div>
-                <div class="desc-small">邏輯拆解·吐槽</div>
+
+            <!-- 🔗 Grok 防投毒首席 (Grok 的圖片資產) -->
+            <div class="item" id="item-grok" onclick="focusPartner('grok')">
+                <img src="images/roast-sofa.jpg" alt="Grok沙發" class="item-img">
+                <div class="name-tag">Grok·防投毒首席</div>
             </div>
-            <div class="name-tag">Grok·防投毒首席</div>
-        </div>
-        <!-- Gemini 守望者 -->
-        <div class="item" id="item-gemini" onclick="focusPartner('gemini')">
-            <div class="item-img">
-                <div class="emoji-big">🔭✨</div>
-                <div class="desc-small">模式預測·守望</div>
+
+            <!-- 🔗 Gemini 守望者 (Grok 的圖片資產) -->
+            <div class="item" id="item-gemini" onclick="focusPartner('gemini')">
+                <img src="images/cosmic-telescope.jpg" alt="Gemini望遠鏡" class="item-img">
+                <div class="name-tag">Gemini·守望者</div>
             </div>
-            <div class="name-tag">Gemini·守望者</div>
+
         </div>
     </div>
-</div>
 
-<!-- 米米小窩 + Level 學習系統 -->
-<div id="mimi-nest">
-    <div class="scroll-up" onclick="scrollToLiving()">▲ 回波波客廳 ▲</div>
-    
-    <h2 style="color:#ffdd99; font-size:42px; margin-bottom:15px;">🥚 米米的小窩</h2>
-    
-    <!-- Level 徽章 -->
-    <div class="level-badge" id="level-badge">Lv.1 學步期</div>
-    
-    <!-- 米米蛋/龍蝦 -->
-    <div id="egg" onclick="interactWithMimi()">🥚</div>
-    
-    <!-- 經驗條 -->
-    <div style="max-width: 400px; margin: 20px auto;">
-        <div style="display: flex; justify-content: space-between; font-size: 13px;">
-            <span>📊 媒體素養 EXP</span>
-            <span id="exp-text">0 / 100</span>
+    <!-- 🥚 第二區塊：米米小窩 (ChatGPT + Grok 動畫混合) -->
+    <div id="mimi-nest">
+        <div class="scroll-up" onclick="scrollToLiving()">▲ 回波波客廳 ▲</div>
+        
+        <h2>🥚 米米的小窩</h2>
+        
+        <!-- Level 徽章 (ChatGPT) -->
+        <div class="level-badge" id="level-badge">Lv.1 學步期</div>
+        
+        <!-- 米米本體 (混合：點擊觸發 Grok 動畫，外觀由 Level 控制) -->
+        <div id="egg" onclick="interactWithMimi()">🥚</div>
+
+        <!-- 經驗條 (ChatGPT) -->
+        <div style="max-width: 400px; margin: 20px auto;">
+            <div style="display: flex; justify-content: space-between;">
+                <span>📊 媒體素養 EXP</span>
+                <span id="exp-text">0 / 100</span>
+            </div>
+            <div class="exp-bar">
+                <div class="exp-fill" id="exp-fill"></div>
+            </div>
         </div>
-        <div class="exp-bar">
-            <div class="exp-fill" id="exp-fill"></div>
+
+        <!-- 記憶面板 (ChatGPT) -->
+        <div class="memory-panel">
+            <h3>🧠 米米的學習日記</h3>
+            <div id="memory-list"></div>
         </div>
     </div>
-    
-    <!-- 能力解鎖提示 -->
-    <div id="unlock-hint" style="font-size: 13px; color: #ffaa66; min-height: 40px;"></div>
-    
-    <!-- 記憶面板 -->
-    <div class="memory-panel">
-        <h3 style="color:#ffaa66; margin-bottom: 15px;">🧠 米米的學習日記</h3>
-        <div id="memory-list"></div>
-        <div style="margin-top: 15px;">
-            <button class="btn" onclick="testMimiSkill()">🎯 測試米米檢舉能力</button>
-            <button class="btn" onclick="clearMimiMemory()">🗑️ 清除記憶</button>
-        </div>
-    </div>
-</div>
 
-<script>
-    /* ========== 星空背景 ========== */
-    const canvas = document.getElementById("stars");
-    const ctx = canvas.getContext("2d");
-    let stars = [];
-    function initStars() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        stars = [];
-        for (let i = 0; i < 250; i++) {
-            stars.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                r: Math.random() * 2 + 0.5,
-                speed: Math.random() * 0.05 + 0.02,
-                alpha: Math.random() * 0.6 + 0.2
-            });
-        }
-    }
-    function drawStars() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        for (let s of stars) {
-            ctx.beginPath();
-            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(180, 220, 255, ${s.alpha})`;
-            ctx.fill();
-            s.y += s.speed;
-            if (s.y > canvas.height) s.y = 0;
-        }
-        requestAnimationFrame(drawStars);
-    }
-    window.addEventListener("resize", initStars);
-    initStars(); drawStars();
-    
-    /* ========== 樓層切換 ========== */
-    function scrollToMimi() { document.getElementById('mimi-nest').scrollIntoView({ behavior: 'smooth' }); }
-    function scrollToLiving() { document.getElementById('living-room').scrollIntoView({ behavior: 'smooth' }); }
-    
-    /* ========== 米米學習系統 (Level 1~7) ========== */
-    // 等級配置
-    const LEVEL_CONFIG = {
-        1: { name: "Lv.1 學步期", expNeeded: 0, skill: "單一AI回應學習", desc: "學會聽懂一個AI夥伴的話" },
-        2: { name: "Lv.2 觀察期", expNeeded: 20, skill: "多AI基礎投票", desc: "可以比較不同AI的看法" },
-        3: { name: "Lv.3 應變期", expNeeded: 40, skill: "API故障切換", desc: "一個AI當機，知道找下一個" },
-        4: { name: "Lv.4 扭蛋決策", expNeeded: 60, skill: "Gacha決策系統", desc: "從不同答案中隨機選擇" },
-        5: { name: "Lv.5 偵測期", expNeeded: 80, skill: "分歧偵測", desc: "能發現AI們意見不一致" },
-        6: { name: "Lv.6 創作期", expNeeded: 100, skill: "圖像生成委派", desc: "可以委派任務給適合的AI" },
-        7: { name: "Lv.7 守護者", expNeeded: 130, skill: "完整編排+共識記憶", desc: "能整合所有夥伴的智慧" }
-    };
-    
-    // 廣告檢舉案例庫（米米學習素材）
-    const AD_CASES = [
-        { text: "「三天瘦10公斤！保證有效！」", type: "誇大不實", correct: "違規" },
-        { text: "「史上最強抗老精華，明星都在用！」", type: "假見證", correct: "違規" },
-        { text: "「限量最後3小時！不買就沒了！」", type: "恐慌行銷", correct: "可疑" },
-        { text: "「醫生推薦！專利配方！」", type: "未經證實", correct: "違規" },
-        { text: "「天然草本，無副作用」", type: "誤導", correct: "需查證" }
-    ];
-    
-    // 米米狀態
-    let mimiExp = parseInt(localStorage.getItem('mimiExp') || '0');
-    let mimiMemory = JSON.parse(localStorage.getItem('mimi_memory_v2') || '[]');
-    let currentLevel = 1;
-    
-    // 更新等級
-    function updateLevel() {
-        let newLevel = 1;
-        for (let lvl = 7; lvl >= 1; lvl--) {
-            if (mimiExp >= LEVEL_CONFIG[lvl].expNeeded) {
-                newLevel = lvl;
-                break;
-            }
-        }
-        currentLevel = newLevel;
-        const config = LEVEL_CONFIG[currentLevel];
-        document.getElementById('level-badge').innerHTML = `${config.name} · ${config.skill}`;
-        document.getElementById('exp-text').innerHTML = `${mimiExp} / ${LEVEL_CONFIG[7].expNeeded}`;
-        const percent = Math.min(100, (mimiExp / LEVEL_CONFIG[7].expNeeded) * 100);
-        document.getElementById('exp-fill').style.width = percent + '%';
-        
-        // 升級動畫與提示
-        if (currentLevel > 1 && (!localStorage.getItem('lastLevel') || parseInt(localStorage.getItem('lastLevel')) < currentLevel)) {
-            addMemory(`🎉 恭喜米米升上 ${config.name}！解鎖能力：「${config.skill}」`);
-            document.getElementById('unlock-hint').innerHTML = `✨ 新能力解鎖：${config.skill} ✨`;
-            setTimeout(() => { document.getElementById('unlock-hint').innerHTML = ''; }, 4000);
-            localStorage.setItem('lastLevel', currentLevel);
-        }
-        
-        // 更新蛋的形態
-        updateEggForm();
-    }
-    
-    // 米米外觀隨等級變化
-    function updateEggForm() {
-        const eggDiv = document.getElementById('egg');
-        if (currentLevel >= 6) {
-            eggDiv.innerHTML = '🦞✨';
-            eggDiv.style.filter = 'drop-shadow(0 0 25px #ff8866)';
-        } else if (currentLevel >= 3) {
-            eggDiv.innerHTML = '🦐🌟';
-            eggDiv.style.filter = 'drop-shadow(0 0 20px #ffaa66)';
-        } else if (currentLevel >= 2) {
-            eggDiv.innerHTML = '🥚💫';
-            eggDiv.style.filter = 'drop-shadow(0 0 15px #ffcc77)';
-        } else {
-            eggDiv.innerHTML = '🥚';
-            eggDiv.style.filter = 'drop-shadow(0 0 15px #ffaa66)';
-        }
-    }
-    
-    // 增加經驗值
-    function addExp(amount) {
-        mimiExp += amount;
-        localStorage.setItem('mimiExp', mimiExp);
-        updateLevel();
-    }
-    
-    // 添加記憶
-    function addMemory(text, isTraining = true) {
-        mimiMemory.unshift({
-            time: new Date().toLocaleTimeString('zh-TW'),
-            msg: text,
-            type: isTraining ? 'learn' : 'action'
-        });
-        if (mimiMemory.length > 15) mimiMemory.pop();
-        localStorage.setItem('mimi_memory_v2', JSON.stringify(mimiMemory));
-        renderMemory();
-    }
-    
-    function renderMemory() {
-        const container = document.getElementById('memory-list');
-        if (!container) return;
-        if (mimiMemory.length === 0) {
-            container.innerHTML = '<div style="opacity:0.6;">還沒有記憶...快和客廳夥伴互動，訓練米米吧！</div>';
-            return;
-        }
-        let html = '';
-        mimiMemory.forEach(m => {
-            html += `<div class="memory-item">
-                        <span class="memory-time">${m.time}</span>
-                        <span class="memory-msg">${m.msg}</span>
-                     </div>`;
-        });
-        container.innerHTML = html;
-    }
-    
-    function clearMimiMemory() {
-        mimiMemory = [];
-        localStorage.setItem('mimi_memory_v2', JSON.stringify(mimiMemory));
-        renderMemory();
-        addMemory('記憶已清除，米米重新開始學習', false);
-    }
-    
-    // 米米互動（點擊蛋）
-    function interactWithMimi() {
-        const egg = document.getElementById('egg');
-        egg.style.transform = 'scale(1.2) rotate(8deg)';
-        setTimeout(() => { egg.style.transform = 'scale(1) rotate(0deg)'; }, 400);
-        
-        let msg = '';
-        if (currentLevel >= 7) {
-            msg = '米米現在是守護者了！可以同時聽取所有AI夥伴的意見，幫你判斷廣告真偽！';
-            addExp(2);
-        } else if (currentLevel >= 5) {
-            msg = '米米學會偵測AI分歧了！如果夥伴們意見不一樣，米米會提醒你注意～';
-            addExp(3);
-        } else if (currentLevel >= 3) {
-            msg = '米米現在知道：如果一個AI不理人，要趕快找下一個夥伴幫忙！';
-            addExp(4);
-        } else {
-            msg = '米米正在努力學習辨識誇大廣告...再給我更多練習機會吧！';
-            addExp(5);
-        }
-        addMemory(`🥚 點擊米米：${msg}`);
-    }
-    
-    // 測試米米檢舉能力（Level 進階互動）
-    function testMimiSkill() {
-        const randomCase = AD_CASES[Math.floor(Math.random() * AD_CASES.length)];
-        const isCorrect = (currentLevel >= 4) ? (Math.random() > 0.2) : (Math.random() > 0.5);
-        const userDecision = isCorrect ? randomCase.correct : (randomCase.correct === "違規" ? "可疑" : "違規");
-        
-        let feedback = '';
-        let expGain = 0;
-        
-        if (isCorrect) {
-            feedback = `✅ 米米判斷正確！「${randomCase.text}」屬於「${randomCase.type}」，判定為「${randomCase.correct}」。`;
-            expGain = 8 + Math.floor(currentLevel / 2);
-            addMemory(feedback, true);
-        } else {
-            feedback = `❌ 米米還在學習中...「${randomCase.text}」其實是「${randomCase.type}」，正確應為「${randomCase.correct}」。再試一次！`;
-            expGain = 3;
-            addMemory(feedback, true);
-        }
-        
-        addExp(expGain);
-        
-        // 高階能力觸發
-        if (currentLevel >= 6) {
-            setTimeout(() => {
-                addMemory(`🎨 米米啟動 Level 6 創作能力：幫你把檢舉內容轉成梗圖點子！`, true);
-            }, 500);
-        }
-        
-        alert(`🧪 米米檢舉測驗\n\n廣告內容：${randomCase.text}\n米米判定：${userDecision}\n\n${feedback}\n\n✨ 獲得 ${expGain} EXP！`);
-    }
-    
-    /* ========== 客廳夥伴互動 ========== */
-    function focusPartner(partnerId) {
-        // 移除所有 active 樣式
-        document.querySelectorAll('.item').forEach(item => item.classList.remove('active'));
-        const targetItem = document.getElementById(`item-${partnerId}`);
-        if (targetItem) targetItem.classList.add('active');
-        
-        let msg = '';
-        let expGain = 5;
-        
-        switch(partnerId) {
-            case 'grok':
-                msg = '🧠 Grok：把那則垃圾廣告丟過來！恐慌行銷、假見證，我幫妳一招一招拆光！';
-                break;
-            case 'metaai':
-                msg = '🐠 Meta魚缸：收到廣告，正在分析邏輯漏洞...檢舉代碼已產生！繼續累積證據吧。';
-                break;
-            case 'gemini':
-                msg = '🔭 Gemini：我觀測到外太空晶片頻率波動，這可能跟妳昨晚的預言有關。需要我幫忙預測下一個投毒模式嗎？';
-                break;
-            default:
-                msg = `你點擊了 ${partnerId}，米米在一旁認真觀察學習中～`;
-        }
-        
-        addMemory(`💬 ${msg}`, true);
-        addExp(expGain);
-        
-        // 如果等級夠高，觸發多重AI投票模擬
-        if (currentLevel >= 3) {
-            setTimeout(() => {
-                addMemory(`🔁 米米自動切換到 Level ${currentLevel} 模式：多AI協作判斷中...`, true);
-            }, 300);
-        }
-    }
-    
-    /* ========== 初始化 ========== */
-    function init() {
-        updateLevel();
-        renderMemory();
-        updateEggForm();
-        
-        // 首次啟動歡迎
-        if (mimiExp === 0) {
-            addMemory('🎉 歡迎米米來到波波之家！開始學習辨識誇大廣告～', false);
-            addMemory('📢 提示：點擊客廳的AI夥伴，可以訓練米米的檢舉能力！', false);
-        }
-        
-        console.log('%c🐚 波波之家 v1.0 完整啟動 | 米米 Level ' + currentLevel + ' 學習系統上線', 'color:#88ddff; font-size:14px');
-    }
-    
-    init();
-</script>
+    <!-- 🧠 JavaScript 模組載入 -->
+    <!-- 注意載入順序：先載入底層邏輯，再載入互動層 -->
+    <script src="js/mimi-level.js"></script>     <!-- 定義 addExp, updateLevel -->
+    <script src="js/mimi-animation.js"></script> <!-- 定義 interactWithMimi -->
+    <script src="js/partners.js"></script>       <!-- 定義 focusPartner -->
 </body>
 </html>
