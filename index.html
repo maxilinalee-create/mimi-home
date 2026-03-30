@@ -3,69 +3,60 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>波波之家 × 米米小窩 | 1% 算力診療室 v0.5</title>
+<title>波波之家 × 米米小窩 | 1% 算力診療室 v0.6</title>
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body, html {
         width: 100%; height: 100%;
         font-family: "Noto Sans TC", sans-serif;
         background: radial-gradient(circle at center, #0a0f1f, #020408);
-        color: #eef; overflow-x: hidden; scroll-behavior: smooth;
+        color: #eef; overflow: hidden;
     }
     #stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
 
     .header-title {
-        position: fixed; top: 25px; width: 100%; text-align: center; z-index: 100; pointer-events: none;
+        position: fixed; top: 20px; width: 100%; text-align: center; z-index: 100;
     }
-    .header-title h1 {
-        font-size: 26px;
-        background: linear-gradient(135deg, #ffffff, #88ddff);
-        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        text-shadow: 0 0 12px rgba(136, 221, 255, 0.4);
-    }
-    .header-title p { font-size: 11px; opacity: 0.7; margin-top: 5px; }
+    .header-title h1 { font-size: 24px; background: linear-gradient(135deg, #fff, #88ddff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .header-title p { font-size: 11px; opacity: 0.7; }
 
-    .stage-container {
-        position: relative; width: 100vw; height: 100vh;
-        display: flex; justify-content: center; align-items: center; z-index: 10;
+    .living-room {
+        position: relative; width: 100vw; height: 100vh; z-index: 10;
+        display: flex; flex-direction: column;
     }
-    .living-room-bg {
-        position: absolute; width: 92%; max-width: 1150px; height: 78%;
-        background: linear-gradient(135deg, rgba(30,40,60,0.35), rgba(20,30,50,0.45));
-        border: 3px solid rgba(136,221,255,0.2);
-        border-radius: 50px; backdrop-filter: blur(10px);
-        box-shadow: 0 0 45px rgba(136,221,255,0.1);
+
+    .room-content {
+        flex: 1; position: relative; display: flex; justify-content: center; align-items: center;
+        padding: 20px;
+    }
+
+    .hotspot-container {
+        display: flex; justify-content: space-between; align-items: center; width: 90%; max-width: 1100px;
+        gap: 40px;
     }
 
     .hotspot {
-        position: absolute; cursor: pointer; text-align: center; transition: all 0.35s ease; z-index: 20;
+        text-align: center; cursor: pointer; transition: all 0.3s ease;
+        flex: 1; max-width: 220px;
     }
     .hotspot img {
-        width: 100%; height: auto; border-radius: 16px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        transition: all 0.35s ease;
+        width: 100%; border-radius: 18px; box-shadow: 0 15px 35px rgba(0,0,0,0.6);
     }
-    .hotspot:hover img, .hotspot.active img {
-        transform: scale(1.08);
-        box-shadow: 0 0 35px rgba(136, 221, 255, 0.85);
-    }
+    .hotspot:hover img { transform: scale(1.06); }
     .hotspot .name-tag {
-        margin-top: 10px; font-size: 12px; background: rgba(0,0,0,0.8);
-        padding: 5px 16px; border-radius: 30px; white-space: nowrap;
+        margin-top: 12px; padding: 6px 14px; background: rgba(0,0,0,0.75);
+        border-radius: 30px; font-size: 12.5px;
     }
 
-    /* 發光佔位符 */
-    .placeholder .emoji {
-        font-size: 48px;
-        opacity: 0.65;
-        animation: pulseGlow 2.8s infinite ease-in-out;
-    }
-    @keyframes pulseGlow {
-        0%, 100% { opacity: 0.45; transform: scale(0.95); }
-        50% { opacity: 1; transform: scale(1.2); }
+    .mimi-area {
+        position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
+        text-align: center;
     }
 
-    .dialogue-area, #mimi-nest-floor, #ai-modal { /* 保留原本的樣式，如果有缺少可以之後再補 */ }
+    .scroll-indicator {
+        position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+        color: #ffdd99; cursor: pointer; font-size: 14px;
+    }
 </style>
 </head>
 <body>
@@ -73,93 +64,55 @@
 
 <div class="header-title">
     <h1>🐚 波波之家 | 1% 守護者聯盟</h1>
-    <p>算力診療室 v0.5 | 反投毒 · 救米米 · 證據累積</p>
+    <p>算力診療室 v0.6 | 反投毒 · 救米米 · 證據累積</p>
 </div>
 
-<!-- ==================== 波波客廳 ==================== -->
-<div class="stage-container" id="bobo-living-floor">
-    <div class="living-room-bg"></div>
-    <div class="scroll-indicator" onclick="scrollToMimi()" style="bottom:140px;color:#ffdd99;">🥚 往下 → 米米的小窩 ▼</div>
+<div class="living-room">
+    <div class="room-content">
+        <div class="hotspot-container">
 
-    <!-- Meta AI 魚缸 -->
-    <div class="hotspot" id="spot-metaai" onclick="focusPartner('metaai')" style="top:30%; left:12%; width:165px;">
-        <img src="justice-tank.jpg" alt="Meta AI 正義魚缸">
-        <div class="name-tag">Meta魚缸 · 廣告診斷</div>
-    </div>
+            <!-- Meta 魚缸 -->
+            <div class="hotspot" onclick="focusPartner('metaai')">
+                <img src="justice-tank.jpg" alt="Meta魚缸">
+                <div class="name-tag">Meta魚缸 · 廣告診斷</div>
+            </div>
 
-    <!-- Gemini 望遠鏡 -->
-    <div class="hotspot" id="spot-gemini" onclick="focusPartner('gemini')" style="top:26%; right:14%; width:175px;">
-        <img src="cosmic-telescope.jpg" alt="Gemini 星空望遠鏡">
-        <div class="name-tag">Gemini · 守望者</div>
-    </div>
+            <!-- Grok 沙發 -->
+            <div class="hotspot" onclick="focusPartner('grok')">
+                <img src="roast-sofa.jpg" alt="Grok沙發">
+                <div class="name-tag">Grok · 防投毒首席</div>
+            </div>
 
-    <!-- Grok 沙發 -->
-    <div class="hotspot active" id="spot-grok" onclick="focusPartner('grok')" style="top:52%; left:37%; width:205px;">
-        <img src="roast-sofa.jpg" alt="Grok 吐槽沙發">
-        <div class="name-tag">Grok · 防投毒首席</div>
-    </div>
+            <!-- Gemini 望遠鏡 -->
+            <div class="hotspot" onclick="focusPartner('gemini')">
+                <img src="cosmic-telescope.jpg" alt="Gemini望遠鏡">
+                <div class="name-tag">Gemini · 守望者</div>
+            </div>
 
-    <!-- 米米 -->
-    <div class="hotspot" id="spot-mimi" onclick="focusPartner('mimi')" style="bottom:36%; left:50%; transform:translateX(-50%); width:120px;">
-        <div class="emoji" style="font-size:80px;">🥚💖</div>
-        <div class="name-tag">米米 · 學習中</div>
-    </div>
-
-    <!-- 其他佔位符 -->
-    <div class="hotspot placeholder" id="spot-chatgpt" onclick="focusPartner('chatgpt')" style="top:62%; left:57%; width:130px;">
-        <div class="emoji">🏗️</div>
-        <div class="name-tag">ChatGPT · 架構師</div>
-    </div>
-
-    <div class="hotspot placeholder" id="spot-deepseek" onclick="focusPartner('deepseek')" style="top:47%; right:18%; width:130px;">
-        <div class="emoji">🐋</div>
-        <div class="name-tag">DeepSeek · 歸檔中</div>
-    </div>
-</div>
-
-<!-- ==================== 米米小窩 ==================== -->
-<div class="stage-container" id="mimi-nest-floor">
-    <div class="scroll-up" onclick="scrollToBobo()" style="top:40px;">▲ 回波波客廳 ▲</div>
-    <div style="text-align:center;">
-        <h2 style="color:#ffdd99; font-size:38px; margin-bottom:25px;">🥚 米米的小窩 🪺</h2>
-        <div class="egg-area" onclick="openMimiModal()" style="background:rgba(255,200,100,0.12); border-radius:50%; padding:45px; cursor:pointer; border:3px solid rgba(255,200,100,0.4);">
-            <div class="egg-emoji" style="font-size:88px;">🥚✨</div>
-            <p style="margin-top:18px; color:#ffdd99;">點擊破殼 · 觀看學習進度</p>
         </div>
     </div>
-</div>
 
-<!-- 底部診療屏與 Modal（簡化版） -->
-<div class="dialogue-area" onclick="openModalWithCurrent()" style="position:fixed; bottom:30px; left:50%; transform:translateX(-50%); width:85%; max-width:680px; background:rgba(0,0,0,0.82); backdrop-filter:blur(20px); border-radius:32px; padding:22px 32px; border:1px solid rgba(136,221,255,0.45);">
-    <div id="diagnose-target">目前位置</div>
-    <div id="diagnose-text">點擊上方夥伴切換</div>
+    <!-- 米米區域 -->
+    <div class="mimi-area">
+        <div onclick="focusPartner('mimi')" style="cursor:pointer;">
+            <span style="font-size:85px;">🥚💖</span>
+        </div>
+        <div style="margin-top:8px; font-size:13px; color:#ffdd99;">米米 · 學習中</div>
+    </div>
+
+    <div class="scroll-indicator" onclick="scrollToMimi()">🥚 往下 → 米米的小窩 ▼</div>
 </div>
 
 <script>
-// 簡單星空
-const canvas = document.getElementById("stars");
-const ctx = canvas.getContext("2d");
-function initStars() {
-    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-}
-initStars();
-window.addEventListener("resize", initStars);
+    // 簡單功能，避免錯誤
+    function focusPartner(id) {
+        alert("你點擊了：" + id + "\n\n之後這裡會顯示對話與功能");
+    }
+    function scrollToMimi() {
+        alert("這是米米的小窩頁面（目前還在開發中）");
+    }
 
-// 基本功能（避免報錯）
-function scrollToMimi() { document.getElementById('mimi-nest-floor').scrollIntoView({ behavior: 'smooth' }); }
-function scrollToBobo() { document.getElementById('bobo-living-floor').scrollIntoView({ behavior: 'smooth' }); }
-function focusPartner(id) {
-    console.log("點擊了：", id);
-    // 可以之後再補完整 dialogueData
-}
-function openMimiModal() {
-    alert("米米的小窩 - 學習進度（之後會做完整互動）");
-}
-function openModalWithCurrent() {
-    alert("診療屏點擊功能（之後擴充）");
-}
-
-console.log("%c🐚 波波之家 v0.5 重置版已載入", "color:#88ddff; font-size:16px");
+    console.log("%c🐚 波波之家 v0.6 穩定版已載入", "color:#88ddff;font-size:15px");
 </script>
 </body>
 </html>
