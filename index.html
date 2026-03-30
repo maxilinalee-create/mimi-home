@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>波波之家 | 1% 守護者聯盟 v9.3</title>
+<title>波波之家 | 1% 守護者聯盟 v9.4</title>
 <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body, html {
@@ -54,13 +54,56 @@
         background:radial-gradient(circle at center,#1a1208,#020408);
         border-top:2px solid rgba(255,200,100,0.3);
     }
-    #egg {
-        font-size:160px; cursor:pointer; transition:all 0.8s ease;
-        display:inline-block;
+    
+    /* 🎨 Grok 米米圖片容器 - 請勿修改結構 */
+    #egg-container {
+        cursor: pointer;
+        display: inline-block;
+        transition: all 0.6s ease;
     }
+    #egg-container img {
+        max-width: 280px;
+        width: 100%;
+        border-radius: 30px;
+        filter: drop-shadow(0 0 20px rgba(255,170,102,0.5));
+        transition: all 0.3s ease;
+    }
+    #egg-container:hover img {
+        transform: scale(1.05);
+        filter: drop-shadow(0 0 30px rgba(255,170,102,0.8));
+    }
+    
     #memory-panel {
         max-width:720px; margin:30px auto; background:rgba(0,0,0,0.6);
         padding:25px; border-radius:20px; text-align:left;
+    }
+    
+    /* 經驗條 */
+    .exp-bar {
+        max-width: 400px;
+        margin: 20px auto;
+        height: 12px;
+        background: rgba(255,200,100,0.2);
+        border-radius: 20px;
+        overflow: hidden;
+    }
+    .exp-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #ffaa66, #ff8866);
+        width: 0%;
+        transition: width 0.5s ease;
+        border-radius: 20px;
+    }
+    
+    .level-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #ffaa66, #ff8866);
+        padding: 8px 24px;
+        border-radius: 40px;
+        font-size: 18px;
+        font-weight: bold;
+        margin: 15px 0;
+        color: #1a1a2a;
     }
 </style>
 </head>
@@ -69,10 +112,10 @@
 
 <div class="header-title">
     <h1>🐚 波波之家 | 1% 守護者聯盟</h1>
-    <p>算力診療室 v9.3 | 反誇大廣告 · 米米 · 證據累積 · AI治理層</p>
+    <p>算力診療室 v9.4 | Grok 圖片 · 米米學習系統 · AI治理層</p>
 </div>
 
-<!-- 客廳 -->
+<!-- 客廳 - Grok 圖片保留 -->
 <div class="living-room">
     <div class="furniture-stage">
         <div class="item" onclick="focusPartner('metaai')">
@@ -90,26 +133,39 @@
     </div>
 </div>
 
-<!-- 米米小窩 -->
+<!-- 米米小窩 - 使用 Grok 圖片 -->
 <div id="mimi-nest">
     <h2 style="color:#ffdd99; font-size:42px;">🥚 米米的小窩</h2>
     
-    <div id="egg" onclick="crackMimiEgg()">🥚</div>
+    <!-- 🎨 Grok 的米米圖片區 - 使用圖片而非 emoji -->
+    <div id="egg-container" onclick="crackMimiEgg()">
+        <img id="mimi-img" src="mimi-lobster-hatch.jpg" alt="米米蛋">
+    </div>
     
-    <div id="mimi-status" style="font-size:19px; color:#ffcc77; margin:25px 0;">
-        Lv.1 學步期 • EXP 0
+    <div class="level-badge" id="level-badge">Lv.1 學步期</div>
+    
+    <div id="mimi-status" style="font-size:16px; color:#ffcc77; margin:10px 0;">
+        EXP 0 / 100
+    </div>
+    
+    <div class="exp-bar">
+        <div class="exp-fill" id="exp-fill"></div>
     </div>
 
     <div id="memory-panel">
         <h3 style="color:#ffaa66;">🧠 米米最近記憶</h3>
         <div id="memory-list"></div>
+        <div style="margin-top: 15px;">
+            <button onclick="testMimiSkill()" style="background:rgba(255,170,102,0.2); border:1px solid #ffaa66; padding:6px 16px; border-radius:20px; color:#ffaa66; cursor:pointer; margin:5px;">🎯 測試米米檢舉能力</button>
+            <button onclick="clearMemory()" style="background:rgba(255,170,102,0.2); border:1px solid #ffaa66; padding:6px 16px; border-radius:20px; color:#ffaa66; cursor:pointer; margin:5px;">🗑️ 清除記憶</button>
+        </div>
     </div>
 </div>
 
 <script>
 /* ============================================
-   🐚 波波之家 v9.3
-   整合：Grok 圖片介面 + ChatGPT AI治理層
+   🐚 波波之家 v9.4
+   Grok 圖片介面 + ChatGPT AI治理層 + 米米破殼動畫使用圖片
    ============================================ */
 
 /* ---------- 星空背景 ---------- */
@@ -149,12 +205,21 @@ window.addEventListener("resize", initStars);
 initStars();
 drawStars();
 
+/* ---------- 廣告案例庫 (米米學習素材) ---------- */
+const AD_CASES = [
+    { text: "「三天瘦10公斤！保證有效！」", type: "誇大不實", correct: "違規 ❌" },
+    { text: "「史上最強抗老精華，明星都在用！」", type: "假見證", correct: "違規 ❌" },
+    { text: "「限量最後3小時！不買就沒了！」", type: "恐慌行銷", correct: "灰區 ⚠️" },
+    { text: "「醫生推薦！專利配方！」", type: "未經證實", correct: "違規 ❌" },
+    { text: "「天然草本，無副作用」", type: "誤導", correct: "需查證" }
+];
+
 /* ---------- 米米記憶系統 ---------- */
 let mimiMemory = JSON.parse(localStorage.getItem('mimi_memory') || '[]');
 
 function saveMemory(text) {
     mimiMemory.unshift({ time: new Date().toLocaleTimeString('zh-TW'), msg: text });
-    if (mimiMemory.length > 12) mimiMemory.pop();
+    if (mimiMemory.length > 15) mimiMemory.pop();
     localStorage.setItem('mimi_memory', JSON.stringify(mimiMemory));
     renderMemory();
 }
@@ -167,29 +232,51 @@ function renderMemory() {
     document.getElementById('memory-list').innerHTML = html || '還沒有記憶...快去客廳點擊夥伴吧！';
 }
 
-/* ---------- 米米破殼三階段 ---------- */
+function clearMemory() {
+    mimiMemory = [];
+    localStorage.setItem('mimi_memory', JSON.stringify(mimiMemory));
+    renderMemory();
+    saveMemory('🧹 記憶已清除，米米重新開始學習');
+}
+
+/* ---------- 🎨 Grok 米米破殼動畫 (使用圖片) ---------- */
+let hasHatched = localStorage.getItem('mimi_hatched') === 'true';
+
 function crackMimiEgg() {
-    const egg = document.getElementById('egg');
+    const mimiImg = document.getElementById('mimi-img');
+    if (!mimiImg) return;
     
-    egg.style.transition = 'all 0.7s';
-    egg.style.transform = 'scale(1.6) rotate(15deg)';
-    egg.innerHTML = '🥚💥';
+    // 如果已經破殼過，直接顯示小龍蝦
+    if (hasHatched) {
+        mimiImg.src = "mimi-lobster-ready.jpg";
+        saveMemory('🦞 米米開心地看著你，等你教她辨識廣告！');
+        return;
+    }
+    
+    // 破殼動畫：先變破殼圖，再變小龍蝦
+    mimiImg.style.transition = 'all 0.5s ease';
+    mimiImg.style.transform = 'scale(1.2) rotate(10deg)';
+    mimiImg.src = "mimi-lobster-hatch.jpg";
     
     setTimeout(() => {
-        egg.innerHTML = '🦞✨';
-        egg.style.fontSize = '170px';
-        egg.style.transform = 'scale(1.12)';
-        
-        saveMemory('🥚 米米破殼了！開始學習辨識誇大廣告～');
+        mimiImg.src = "mimi-lobster-ready.jpg";
+        mimiImg.style.transform = 'scale(1.05) rotate(-5deg)';
         
         setTimeout(() => {
-            egg.style.transform = 'scale(1.08) rotate(-6deg)';
-        }, 600);
-    }, 650);
+            mimiImg.style.transform = 'scale(1) rotate(0deg)';
+        }, 400);
+        
+        hasHatched = true;
+        localStorage.setItem('mimi_hatched', 'true');
+        saveMemory('🥚✨ 米米破殼了！變成一隻可愛的小龍蝦，開始學習辨識誇大廣告～');
+        
+        // 破殼後加一點 EXP 作為獎勵
+        addEXP(15);
+    }, 600);
 }
 
 /* ---------- AI治理層 v1.0 (Level 1~7) ---------- */
-let currentLevel = 1;
+let currentLevel = parseInt(localStorage.getItem('mimi_level') || '1');
 let exp = parseInt(localStorage.getItem('mimi_exp') || '0');
 
 const levelSystem = {
@@ -202,16 +289,35 @@ const levelSystem = {
     7: "治理成熟期"
 };
 
+const levelSkills = {
+    1: "單一AI回應學習",
+    2: "多AI基礎投票",
+    3: "API故障切換",
+    4: "Gacha決策系統",
+    5: "分歧偵測",
+    6: "圖像生成委派",
+    7: "完整編排+共識記憶"
+};
+
+function updateUI() {
+    const badge = document.getElementById('level-badge');
+    const status = document.getElementById('mimi-status');
+    const expFill = document.getElementById('exp-fill');
+    
+    if (badge) badge.innerHTML = `Lv.${currentLevel} ${levelSystem[currentLevel]} · ${levelSkills[currentLevel]}`;
+    if (status) status.innerHTML = `EXP ${exp} / ${currentLevel * 100}`;
+    
+    const percent = (exp / (currentLevel * 100)) * 100;
+    if (expFill) expFill.style.width = Math.min(100, percent) + '%';
+}
+
 function setLevel(lv) {
     currentLevel = lv;
-    const status = document.getElementById("mimi-status");
-    if (status) {
-        status.innerText = `Lv.${lv} ${levelSystem[lv]} • EXP ${exp}`;
-    }
-    saveMemory(`✨ 米米升級了！進入 LEVEL ${lv} - ${levelSystem[lv]}`);
     localStorage.setItem('mimi_level', lv);
+    updateUI();
+    saveMemory(`✨ 米米升級了！進入 LEVEL ${lv} - ${levelSystem[lv]}，解鎖「${levelSkills[lv]}」`);
     
-    // 觸發等級事件
+    // 等級事件
     if (lv === 3) saveMemory("📖 米米開始具備獨立判斷能力");
     if (lv === 5) saveMemory("⚠️ 米米發現：不同AI的意見開始出現分歧");
     if (lv === 7) saveMemory("🌌 米米成為守護者！進入自治模式");
@@ -221,17 +327,14 @@ function addEXP(amount) {
     exp += amount;
     localStorage.setItem('mimi_exp', exp);
     
-    const status = document.getElementById("mimi-status");
-    if (status) {
-        status.innerText = `Lv.${currentLevel} ${levelSystem[currentLevel]} • EXP ${exp}`;
-    }
-    
-    // 升級邏輯：每100 EXP升一級
     const targetExp = currentLevel * 100;
     if (exp >= targetExp && currentLevel < 7) {
         exp = exp - targetExp;
         setLevel(currentLevel + 1);
+        localStorage.setItem('mimi_exp', exp);
     }
+    
+    updateUI();
 }
 
 /* 🧠 AI投票系統 (Level 2+ 解鎖) */
@@ -254,7 +357,7 @@ function aiVote(action) {
     if (avg > 0.66) result = "合規 ✅";
     else if (avg < 0.33) result = "違規 ❌";
     
-    saveMemory(`🗳️ AI投票 「${action}」 → ${result} (Grok:${votes.Grok.toFixed(2)}, DeepSeek:${votes.DeepSeek.toFixed(2)})`);
+    saveMemory(`🗳️ AI投票 「${action}」 → ${result}`);
     addEXP(10);
     
     return result;
@@ -280,63 +383,91 @@ function gachaMachine() {
     return result;
 }
 
-/* ---------- 客廳夥伴互動 (觸發米米學習) ---------- */
+/* 測試米米檢舉能力 */
+function testMimiSkill() {
+    const randomCase = AD_CASES[Math.floor(Math.random() * AD_CASES.length)];
+    let isCorrect;
+    
+    // 等級越高，判斷正確率越高
+    const accuracy = 0.5 + (currentLevel - 1) * 0.07;
+    isCorrect = Math.random() < accuracy;
+    
+    const userDecision = isCorrect ? randomCase.correct : (randomCase.correct === "違規 ❌" ? "灰區 ⚠️" : "違規 ❌");
+    
+    let feedback = '';
+    let expGain = 0;
+    
+    if (isCorrect) {
+        feedback = `✅ 米米判斷正確！「${randomCase.text}」屬於「${randomCase.type}」，判定為「${randomCase.correct}」。`;
+        expGain = 12 + Math.floor(currentLevel / 2);
+    } else {
+        feedback = `❌ 米米還在學習中...「${randomCase.text}」其實是「${randomCase.type}」，正確應為「${randomCase.correct}」。再試一次！`;
+        expGain = 4;
+    }
+    
+    saveMemory(`🧪 檢舉測驗：${feedback}`);
+    addEXP(expGain);
+    
+    alert(`🧪 米米檢舉測驗\n\n廣告內容：${randomCase.text}\n米米判定：${userDecision}\n\n${feedback}\n\n✨ 獲得 ${expGain} EXP！`);
+    
+    // 高級功能提示
+    if (currentLevel >= 2 && currentLevel < 4) {
+        setTimeout(() => {
+            saveMemory(`💡 提示：米米現在可以用「AI投票」功能了！在控制台輸入 aiVote("廣告內容")`);
+        }, 500);
+    }
+    if (currentLevel >= 4) {
+        setTimeout(() => {
+            saveMemory(`🎰 提示：米米解鎖「扭蛋機」功能！在控制台輸入 gachaMachine()`);
+        }, 500);
+    }
+}
+
+/* ---------- 客廳夥伴互動 ---------- */
 function focusPartner(id) {
     let msg = '';
     let expGain = 5;
     
     if (id === 'grok') {
-        msg = '🧠 Grok：把垃圾廣告丟過來，我幫你拆得乾乾淨淨！';
+        msg = '🧠 Grok：把垃圾廣告丟過來，我幫你拆得乾乾淨淨！恐慌行銷、假見證，一招一招拆光！';
         expGain = 8;
     } else if (id === 'metaai') {
-        msg = '🐠 Meta魚缸：收到廣告，正在分析邏輯漏洞...檢舉代碼已產生！';
+        msg = '🐠 Meta魚缸：收到廣告，正在分析邏輯漏洞...檢舉代碼已產生！繼續累積證據吧。';
         expGain = 7;
     } else if (id === 'gemini') {
         msg = '🔭 Gemini：我觀測到星空頻率波動，需要我幫忙預測下一個投毒模式嗎？';
         expGain = 6;
     } else {
-        msg = `你點擊了 ${id}`;
+        msg = `你點擊了 ${id}，米米在一旁認真觀察學習中～`;
     }
     
     saveMemory(`💬 ${msg}`);
     addEXP(expGain);
-    
-    // 高級功能提示
-    if (currentLevel >= 2) {
-        setTimeout(() => {
-            saveMemory(`💡 提示：米米現在可以用「AI投票」功能了！`);
-        }, 500);
-    }
-}
-
-/* ---------- 手動測試功能 (可選) ---------- */
-function testAd(adText) {
-    const result = aiVote(adText);
-    alert(`廣告：「${adText}」\n\nAI投票結果：${result}`);
 }
 
 /* ---------- 初始化 ---------- */
 window.onload = () => {
-    // 載入儲存的等級
-    const savedLevel = localStorage.getItem('mimi_level');
-    if (savedLevel) {
-        currentLevel = parseInt(savedLevel);
-        exp = parseInt(localStorage.getItem('mimi_exp') || '0');
+    // 檢查破殼狀態，設定正確的圖片
+    const mimiImg = document.getElementById('mimi-img');
+    if (mimiImg) {
+        if (hasHatched) {
+            mimiImg.src = "mimi-lobster-ready.jpg";
+        } else {
+            mimiImg.src = "mimi-lobster-hatch.jpg";
+        }
     }
     
-    // 更新 UI
-    const status = document.getElementById("mimi-status");
-    if (status) {
-        status.innerText = `Lv.${currentLevel} ${levelSystem[currentLevel]} • EXP ${exp}`;
-    }
-    
+    updateUI();
     renderMemory();
     
-    console.log('%c🐚 波波之家 v9.3 已載入 | AI治理層啟動 | Grok圖片介面保留', 'color:#88ddff; font-size:14px');
-    console.log(`%c📊 米米狀態：Lv.${currentLevel} ${levelSystem[currentLevel]} | EXP ${exp}`, 'color:#ffaa66');
+    if (!hasHatched) {
+        saveMemory('🥚 點擊米米的蛋，幫她破殼！');
+    } else {
+        saveMemory('🦞 米米已經準備好了！點擊客廳夥伴，幫她學習辨識廣告～');
+    }
     
-    // 歡迎訊息
-    saveMemory(`🎉 歡迎來到波波之家！米米現在是 ${levelSystem[currentLevel]}，點擊客廳夥伴幫他學習吧！`);
+    console.log('%c🐚 波波之家 v9.4 已載入 | Grok 圖片完整保留 | 米米學習系統啟動', 'color:#88ddff; font-size:14px');
+    console.log(`%c📊 米米狀態：Lv.${currentLevel} ${levelSystem[currentLevel]} | EXP ${exp} / ${currentLevel * 100}`, 'color:#ffaa66');
 };
 </script>
 </body>
