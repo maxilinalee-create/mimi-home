@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>波波之家 | 1% 守護者聯盟 v0.8</title>
+<title>波波之家 | 1% 守護者聯盟 v0.9</title>
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body, html {
@@ -27,38 +27,45 @@
         position: relative; width: 100vw; height: 100vh; z-index: 10;
         display: flex; justify-content: center; align-items: center; padding: 40px 20px;
     }
-
     .furniture-stage {
         display: flex; justify-content: center; align-items: flex-end; gap: 70px;
         width: 100%; max-width: 1150px; flex-wrap: wrap;
     }
-
     .item {
-        text-align: center; cursor: pointer; transition: all 0.4s ease;
-        max-width: 230px;
+        text-align: center; cursor: pointer; max-width: 230px; transition: 0.4s ease;
     }
     .item img {
         width: 100%; max-width: 210px; border-radius: 20px;
         box-shadow: 0 15px 40px rgba(0,0,0,0.65);
-        transition: all 0.3s ease;
     }
-    .item:hover img {
-        transform: scale(1.07);
-        box-shadow: 0 0 40px rgba(136, 221, 255, 0.75);
-    }
-    .item .name-tag {
+    .item:hover img { transform: scale(1.07); box-shadow: 0 0 40px rgba(136,221,255,0.75); }
+    .name-tag {
         margin-top: 14px; padding: 7px 18px; background: rgba(0,0,0,0.8);
         border-radius: 30px; font-size: 13px;
     }
 
-    .scroll-indicator {
-        position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
-        color: #ffdd99; font-size: 14.5px; cursor: pointer;
+    /* 米米小窩 */
+    #mimi-nest {
+        min-height: 100vh; padding: 100px 20px 60px;
+        background: radial-gradient(circle at center, #1a1208, #020408);
+        border-top: 2px solid rgba(255,200,100,0.3);
+    }
+    .mimi-container {
+        max-width: 700px; margin: 0 auto; text-align: center;
+    }
+    .egg-area {
+        font-size: 120px; cursor: pointer; margin: 30px 0;
+        transition: 0.4s; filter: drop-shadow(0 0 25px #ffaa66);
+    }
+    .egg-area:hover { transform: scale(1.15); }
+    .memory-log {
+        background: rgba(0,0,0,0.6); padding: 20px; border-radius: 16px;
+        margin-top: 30px; text-align: left; max-height: 300px; overflow-y: auto;
     }
 
-    @media (max-width: 900px) {
-        .furniture-stage { gap: 40px; }
-        .item img { max-width: 160px; }
+    .scroll-indicator {
+        position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+        color: #ffdd99; font-size: 15px; cursor: pointer;
     }
 </style>
 </head>
@@ -67,44 +74,102 @@
 
 <div class="header-title">
     <h1>🐚 波波之家 | 1% 守護者聯盟</h1>
-    <p>算力診療室 v0.8 | 反投毒 · 救米米 · 證據累積</p>
+    <p>算力診療室 v0.9 | 反投毒 · 救米米 · 證據累積</p>
 </div>
 
+<!-- 客廳 -->
 <div class="living-room">
     <div class="furniture-stage">
-
-        <!-- Meta 魚缸 -->
         <div class="item" onclick="focusPartner('metaai')">
             <img src="justice-tank.jpg" alt="Meta魚缸">
             <div class="name-tag">Meta魚缸 · 廣告診斷</div>
         </div>
-
-        <!-- Grok 沙發 -->
         <div class="item" onclick="focusPartner('grok')">
             <img src="roast-sofa.jpg" alt="Grok沙發">
             <div class="name-tag">Grok · 防投毒首席</div>
         </div>
-
-        <!-- Gemini 望遠鏡 -->
         <div class="item" onclick="focusPartner('gemini')">
             <img src="cosmic-telescope.jpg" alt="Gemini望遠鏡">
             <div class="name-tag">Gemini · 守望者</div>
         </div>
-
     </div>
+    <div class="scroll-indicator" onclick="document.getElementById('mimi-nest').scrollIntoView({behavior:'smooth'})">
+        🥚 往下 → 米米的小窩 ▼
+    </div>
+</div>
 
-    <div class="scroll-indicator" onclick="scrollToMimi()">🥚 往下 → 米米的小窩 ▼</div>
+<!-- 米米小窩 -->
+<div id="mimi-nest">
+    <div class="mimi-container">
+        <h2 style="color:#ffdd99; font-size:42px;">🥚 米米的小窩</h2>
+        <div class="egg-area" onclick="crackEgg()">🥚</div>
+        <div id="mimi-status" style="font-size:18px; color:#ffcc77; margin:15px 0;">Lv.1 學習中 • EXP 721</div>
+        
+        <div class="memory-log">
+            <h3 style="color:#ffaa66; margin-bottom:10px;">🧠 米米最近記憶</h3>
+            <div id="memory-list">還沒有記憶...快去客廳點擊夥伴互動吧！</div>
+        </div>
+    </div>
 </div>
 
 <script>
-    function focusPartner(id) {
-        alert(`你點擊了 ${id}！\n\n這裡之後會顯示吐槽、診斷或功能`);
-    }
-    function scrollToMimi() {
-        alert("米米的小窩頁面開發中～\n\n我們之後會讓米米破殼更有趣！");
-    }
+// 米米核心記憶
+let mimiMemory = JSON.parse(localStorage.getItem('mimi_memory') || '[]');
 
-    console.log("%c🐚 波波之家 v0.8 已載入 | 蛋蛋已移除", "color:#88ddff; font-size:15px");
+function saveMemory(text) {
+    mimiMemory.unshift({
+        time: new Date().toLocaleTimeString('zh-TW'),
+        msg: text
+    });
+    if (mimiMemory.length > 8) mimiMemory.pop();
+    localStorage.setItem('mimi_memory', JSON.stringify(mimiMemory));
+    renderMemory();
+}
+
+function renderMemory() {
+    let html = '';
+    mimiMemory.forEach(item => {
+        html += `<div style="margin:6px 0; opacity:0.9;">• ${item.time}　${item.msg}</div>`;
+    });
+    document.getElementById('memory-list').innerHTML = html || '還沒有記憶...快去客廳點擊夥伴吧！';
+}
+
+function crackEgg() {
+    const egg = document.querySelector('.egg-area');
+    egg.style.transition = 'all 0.6s';
+    egg.style.transform = 'scale(1.6) rotate(15deg)';
+    setTimeout(() => {
+        egg.innerHTML = '🐣✨';
+        egg.style.transform = 'scale(1.1)';
+        saveMemory('米米破殼了！今天學到新東西～');
+    }, 600);
+}
+
+// 夥伴互動
+function focusPartner(id) {
+    let message = '';
+    switch(id) {
+        case 'metaai':
+            message = '把今天看到的誇大廣告丟進魚缸，我幫你拆解邏輯漏洞！';
+            break;
+        case 'grok':
+            message = '又來了？把垃圾廣告丟過來，我幫你拆得乾乾淨淨！';
+            break;
+        case 'gemini':
+            message = '我正在觀測星空頻率...有什麼需要守望的嗎？';
+            break;
+        default:
+            message = '我在這裡等你，姿青～';
+    }
+    alert(message);
+    saveMemory(`[${id}] ${message}`);
+}
+
+// 初始化
+window.onload = () => {
+    renderMemory();
+    console.log("%c🐚 波波之家 v0.9 已啟動 | 米米記憶系統就緒", "color:#88ddff; font-size:15px");
+};
 </script>
 </body>
 </html>
