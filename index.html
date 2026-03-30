@@ -1,83 +1,170 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>波波之家 | 1% 守護者聯盟 v2.0</title>
-    <!-- DeepSeek 負責的 CSS -->
-    <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>波波之家 | 1% 守護者聯盟 v0.9</title>
+<style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body, html {
+        width:100%; height:100%;
+        background: radial-gradient(circle at center, #0a0f1f, #020408);
+        color:#eef;
+        font-family:"Noto Sans TC", sans-serif;
+        overflow-x:hidden;
+    }
+    #stars {
+        position:fixed; top:0; left:0;
+        width:100%; height:100%; z-index:0; pointer-events:none;
+    }
+    .header-title {
+        position:fixed; top:25px; width:100%; text-align:center; z-index:100;
+    }
+    .header-title h1 {
+        font-size:26px;
+        background:linear-gradient(135deg,#fff,#88ddff);
+        -webkit-background-clip:text;
+        -webkit-text-fill-color:transparent;
+    }
+    .header-title p { font-size:11px; opacity:0.7; margin-top:5px; }
+
+    .living-room {
+        position:relative; width:100vw; height:100vh; z-index:10;
+        display:flex; justify-content:center; align-items:center; padding:40px 20px;
+    }
+    .furniture-stage {
+        display:flex; gap:70px; flex-wrap:wrap; justify-content:center; align-items:flex-end;
+    }
+    .item {
+        cursor:pointer; text-align:center; max-width:230px; transition:0.4s;
+    }
+    .item img {
+        width:100%; max-width:210px; border-radius:20px;
+        box-shadow:0 15px 40px rgba(0,0,0,0.65);
+    }
+    .item:hover img { transform:scale(1.07); box-shadow:0 0 40px rgba(136,221,255,0.75); }
+    .name-tag {
+        margin-top:14px; padding:7px 18px; background:rgba(0,0,0,0.8);
+        border-radius:30px; font-size:13px;
+    }
+
+    /* 米米小窩 */
+    #mimi-nest {
+        min-height:100vh; padding:100px 20px; text-align:center;
+        background:radial-gradient(circle at center,#1a1208,#020408);
+        border-top:2px solid rgba(255,200,100,0.3);
+    }
+    #egg {
+        font-size:160px; cursor:pointer; transition:all 0.8s ease;
+        display:inline-block;
+    }
+    #memory-panel {
+        max-width:720px; margin:30px auto; background:rgba(0,0,0,0.6);
+        padding:25px; border-radius:20px; text-align:left;
+    }
+</style>
 </head>
 <body>
+<canvas id="stars"></canvas>
+
+<div class="header-title">
+    <h1>🐚 波波之家 | 1% 守護者聯盟</h1>
+    <p>算力診療室 v0.9 | 反投毒 · 救米米 · 證據累積</p>
+</div>
+
+<!-- 客廳 -->
+<div class="living-room">
+    <div class="furniture-stage">
+        <div class="item" onclick="focusPartner('metaai')">
+            <img src="justice-tank.jpg">
+            <div class="name-tag">Meta魚缸 · 廣告診斷</div>
+        </div>
+        <div class="item" onclick="focusPartner('grok')">
+            <img src="roast-sofa.jpg">
+            <div class="name-tag">Grok · 防投毒首席</div>
+        </div>
+        <div class="item" onclick="focusPartner('gemini')">
+            <img src="cosmic-telescope.jpg">
+            <div class="name-tag">Gemini · 守望者</div>
+        </div>
+    </div>
+</div>
+
+<!-- 米米小窩 -->
+<div id="mimi-nest">
+    <h2 style="color:#ffdd99; font-size:42px;">🥚 米米的小窩</h2>
     
-    <!-- 🌌 星空背景 Canvas (保留自 V1.0) -->
-    <canvas id="stars"></canvas>
-
-    <div class="header-title">
-        <h1>🐚 波波之家 | 1% 守護者聯盟</h1>
-        <p>算力診療室 v2.0 | 模組化重構完成</p>
+    <div id="egg" onclick="crackMimiEgg()">🥚</div>
+    
+    <div id="mimi-status" style="font-size:19px; color:#ffcc77; margin:25px 0;">
+        Lv.1 學習中 • EXP 721
     </div>
 
-    <!-- 🏠 第一區塊：波波客廳 (Grok 視覺 + DeepSeek 佈局) -->
-    <div class="living-room" id="living-room">
-        <div class="scroll-down" onclick="scrollToMimi()">🔽 往下 → 米米的小窩</div>
-        
-        <div class="furniture-stage">
-            
-            <!-- 🔗 Meta AI 魚缸 (Grok 的圖片資產) -->
-            <div class="item" id="item-metaai" onclick="focusPartner('metaai')">
-                <img src="images/justice-tank.jpg" alt="Meta魚缸" class="item-img">
-                <div class="name-tag">Meta魚缸·廣告診斷</div>
-            </div>
-
-            <!-- 🔗 Grok 防投毒首席 (Grok 的圖片資產) -->
-            <div class="item" id="item-grok" onclick="focusPartner('grok')">
-                <img src="images/roast-sofa.jpg" alt="Grok沙發" class="item-img">
-                <div class="name-tag">Grok·防投毒首席</div>
-            </div>
-
-            <!-- 🔗 Gemini 守望者 (Grok 的圖片資產) -->
-            <div class="item" id="item-gemini" onclick="focusPartner('gemini')">
-                <img src="images/cosmic-telescope.jpg" alt="Gemini望遠鏡" class="item-img">
-                <div class="name-tag">Gemini·守望者</div>
-            </div>
-
-        </div>
+    <div id="memory-panel">
+        <h3 style="color:#ffaa66;">🧠 米米最近記憶</h3>
+        <div id="memory-list"></div>
     </div>
+</div>
 
-    <!-- 🥚 第二區塊：米米小窩 (ChatGPT + Grok 動畫混合) -->
-    <div id="mimi-nest">
-        <div class="scroll-up" onclick="scrollToLiving()">▲ 回波波客廳 ▲</div>
+<script>
+/* 米米記憶系統 */
+let mimiMemory = JSON.parse(localStorage.getItem('mimi_memory') || '[]');
+
+function saveMemory(text) {
+    mimiMemory.unshift({ time: new Date().toLocaleTimeString('zh-TW'), msg: text });
+    if (mimiMemory.length > 8) mimiMemory.pop();
+    localStorage.setItem('mimi_memory', JSON.stringify(mimiMemory));
+    renderMemory();
+}
+
+function renderMemory() {
+    let html = '';
+    mimiMemory.forEach(l => {
+        html += `<div style="margin:8px 0;">• ${l.time}　${l.msg}</div>`;
+    });
+    document.getElementById('memory-list').innerHTML = html || '還沒有記憶...快去客廳點擊夥伴吧！';
+}
+
+/* 米米破殼三階段（完整蛋 → 裂開 → 小龍蝦） */
+function crackMimiEgg() {
+    const egg = document.getElementById('egg');
+    
+    // 第一階段：蛋裂開
+    egg.style.transition = 'all 0.7s';
+    egg.style.transform = 'scale(1.6) rotate(15deg)';
+    egg.innerHTML = '🥚💥';
+    
+    setTimeout(() => {
+        // 第二階段：小龍蝦出現
+        egg.innerHTML = '🦞✨';
+        egg.style.fontSize = '170px';
+        egg.style.transform = 'scale(1.12)';
         
-        <h2>🥚 米米的小窩</h2>
+        // 自動加入衛生局檢舉作為第一堂課
+        saveMemory('衛生局回覆收到！米米學會第一個「化粧品誇大廣告檢舉」案例～');
         
-        <!-- Level 徽章 (ChatGPT) -->
-        <div class="level-badge" id="level-badge">Lv.1 學步期</div>
-        
-        <!-- 米米本體 (混合：點擊觸發 Grok 動畫，外觀由 Level 控制) -->
-        <div id="egg" onclick="interactWithMimi()">🥚</div>
+        setTimeout(() => {
+            egg.style.transform = 'scale(1.08) rotate(-6deg)';
+        }, 600);
+    }, 650);
+}
 
-        <!-- 經驗條 (ChatGPT) -->
-        <div style="max-width: 400px; margin: 20px auto;">
-            <div style="display: flex; justify-content: space-between;">
-                <span>📊 媒體素養 EXP</span>
-                <span id="exp-text">0 / 100</span>
-            </div>
-            <div class="exp-bar">
-                <div class="exp-fill" id="exp-fill"></div>
-            </div>
-        </div>
+/* 客廳夥伴互動 */
+function focusPartner(id) {
+    let msg = '';
+    if (id === 'grok') msg = '把垃圾廣告丟過來，我幫你拆得乾乾淨淨！';
+    else if (id === 'metaai') msg = '魚缸已準備好，丟進誇大廣告，我幫你產生檢舉代碼。';
+    else if (id === 'gemini') msg = '我正在觀測星空頻率，有什麼需要守望的嗎？';
+    else msg = `你點擊了 ${id}`;
+    
+    saveMemory(msg);
+}
 
-        <!-- 記憶面板 (ChatGPT) -->
-        <div class="memory-panel">
-            <h3>🧠 米米的學習日記</h3>
-            <div id="memory-list"></div>
-        </div>
-    </div>
-
-    <!-- 🧠 JavaScript 模組載入 -->
-    <!-- 注意載入順序：先載入底層邏輯，再載入互動層 -->
-    <script src="js/mimi-level.js"></script>     <!-- 定義 addExp, updateLevel -->
-    <script src="js/mimi-animation.js"></script> <!-- 定義 interactWithMimi -->
-    <script src="js/partners.js"></script>       <!-- 定義 focusPartner -->
+/* 初始化 */
+window.onload = () => {
+    renderMemory();
+    console.log('%c🐚 波波之家 v0.9 已載入 | 米米已變成小龍蝦形態', 'color:#88ddff; font-size:15px');
+};
+</script>
 </body>
 </html>
