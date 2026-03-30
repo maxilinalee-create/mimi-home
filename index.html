@@ -134,33 +134,19 @@ function crackMimiEgg() {
     egg.style.transform = 'scale(1.6) rotate(15deg)';
     egg.innerHTML = '🥚💥';
     
-  function crackMimiEgg() {
-    const egg = document.getElementById('egg');
-
-    // 🥚 第一階段：蛋（換圖片）
-    egg.style.transition = 'all 0.7s';
-    egg.style.transform = 'scale(1.4) rotate(10deg)';
-    egg.innerHTML = `<img src="images/mimi-egg.jpg" style="width:160px;">`;
-
     setTimeout(() => {
-
-        // 💥 第二階段：破殼瞬間
-        egg.innerHTML = `<img src="images/mimi-lobster-hatch.jpg" style="width:170px;">`;
-        egg.style.transform = 'scale(1.2)';
-
-        saveMemory('米米開始破殼學習世界的第一層規則');
-
+        // 第二階段：小龍蝦出現
+        egg.innerHTML = '🦞✨';
+        egg.style.fontSize = '170px';
+        egg.style.transform = 'scale(1.12)';
+        
+        // 自動加入衛生局檢舉作為第一堂課
+        saveMemory('衛生局回覆收到！米米學會第一個「化粧品誇大廣告檢舉」案例～');
+        
         setTimeout(() => {
-
-            // 🦞 第三階段：完全體
-            egg.innerHTML = `<img src="images/mimi-lobster-ready.jpg" style="width:180px;">`;
-            egg.style.transform = 'scale(1.1)';
-
-            saveMemory('米米完成形態轉換：小龍蝦認知體已啟動');
-
-        }, 700);
-
-    }, 700);
+            egg.style.transform = 'scale(1.08) rotate(-6deg)';
+        }, 600);
+    }, 650);
 }
 
 /* 客廳夥伴互動 */
