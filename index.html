@@ -61,28 +61,27 @@
     <div class="living-room-bg"></div>
     <div class="scroll-indicator" onclick="scrollToMimi()" style="bottom:130px;color:#ffdd99;">🥚 往下 → 米米的小窩 ▼</div>
 
-            <!-- Meta AI 正義魚缸 -->
-    <div class="hotspot" id="spot-metaai" onclick="focusPartner('metaai')">
+                <!-- Meta AI 正義魚缸 - 左側窗台 -->
+    <div class="hotspot" id="spot-metaai" onclick="focusPartner('metaai')" style="top: 32%; left: 12%; width: 155px;">
         <img src="justice-tank.jpg" alt="Meta AI 正義魚缸">
         <div class="name-tag">Meta魚缸 · 廣告診斷</div>
     </div>
 
-    <!-- Gemini 星空望遠鏡 -->
-    <div class="hotspot" id="spot-gemini" onclick="focusPartner('gemini')">
+    <!-- Gemini 星空望遠鏡 - 右側落地窗 -->
+    <div class="hotspot" id="spot-gemini" onclick="focusPartner('gemini')" style="top: 25%; right: 15%; width: 165px;">
         <img src="cosmic-telescope.jpg" alt="Gemini 星空望遠鏡">
         <div class="name-tag">Gemini · 守望者</div>
     </div>
 
-    <!-- Grok 吐槽沙發 -->
-    <div class="hotspot active" id="spot-grok" onclick="focusPartner('grok')">
+    <!-- Grok 吐槽沙發 - 中央主位 -->
+    <div class="hotspot active" id="spot-grok" onclick="focusPartner('grok')" style="top: 52%; left: 38%; width: 190px;">
         <img src="roast-sofa.jpg" alt="Grok 吐槽沙發">
         <div class="name-tag">Grok · 防投毒首席</div>
     </div>
 
-    <!-- 米米（暫時先用Emoji） -->
-    <div class="hotspot" id="spot-mimi" onclick="focusPartner('mimi')" 
-         style="bottom:42%; left:48%; transform:translateX(-50%); width:130px;">
-        <div class="emoji" style="font-size:72px;">🥚💖</div>
+    <!-- 米米 - 放在下方中間，不擋到沙發 -->
+    <div class="hotspot" id="spot-mimi" onclick="focusPartner('mimi')" style="bottom: 38%; left: 50%; transform: translateX(-50%); width: 110px;">
+        <div class="emoji" style="font-size: 78px;">🥚💖</div>
         <div class="name-tag">米米 · 學習中</div>
     </div>
     <!-- 米米（暫時先用Emoji，之後再換） -->
