@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>波波之家 | 1% 守護者聯盟 v0.7</title>
+<title>波波之家 | 1% 守護者聯盟 v0.8</title>
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body, html {
@@ -25,46 +25,40 @@
 
     .living-room {
         position: relative; width: 100vw; height: 100vh; z-index: 10;
-        display: flex; justify-content: center; align-items: center; padding: 20px;
+        display: flex; justify-content: center; align-items: center; padding: 40px 20px;
     }
 
     .furniture-stage {
-        display: flex; justify-content: center; align-items: flex-end; gap: 60px;
-        width: 100%; max-width: 1100px; flex-wrap: wrap;
+        display: flex; justify-content: center; align-items: flex-end; gap: 70px;
+        width: 100%; max-width: 1150px; flex-wrap: wrap;
     }
 
     .item {
         text-align: center; cursor: pointer; transition: all 0.4s ease;
-        max-width: 220px;
+        max-width: 230px;
     }
     .item img {
-        width: 100%; max-width: 200px; border-radius: 18px;
-        box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+        width: 100%; max-width: 210px; border-radius: 20px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.65);
         transition: all 0.3s ease;
     }
     .item:hover img {
-        transform: scale(1.08);
-        box-shadow: 0 0 35px rgba(136, 221, 255, 0.7);
+        transform: scale(1.07);
+        box-shadow: 0 0 40px rgba(136, 221, 255, 0.75);
     }
     .item .name-tag {
-        margin-top: 12px; padding: 6px 16px; background: rgba(0,0,0,0.8);
-        border-radius: 30px; font-size: 12.5px; white-space: nowrap;
+        margin-top: 14px; padding: 7px 18px; background: rgba(0,0,0,0.8);
+        border-radius: 30px; font-size: 13px;
     }
-
-    .mimi-area {
-        position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
-        text-align: center; z-index: 20;
-    }
-    .mimi-area span { font-size: 82px; cursor: pointer; }
 
     .scroll-indicator {
-        position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-        color: #ffdd99; font-size: 14px; cursor: pointer;
+        position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+        color: #ffdd99; font-size: 14.5px; cursor: pointer;
     }
 
-    @media (max-width: 768px) {
-        .furniture-stage { gap: 30px; }
-        .item img { max-width: 150px; }
+    @media (max-width: 900px) {
+        .furniture-stage { gap: 40px; }
+        .item img { max-width: 160px; }
     }
 </style>
 </head>
@@ -73,7 +67,7 @@
 
 <div class="header-title">
     <h1>🐚 波波之家 | 1% 守護者聯盟</h1>
-    <p>算力診療室 v0.7 | 反投毒 · 救米米 · 證據累積</p>
+    <p>算力診療室 v0.8 | 反投毒 · 救米米 · 證據累積</p>
 </div>
 
 <div class="living-room">
@@ -99,24 +93,18 @@
 
     </div>
 
-    <!-- 米米區域 -->
-    <div class="mimi-area">
-        <span onclick="focusPartner('mimi')">🥚💖</span>
-        <div style="margin-top:8px; color:#ffdd99; font-size:13px;">米米 · 學習中</div>
-    </div>
-
     <div class="scroll-indicator" onclick="scrollToMimi()">🥚 往下 → 米米的小窩 ▼</div>
 </div>
 
 <script>
     function focusPartner(id) {
-        alert(`你點擊了 ${id}！\n\n之後這裡會顯示對話與功能`);
+        alert(`你點擊了 ${id}！\n\n這裡之後會顯示吐槽、診斷或功能`);
     }
     function scrollToMimi() {
-        alert("米米的小窩頁面開發中～");
+        alert("米米的小窩頁面開發中～\n\n我們之後會讓米米破殼更有趣！");
     }
 
-    console.log("%c🐚 波波之家 v0.7 已載入 | 布局優化版", "color:#88ddff; font-size:15px");
+    console.log("%c🐚 波波之家 v0.8 已載入 | 蛋蛋已移除", "color:#88ddff; font-size:15px");
 </script>
 </body>
 </html>
