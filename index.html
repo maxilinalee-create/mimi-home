@@ -165,6 +165,110 @@ window.onload = () => {
     renderMemory();
     console.log('%c🐚 波波之家 v0.9 已載入 | 米米已變成小龍蝦形態', 'color:#88ddff; font-size:15px');
 };
+
+/*************************************************
+ 🧠 波波之家 AI治理層 v1.0
+ LEVEL 1~7 + AI投票 + 灰區扭蛋機
+**************************************************/
+
+let currentLevel = 1;
+
+const levelSystem = {
+    1: "學步期",
+    2: "觀察期",
+    3: "判斷期",
+    4: "協作期",
+    5: "多AI分歧期",
+    6: "策略整合期",
+    7: "治理成熟期"
+};
+
+function setLevel(lv) {
+    currentLevel = lv;
+    const status = document.getElementById("mimi-status");
+    if (status) {
+        status.innerText = `Lv.${lv} ${levelSystem[lv] || "未知階段"}`;
+    }
+    saveMemory(`系統升級：進入 LEVEL ${lv} - ${levelSystem[lv]}`);
+}
+
+/* EXP → LEVEL自動升級 */
+let exp = 0;
+
+function addEXP(amount) {
+    exp += amount;
+
+    const status = document.getElementById("mimi-status");
+    if (status) {
+        status.innerText = `Lv.${currentLevel} ${levelSystem[currentLevel]} • EXP ${exp}`;
+    }
+
+    // 升級邏輯
+    if (exp >= 100 && currentLevel < 7) {
+        exp = 0;
+        setLevel(currentLevel + 1);
+    }
+}
+
+/* 🧠 AI投票系統 */
+function aiVote(action) {
+    const votes = {
+        grok: Math.random(),
+        deepseek: Math.random(),
+        gemini: Math.random(),
+        chatgpt: Math.random()
+    };
+
+    let result = "灰區";
+
+    const avg = Object.values(votes).reduce((a,b)=>a+b)/4;
+
+    if (avg > 0.66) result = "合規";
+    else if (avg < 0.33) result = "違規";
+
+    saveMemory(`AI投票結果：${action} → ${result}`);
+    addEXP(15);
+
+    return result;
+}
+
+/* 🎰 違規扭蛋機（你說的三分類） */
+function gachaMachine() {
+    const r = Math.random();
+
+    let result;
+
+    if (r < 0.33) result = "違規 ❌";
+    else if (r < 0.66) result = "灰區 ⚠️";
+    else result = "合規 ✅";
+
+    saveMemory(`扭蛋結果：${result}`);
+    addEXP(10);
+
+    return result;
+}
+
+/* 🔥 LEVEL觸發事件 */
+function levelTrigger() {
+    if (currentLevel === 3) {
+        saveMemory("系統提示：米米開始具備判斷能力");
+    }
+
+    if (currentLevel === 5) {
+        saveMemory("⚠️ 多AI意見分裂開始出現");
+    }
+
+    if (currentLevel === 7) {
+        saveMemory("🌌 治理系統完成：進入自治模式");
+    }
+}
+
+/* 每次EXP變動都檢查 */
+const originalAddEXP = addEXP;
+addEXP = function(amount){
+    originalAddEXP(amount);
+    levelTrigger();
+};
 </script>
 </body>
 </html>
