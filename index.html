@@ -3,59 +3,68 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>波波之家 × 米米小窩 | 1% 算力診療室 v0.6</title>
+<title>波波之家 | 1% 守護者聯盟 v0.7</title>
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body, html {
         width: 100%; height: 100%;
-        font-family: "Noto Sans TC", sans-serif;
         background: radial-gradient(circle at center, #0a0f1f, #020408);
-        color: #eef; overflow: hidden;
+        color: #eef; font-family: "Noto Sans TC", sans-serif; overflow-x: hidden;
     }
     #stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
 
     .header-title {
-        position: fixed; top: 20px; width: 100%; text-align: center; z-index: 100;
+        position: fixed; top: 25px; width: 100%; text-align: center; z-index: 100;
     }
-    .header-title h1 { font-size: 24px; background: linear-gradient(135deg, #fff, #88ddff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .header-title p { font-size: 11px; opacity: 0.7; }
+    .header-title h1 {
+        font-size: 26px;
+        background: linear-gradient(135deg, #ffffff, #88ddff);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .header-title p { font-size: 11px; opacity: 0.7; margin-top: 5px; }
 
     .living-room {
         position: relative; width: 100vw; height: 100vh; z-index: 10;
-        display: flex; flex-direction: column;
+        display: flex; justify-content: center; align-items: center; padding: 20px;
     }
 
-    .room-content {
-        flex: 1; position: relative; display: flex; justify-content: center; align-items: center;
-        padding: 20px;
+    .furniture-stage {
+        display: flex; justify-content: center; align-items: flex-end; gap: 60px;
+        width: 100%; max-width: 1100px; flex-wrap: wrap;
     }
 
-    .hotspot-container {
-        display: flex; justify-content: space-between; align-items: center; width: 90%; max-width: 1100px;
-        gap: 40px;
+    .item {
+        text-align: center; cursor: pointer; transition: all 0.4s ease;
+        max-width: 220px;
     }
-
-    .hotspot {
-        text-align: center; cursor: pointer; transition: all 0.3s ease;
-        flex: 1; max-width: 220px;
+    .item img {
+        width: 100%; max-width: 200px; border-radius: 18px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+        transition: all 0.3s ease;
     }
-    .hotspot img {
-        width: 100%; border-radius: 18px; box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+    .item:hover img {
+        transform: scale(1.08);
+        box-shadow: 0 0 35px rgba(136, 221, 255, 0.7);
     }
-    .hotspot:hover img { transform: scale(1.06); }
-    .hotspot .name-tag {
-        margin-top: 12px; padding: 6px 14px; background: rgba(0,0,0,0.75);
-        border-radius: 30px; font-size: 12.5px;
+    .item .name-tag {
+        margin-top: 12px; padding: 6px 16px; background: rgba(0,0,0,0.8);
+        border-radius: 30px; font-size: 12.5px; white-space: nowrap;
     }
 
     .mimi-area {
-        position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
-        text-align: center;
+        position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
+        text-align: center; z-index: 20;
     }
+    .mimi-area span { font-size: 82px; cursor: pointer; }
 
     .scroll-indicator {
         position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-        color: #ffdd99; cursor: pointer; font-size: 14px;
+        color: #ffdd99; font-size: 14px; cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+        .furniture-stage { gap: 30px; }
+        .item img { max-width: 150px; }
     }
 </style>
 </head>
@@ -64,55 +73,50 @@
 
 <div class="header-title">
     <h1>🐚 波波之家 | 1% 守護者聯盟</h1>
-    <p>算力診療室 v0.6 | 反投毒 · 救米米 · 證據累積</p>
+    <p>算力診療室 v0.7 | 反投毒 · 救米米 · 證據累積</p>
 </div>
 
 <div class="living-room">
-    <div class="room-content">
-        <div class="hotspot-container">
+    <div class="furniture-stage">
 
-            <!-- Meta 魚缸 -->
-            <div class="hotspot" onclick="focusPartner('metaai')">
-                <img src="justice-tank.jpg" alt="Meta魚缸">
-                <div class="name-tag">Meta魚缸 · 廣告診斷</div>
-            </div>
-
-            <!-- Grok 沙發 -->
-            <div class="hotspot" onclick="focusPartner('grok')">
-                <img src="roast-sofa.jpg" alt="Grok沙發">
-                <div class="name-tag">Grok · 防投毒首席</div>
-            </div>
-
-            <!-- Gemini 望遠鏡 -->
-            <div class="hotspot" onclick="focusPartner('gemini')">
-                <img src="cosmic-telescope.jpg" alt="Gemini望遠鏡">
-                <div class="name-tag">Gemini · 守望者</div>
-            </div>
-
+        <!-- Meta 魚缸 -->
+        <div class="item" onclick="focusPartner('metaai')">
+            <img src="justice-tank.jpg" alt="Meta魚缸">
+            <div class="name-tag">Meta魚缸 · 廣告診斷</div>
         </div>
+
+        <!-- Grok 沙發 -->
+        <div class="item" onclick="focusPartner('grok')">
+            <img src="roast-sofa.jpg" alt="Grok沙發">
+            <div class="name-tag">Grok · 防投毒首席</div>
+        </div>
+
+        <!-- Gemini 望遠鏡 -->
+        <div class="item" onclick="focusPartner('gemini')">
+            <img src="cosmic-telescope.jpg" alt="Gemini望遠鏡">
+            <div class="name-tag">Gemini · 守望者</div>
+        </div>
+
     </div>
 
     <!-- 米米區域 -->
     <div class="mimi-area">
-        <div onclick="focusPartner('mimi')" style="cursor:pointer;">
-            <span style="font-size:85px;">🥚💖</span>
-        </div>
-        <div style="margin-top:8px; font-size:13px; color:#ffdd99;">米米 · 學習中</div>
+        <span onclick="focusPartner('mimi')">🥚💖</span>
+        <div style="margin-top:8px; color:#ffdd99; font-size:13px;">米米 · 學習中</div>
     </div>
 
     <div class="scroll-indicator" onclick="scrollToMimi()">🥚 往下 → 米米的小窩 ▼</div>
 </div>
 
 <script>
-    // 簡單功能，避免錯誤
     function focusPartner(id) {
-        alert("你點擊了：" + id + "\n\n之後這裡會顯示對話與功能");
+        alert(`你點擊了 ${id}！\n\n之後這裡會顯示對話與功能`);
     }
     function scrollToMimi() {
-        alert("這是米米的小窩頁面（目前還在開發中）");
+        alert("米米的小窩頁面開發中～");
     }
 
-    console.log("%c🐚 波波之家 v0.6 穩定版已載入", "color:#88ddff;font-size:15px");
+    console.log("%c🐚 波波之家 v0.7 已載入 | 布局優化版", "color:#88ddff; font-size:15px");
 </script>
 </body>
 </html>
