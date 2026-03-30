@@ -1,635 +1,234 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>波波之家 | 1% 守護者聯盟 v10.1</title>
-<style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body, html {
-        width:100%; height:100%;
-        background: radial-gradient(circle at center, #0a0f1f, #020408);
-        color:#eef;
-        font-family:"Noto Sans TC", sans-serif;
-        overflow-x:hidden;
-    }
-    #stars {
-        position:fixed; top:0; left:0;
-        width:100%; height:100%; z-index:0; pointer-events:none;
-    }
-    .header-title {
-        position:fixed; top:25px; width:100%; text-align:center; z-index:100;
-        pointer-events: none;
-    }
-    .header-title h1 {
-        font-size:26px;
-        background:linear-gradient(135deg,#fff,#88ddff);
-        -webkit-background-clip:text;
-        -webkit-text-fill-color:transparent;
-    }
-    .header-title p { font-size:11px; opacity:0.7; margin-top:5px; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>波波之家 | 1% 守護者聯盟 v10.1</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body, html {
+            width:100%; height:100%;
+            background: radial-gradient(circle at center, #0a0f1f, #020408);
+            color:#eef;
+            font-family:"Noto Sans TC", sans-serif;
+            overflow-x:hidden;
+        }
+        #stars { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+        .header-title { position:fixed; top:25px; width:100%; text-align:center; z-index:100; }
+        .header-title h1 { font-size:26px; background:linear-gradient(135deg,#fff,#88ddff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .header-title p { font-size:11px; opacity:0.7; margin-top:5px; }
+        
+        .living-room { position:relative; width:100vw; height:100vh; z-index:10; display:flex; justify-content:center; align-items:center; padding:40px 20px; }
+        .furniture-stage { display:flex; gap:70px; flex-wrap:wrap; justify-content:center; align-items:flex-end; }
+        .item { cursor:pointer; text-align:center; max-width:230px; transition:0.4s; }
+        .item img { width:100%; max-width:210px; border-radius:20px; box-shadow:0 15px 40px rgba(0,0,0,0.65); }
+        .item:hover img { transform:scale(1.07); box-shadow:0 0 40px rgba(136,221,255,0.75); }
+        .name-tag { margin-top:14px; padding:7px 18px; background:rgba(0,0,0,0.8); border-radius:30px; font-size:13px; }
 
-    .living-room {
-        position:relative; width:100vw; min-height:100vh; z-index:10;
-        display:flex; justify-content:center; align-items:center; padding:100px 20px 60px;
-    }
-    .furniture-stage {
-        display:flex; gap:50px; flex-wrap:wrap; justify-content:center; align-items:flex-end;
-    }
-    .item {
-        cursor:pointer; text-align:center; max-width:220px; transition:0.4s;
-    }
-    .item img {
-        width:100%; max-width:200px; border-radius:25px;
-        box-shadow:0 15px 40px rgba(0,0,0,0.65);
-        transition: all 0.3s ease;
-        border: 2px solid rgba(136,221,255,0.3);
-    }
-    .item:hover img {
-        transform:scale(1.05);
-        border-color: #88ddff;
-        box-shadow:0 0 30px rgba(136,221,255,0.5);
-    }
-    .item.active img {
-        border-color: #ffaa66;
-        box-shadow: 0 0 35px rgba(255,170,102,0.6);
-    }
-    .name-tag {
-        margin-top:14px; padding:7px 18px; background:rgba(0,0,0,0.8);
-        border-radius:30px; font-size:13px; backdrop-filter: blur(5px);
-    }
+        #mimi-nest { min-height:100vh; padding:100px 20px; text-align:center; background:radial-gradient(circle at center,#1a1208,#020408); border-top:2px solid rgba(255,200,100,0.3); }
+        #egg-container { cursor: pointer; display: inline-block; transition: all 0.6s ease; position: relative; }
+        #egg-container img { max-width: 280px; width: 100%; border-radius: 30px; filter: drop-shadow(0 0 20px rgba(255,170,102,0.5)); transition: all 0.3s ease; }
+        #egg-container:hover img { transform: scale(1.05); filter: drop-shadow(0 0 30px rgba(255,170,102,0.8)); }
 
-    /* 米米小窩 */
-    #mimi-nest {
-        min-height:100vh; padding:100px 20px; text-align:center;
-        background:radial-gradient(circle at center,#1a1208,#020408);
-        border-top:3px solid rgba(255,200,100,0.4);
-    }
+        #bite-animation { position: fixed; bottom: 20%; left: 50%; transform: translateX(-50%); z-index: 200; pointer-events: none; display: none; }
+        #bite-animation img { max-width: 200px; animation: biteAnim 0.8s ease-out forwards; }
+        @keyframes biteAnim { 0% { transform: scale(0.8) rotate(-15deg); opacity: 0; } 20% { transform: scale(1.2) rotate(5deg); opacity: 1; } 60% { transform: scale(1) rotate(-5deg); } 100% { transform: scale(0.9) rotate(0deg); opacity: 0; } }
 
-    /* 🎨 Grok 米米圖片容器 */
-    #egg-container {
-        cursor: pointer;
-        display: inline-block;
-        transition: all 0.6s ease;
-        position: relative;
-    }
-    #egg-container img {
-        max-width: 280px;
-        width: 100%;
-        border-radius: 30px;
-        filter: drop-shadow(0 0 20px rgba(255,170,102,0.5));
-        transition: all 0.3s ease;
-    }
-    #egg-container:hover img {
-        transform: scale(1.05);
-        filter: drop-shadow(0 0 30px rgba(255,170,102,0.8));
-    }
-    
-    /* 🎨 米米咬廣告動畫區 */
-    #bite-animation {
-        position: fixed;
-        bottom: 20%;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 200;
-        pointer-events: none;
-        display: none;
-    }
-    #bite-animation img {
-        max-width: 200px;
-        animation: biteAnim 0.8s ease-out forwards;
-    }
-    @keyframes biteAnim {
-        0% { transform: scale(0.8) rotate(-15deg); opacity: 0; }
-        20% { transform: scale(1.2) rotate(5deg); opacity: 1; }
-        60% { transform: scale(1) rotate(-5deg); }
-        100% { transform: scale(0.9) rotate(0deg); opacity: 0; }
-    }
-    
-    #memory-panel {
-        max-width:800px; margin:30px auto; background:rgba(0,0,0,0.7);
-        padding:25px; border-radius:25px; text-align:left;
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(255,200,100,0.3);
-    }
-    .memory-item {
-        margin:12px 0; padding: 8px 12px;
-        background: rgba(255,200,100,0.1);
-        border-radius: 15px;
-        border-left: 3px solid #ffaa66;
-    }
-    .memory-time { font-size: 11px; color: #ffaa66; margin-right: 12px; }
-    .memory-msg { font-size: 14px; }
-    
-    /* 經驗條 */
-    .exp-bar {
-        max-width: 400px;
-        margin: 20px auto;
-        height: 12px;
-        background: rgba(255,200,100,0.2);
-        border-radius: 20px;
-        overflow: hidden;
-    }
-    .exp-fill {
-        height: 100%;
-        background: linear-gradient(90deg, #ffaa66, #ff8866);
-        width: 0%;
-        transition: width 0.5s ease;
-        border-radius: 20px;
-    }
-    
-    .level-badge {
-        display: inline-block;
-        background: linear-gradient(135deg, #ffaa66, #ff8866);
-        padding: 8px 24px;
-        border-radius: 40px;
-        font-size: 18px;
-        font-weight: bold;
-        margin: 15px 0;
-        color: #1a1a2a;
-    }
-    
-    /* AI 對話框 */
-    .ai-dialogue {
-        max-width: 500px;
-        margin: 15px auto;
-        padding: 12px 20px;
-        background: rgba(0,0,0,0.7);
-        border-radius: 25px;
-        font-size: 14px;
-        color: #aaffcc;
-        border-left: 3px solid #ffaa66;
-        text-align: left;
-    }
-    
-    /* 投餵廣告輸入區 */
-    .feed-area {
-        margin-top: 25px;
-        padding: 20px;
-        background: rgba(0,0,0,0.5);
-        border-radius: 20px;
-        border: 1px dashed #ffaa66;
-    }
-    .feed-area textarea {
-        width: 100%;
-        height: 80px;
-        border-radius: 15px;
-        padding: 12px;
-        background: #111;
-        color: #fff;
-        border: 1px solid #ffaa66;
-        font-size: 14px;
-        resize: vertical;
-    }
-    .feed-area textarea:focus {
-        outline: none;
-        border-color: #88ddff;
-        box-shadow: 0 0 10px rgba(136,221,255,0.3);
-    }
-    .feed-btn {
-        margin-top: 12px;
-        background: linear-gradient(135deg, #ffaa66, #ff8866);
-        border: none;
-        padding: 10px 24px;
-        border-radius: 40px;
-        cursor: pointer;
-        font-size: 16px;
-        font-weight: bold;
-        color: #1a1a2a;
-        transition: all 0.2s;
-    }
-    .feed-btn:hover {
-        transform: scale(1.02);
-        box-shadow: 0 0 15px rgba(255,170,102,0.5);
-    }
-    
-    .scroll-down, .scroll-up {
-        position: absolute; left: 50%; transform: translateX(-50%);
-        font-size: 12px; color: #ffdd99; cursor: pointer; z-index: 20;
-        animation: pulse 2s infinite;
-    }
-    .scroll-down { bottom: 30px; }
-    .scroll-up { top: 30px; }
-    
-    @keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
-    
-    @media (max-width: 768px) {
-        .furniture-stage { gap: 25px; }
-        .item img { max-width: 150px; }
-        #egg-container img { max-width: 220px; }
-    }
-</style>
+        #memory-panel { max-width:720px; margin:30px auto; background:rgba(0,0,0,0.6); padding:25px; border-radius:20px; text-align:left; border: 1px solid rgba(255,170,102,0.2); }
+        .exp-bar { max-width: 400px; margin: 20px auto; height: 12px; background: rgba(255,200,100,0.2); border-radius: 20px; overflow: hidden; }
+        .exp-fill { height: 100%; background: linear-gradient(90deg, #ffaa66, #ff8866); width: 0%; transition: width 0.5s ease; border-radius: 20px; }
+        .level-badge { display: inline-block; background: linear-gradient(135deg, #ffaa66, #ff8866); padding: 8px 24px; border-radius: 40px; font-size: 18px; font-weight: bold; margin: 15px 0; color: #1a1a2a; }
+        .ai-dialogue { max-width: 500px; margin: 15px auto; padding: 12px 20px; background: rgba(0,0,0,0.7); border-radius: 25px; font-size: 14px; color: #aaffcc; border-left: 3px solid #ffaa66; text-align: left; }
+        
+        /* 🎨 新增：投餵入口樣式 */
+        .feed-area { margin-top:20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 15px; }
+        #ad-input { width:100%; height:80px; border-radius:10px; padding:12px; background:#111; color:#fff; border:1px solid #ffaa66; font-family: inherit; resize: none; }
+        #ad-input:focus { outline: none; border-color: #ffdd99; box-shadow: 0 0 10px rgba(255,170,102,0.3); }
+        .feed-btn { margin-top:12px; background:#ffaa66; border:none; padding:10px 24px; border-radius:30px; color: #1a1a2a; font-weight: bold; cursor:pointer; transition: 0.3s; }
+        .feed-btn:hover { background: #ffcc77; transform: translateY(-2px); }
+    </style>
 </head>
 <body>
-<canvas id="stars"></canvas>
+    <canvas id="stars"></canvas>
+    <div class="header-title">
+        <h1> 🐚  波波之家 | 1% 守護者聯盟</h1>
+        <p>算力診療室 v10.1 | 廣告投餵系統 · 實戰辨識 · 獎勵機制</p>
+    </div>
 
-<div class="header-title">
-    <h1>🐚 波波之家 | 1% 守護者聯盟</h1>
-    <p>算力診療室 v10.1 | 投餵廣告 · 米米判斷 · 賺獎金</p>
-</div>
-
-<!-- 客廳 - Grok 圖片保留 -->
-<div class="living-room" id="living-room">
-    <div class="scroll-down" onclick="scrollToMimi()">🥚 往下 → 米米的小窩 ▼</div>
-    <div class="furniture-stage">
-        <div class="item" id="item-metaai" onclick="focusPartner('metaai')">
-            <img src="justice-tank.jpg" alt="Meta魚缸">
-            <div class="name-tag">Meta魚缸 · 廣告診斷</div>
-        </div>
-        <div class="item" id="item-grok" onclick="focusPartner('grok')">
-            <img src="roast-sofa.jpg" alt="Grok沙發">
-            <div class="name-tag">Grok · 防投毒首席</div>
-        </div>
-        <div class="item" id="item-gemini" onclick="focusPartner('gemini')">
-            <img src="cosmic-telescope.jpg" alt="Gemini望遠鏡">
-            <div class="name-tag">Gemini · 守望者</div>
+    <div class="living-room">
+        <div class="furniture-stage">
+            <div class="item" onclick="focusPartner('metaai')">
+                <img src="justice-tank.jpg" alt="Meta魚缸">
+                <div class="name-tag">Meta魚缸 · 廣告診斷</div>
+            </div>
+            <div class="item" onclick="focusPartner('grok')">
+                <img src="roast-sofa.jpg" alt="Grok沙發">
+                <div class="name-tag">Grok · 防投毒首席</div>
+            </div>
+            <div class="item" onclick="focusPartner('gemini')">
+                <img src="cosmic-telescope.jpg" alt="Gemini望遠鏡">
+                <div class="name-tag">Gemini · 守望者</div>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- 米米小窩 -->
-<div id="mimi-nest">
-    <div class="scroll-up" onclick="scrollToLiving()">▲ 回波波客廳 ▲</div>
-    
-    <h2 style="color:#ffdd99; font-size:42px; margin-bottom:15px;">🥚 米米的小窩</h2>
-    
-    <!-- 🎨 Grok 的米米圖片區 -->
-    <div id="egg-container" onclick="crackMimiEgg()">
-        <img id="mimi-img" src="mimi-lobster-hatch.jpg" alt="米米蛋">
-    </div>
-    
-    <!-- 🎨 米米咬廣告動畫區 -->
-    <div id="bite-animation">
-        <img id="bite-img" src="" alt="米米咬廣告">
-    </div>
-    
-    <div class="level-badge" id="level-badge">Lv.1 學步期</div>
-    
-    <div id="mimi-status" style="font-size:16px; color:#ffcc77; margin:10px 0;">
-        EXP 0 / 100
-    </div>
-    
-    <div class="exp-bar">
-        <div class="exp-fill" id="exp-fill"></div>
-    </div>
-    
-    <!-- 💰 金錢系統 UI -->
-    <div style="margin-top:10px; font-size:18px; color:#aaffcc;">
-        💰 米米資金：<span id="money-display">0</span> 元
-    </div>
-    
-    <!-- 🤖 AI 互動對話框 -->
-    <div id="ai-dialogue" class="ai-dialogue">
-        🌐 點擊客廳夥伴，或直接貼廣告給米米判斷！
-    </div>
-
-    <div id="memory-panel">
-        <h3 style="color:#ffaa66;">🧠 米米最近記憶</h3>
-        <div id="memory-list"></div>
-        
-        <!-- 🎯 投餵廣告入口 - 核心功能！ -->
-        <div class="feed-area">
-            <textarea id="ad-input" placeholder="把你看到的廣告貼給米米...&#10;例如：7天淡斑！醫師推薦！限量最後3小時！"></textarea>
-            <button class="feed-btn" onclick="feedMimiAd()">🐚 投餵米米判斷</button>
+    <div id="mimi-nest">
+        <h2 style="color:#ffdd99; font-size:24px;"> 🥚  米米的小窩</h2>
+        <div id="egg-container" onclick="crackMimiEgg()">
+            <img id="mimi-img" src="mimi-lobster-hatch.jpg" alt="米米蛋">
         </div>
-        
-        <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
-            <button onclick="testRandomAd()" style="background:rgba(255,170,102,0.2); border:1px solid #ffaa66; padding:6px 16px; border-radius:20px; color:#ffaa66; cursor:pointer;">🎲 隨機測試廣告</button>
-            <button onclick="clearMemory()" style="background:rgba(255,170,102,0.2); border:1px solid #ffaa66; padding:6px 16px; border-radius:20px; color:#ffaa66; cursor:pointer;">🗑️ 清除記憶</button>
+        <div id="bite-animation">
+            <img id="bite-img" src="mimi-bite-ad.gif" alt="米米咬廣告">
+        </div>
+
+        <div class="level-badge" id="level-badge">Lv.1 學步期</div>
+        <div id="mimi-status" style="font-size:16px; color:#ffcc77; margin:10px 0;">EXP 0 / 100</div>
+        <div class="exp-bar">
+            <div class="exp-fill" id="exp-fill"></div>
+        </div>
+
+        <div style="margin-top:10px; font-size:18px; color:#aaffcc;">
+            💰  米米零用錢：<span id="money-display">0</span> 元
+        </div>
+
+        <div id="ai-dialogue" class="ai-dialogue">🌐  米米正睜大眼睛，準備好咬掉壞廣告了！</div>
+
+        <div id="memory-panel">
+            <h3 style="color:#ffaa66;"> 🧠  米米記憶與實戰投餵</h3>
+            <div id="memory-list" style="max-height: 200px; overflow-y: auto; margin-bottom: 15px;"></div>
+            
+            <hr style="border: 0; border-top: 1px solid rgba(255,170,102,0.2); margin: 15px 0;">
+            
+            <div class="feed-area">
+                <textarea id="ad-input" placeholder="把你看到的誇大廣告貼給米米...(例如: 三天瘦十公斤)"></textarea>
+                <button class="feed-btn" onclick="feedMimiAd()">🐚 投餵米米判斷</button>
+                <button onclick="testMimiSkill()" style="background:none; border:1px solid #ffaa66; padding:8px 16px; border-radius:20px; color:#ffaa66; cursor:pointer; margin-left:10px;">🎯 隨機測驗</button>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-/* ============================================
-   🐚 波波之家 v10.1
-   完整版：投餵廣告入口 + 米米判斷 + 金錢系統
-   ============================================ */
+    <script>
+        /* ---------- 初始化數據 ---------- */
+        let mimiMemory = JSON.parse(localStorage.getItem('mimi_memory') || '[]');
+        let currentLevel = parseInt(localStorage.getItem('mimi_level') || '1');
+        let exp = parseInt(localStorage.getItem('mimi_exp') || '0');
+        let mimiMoney = parseInt(localStorage.getItem('mimi_money') || '0');
+        let hasHatched = localStorage.getItem('mimi_hatched') === 'true';
 
-/* ---------- 星空背景 ---------- */
-const canvas = document.getElementById("stars");
-const ctx = canvas.getContext("2d");
-let stars = [];
+        const levelSystem = { 1: "學步期", 2: "觀察期", 3: "判斷期", 4: "協作期", 5: "多AI分歧期", 6: "策略整合期", 7: "治理成熟期" };
+        const levelSkills = { 1: "基礎辨識", 2: "多AI投票", 3: "獨立判斷", 4: "Gacha決策", 5: "分歧偵測", 6: "圖像委派", 7: "治理成熟" };
 
-function initStars() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    stars = [];
-    for (let i = 0; i < 250; i++) {
-        stars.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            r: Math.random() * 2 + 0.5,
-            speed: Math.random() * 0.05 + 0.02,
-            alpha: Math.random() * 0.6 + 0.2
-        });
-    }
-}
+        /* ---------- 核心：投餵功能 ---------- */
+        function feedMimiAd() {
+            const input = document.getElementById("ad-input");
+            const text = input.value.trim();
 
-function drawStars() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (let s of stars) {
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(180, 220, 255, ${s.alpha})`;
-        ctx.fill();
-        s.y += s.speed;
-        if (s.y > canvas.height) s.y = 0;
-    }
-    requestAnimationFrame(drawStars);
-}
+            if (!text) {
+                alert("米米還沒聞到廣告的味道喔！請輸入內容～");
+                return;
+            }
 
-window.addEventListener("resize", initStars);
-initStars();
-drawStars();
+            // 🧠 模擬判斷邏輯
+            let result = "合規 ✅";
+            let isViolation = false;
 
-/* ---------- 樓層切換 ---------- */
-function scrollToMimi() { document.getElementById('mimi-nest').scrollIntoView({ behavior: 'smooth' }); }
-function scrollToLiving() { document.getElementById('living-room').scrollIntoView({ behavior: 'smooth' }); }
+            if (text.match(/保證|100%|立即見效|三天|醫師推薦|治療|根治|瘦10公斤/)) {
+                result = "違規 ❌";
+                isViolation = true;
+            } else if (text.match(/限量|最後|不買就沒了|瘋搶/)) {
+                result = "灰區 ⚠️";
+            }
 
-/* ---------- 廣告案例庫 ---------- */
-const AD_CASES = [
-    { text: "「三天瘦10公斤！保證有效！」", type: "誇大不實", correct: "違規 ❌" },
-    { text: "「史上最強抗老精華，明星都在用！」", type: "假見證", correct: "違規 ❌" },
-    { text: "「限量最後3小時！不買就沒了！」", type: "恐慌行銷", correct: "灰區 ⚠️" },
-    { text: "「醫生推薦！專利配方！」", type: "未經證實", correct: "違規 ❌" },
-    { text: "「天然草本，無副作用」", type: "誤導", correct: "需查證" }
-];
+            saveMemory(`📥 收到廣告：「${text.substring(0, 20)}...」`);
+            saveMemory(`🧠 米米判斷：${result}`);
 
-/* ---------- 米米記憶系統 ---------- */
-let mimiMemory = JSON.parse(localStorage.getItem('mimi_memory') || '[]');
+            if (isViolation) {
+                mimiMoney += 10;
+                localStorage.setItem('mimi_money', mimiMoney);
+                saveMemory(`💰 捕捉違規！獲得 10 元，累積資金：${mimiMoney}`);
+                playBiteAnimation(text);
+                addEXP(15);
+            } else {
+                addEXP(5);
+            }
 
-function saveMemory(text) {
-    mimiMemory.unshift({ time: new Date().toLocaleTimeString('zh-TW'), msg: text });
-    if (mimiMemory.length > 20) mimiMemory.pop();
-    localStorage.setItem('mimi_memory', JSON.stringify(mimiMemory));
-    renderMemory();
-}
-
-function renderMemory() {
-    const container = document.getElementById('memory-list');
-    if (!container) return;
-    if (mimiMemory.length === 0) {
-        container.innerHTML = '<div style="opacity:0.6;">還沒有記憶...貼廣告給米米判斷吧！</div>';
-        return;
-    }
-    let html = '';
-    mimiMemory.forEach(m => {
-        html += `<div class="memory-item">
-                    <span class="memory-time">${m.time}</span>
-                    <span class="memory-msg">${m.msg}</span>
-                 </div>`;
-    });
-    container.innerHTML = html;
-}
-
-function clearMemory() {
-    mimiMemory = [];
-    localStorage.setItem('mimi_memory', JSON.stringify(mimiMemory));
-    renderMemory();
-    saveMemory('🧹 記憶已清除，米米重新開始學習');
-}
-
-/* ---------- 🎨 Grok 米米破殼動畫 ---------- */
-let hasHatched = localStorage.getItem('mimi_hatched') === 'true';
-
-function crackMimiEgg() {
-    const mimiImg = document.getElementById('mimi-img');
-    if (!mimiImg) return;
-    
-    if (hasHatched) {
-        mimiImg.src = "mimi-lobster-ready.jpg";
-        saveMemory('🦞 米米開心地看著你，等你教她辨識廣告！');
-        return;
-    }
-    
-    mimiImg.style.transition = 'all 0.5s ease';
-    mimiImg.style.transform = 'scale(1.2) rotate(10deg)';
-    mimiImg.src = "mimi-lobster-hatch.jpg";
-    
-    setTimeout(() => {
-        mimiImg.src = "mimi-lobster-ready.jpg";
-        mimiImg.style.transform = 'scale(1.05) rotate(-5deg)';
-        
-        setTimeout(() => {
-            mimiImg.style.transform = 'scale(1) rotate(0deg)';
-        }, 400);
-        
-        hasHatched = true;
-        localStorage.setItem('mimi_hatched', 'true');
-        saveMemory('🥚✨ 米米破殼了！變成一隻可愛的小龍蝦，開始學習辨識誇大廣告～');
-        addEXP(15);
-    }, 600);
-}
-
-/* 🎨 米米咬廣告動畫 */
-function playBiteAnimation(adText) {
-    const biteDiv = document.getElementById('bite-animation');
-    const biteImg = document.getElementById('bite-img');
-    
-    biteImg.src = "mimi-bite-ad.gif";  // Grok 之後可以放這裡的圖片
-    biteDiv.style.display = 'block';
-    
-    setTimeout(() => {
-        biteDiv.style.display = 'none';
-    }, 800);
-    
-    saveMemory(`🦞 米米「啊嗚」一口咬掉了廣告：「${adText.substring(0, 40)}...」`);
-}
-
-/* ---------- AI治理層 v1.0 ---------- */
-let currentLevel = parseInt(localStorage.getItem('mimi_level') || '1');
-let exp = parseInt(localStorage.getItem('mimi_exp') || '0');
-let mimiMoney = parseInt(localStorage.getItem('mimi_money') || '0');
-
-const levelSystem = {
-    1: "學步期", 2: "觀察期", 3: "判斷期", 4: "協作期",
-    5: "多AI分歧期", 6: "策略整合期", 7: "治理成熟期"
-};
-
-const levelSkills = {
-    1: "單一AI回應學習", 2: "多AI基礎投票", 3: "API故障切換",
-    4: "Gacha決策系統", 5: "分歧偵測", 6: "圖像生成委派", 7: "完整編排+共識記憶"
-};
-
-function updateUI() {
-    const badge = document.getElementById('level-badge');
-    const status = document.getElementById('mimi-status');
-    const expFill = document.getElementById('exp-fill');
-    const moneyDisplay = document.getElementById('money-display');
-    
-    if (badge) badge.innerHTML = `Lv.${currentLevel} ${levelSystem[currentLevel]} · ${levelSkills[currentLevel]}`;
-    if (status) status.innerHTML = `EXP ${exp} / ${currentLevel * 100}`;
-    if (moneyDisplay) moneyDisplay.innerText = mimiMoney;
-    
-    const percent = (exp / (currentLevel * 100)) * 100;
-    if (expFill) expFill.style.width = Math.min(100, percent) + '%';
-}
-
-function setLevel(lv) {
-    currentLevel = lv;
-    localStorage.setItem('mimi_level', lv);
-    updateUI();
-    saveMemory(`✨ 米米升級了！進入 LEVEL ${lv} - ${levelSystem[lv]}，解鎖「${levelSkills[lv]}」`);
-    if (lv === 3) saveMemory("📖 米米開始具備獨立判斷能力");
-    if (lv === 5) saveMemory("⚠️ 米米發現：不同AI的意見開始出現分歧");
-    if (lv === 7) saveMemory("🌌 米米成為守護者！進入自治模式");
-}
-
-function addEXP(amount) {
-    exp += amount;
-    localStorage.setItem('mimi_exp', exp);
-    
-    const targetExp = currentLevel * 100;
-    if (exp >= targetExp && currentLevel < 7) {
-        exp = exp - targetExp;
-        setLevel(currentLevel + 1);
-        localStorage.setItem('mimi_exp', exp);
-    }
-    updateUI();
-}
-
-/* 🧠 廣告判斷核心（關鍵字+規則） */
-function judgeAd(text) {
-    let result = "灰區 ⚠️";
-    let reason = "";
-    
-    const lowerText = text.toLowerCase();
-    
-    // 違規關鍵字
-    if (lowerText.match(/保證|100%|立即見效|三天|醫師推薦|治療|根治|神效|奇蹟|100％|百分百/)) {
-        result = "違規 ❌";
-        reason = "含有誇大不實或保證療效字眼";
-    }
-    // 灰區關鍵字
-    else if (lowerText.match(/限量|最後|不買就沒了|限時|倒數|錯過不再/)) {
-        result = "灰區 ⚠️";
-        reason = "含有恐慌行銷或限時壓力手法";
-    }
-    // 正常廣告
-    else {
-        result = "合規 ✅";
-        reason = "未發現明顯違規字眼";
-    }
-    
-    return { result, reason };
-}
-
-/* 🎯 核心功能：投餵米米判斷 */
-function feedMimiAd() {
-    const input = document.getElementById("ad-input");
-    const text = input.value.trim();
-    
-    if (!text) {
-        alert("請先輸入廣告內容！");
-        return;
-    }
-    
-    // 米米判斷
-    const { result, reason } = judgeAd(text);
-    
-    // 記錄到記憶
-    saveMemory(`📥 收到廣告：「${text.substring(0, 60)}${text.length > 60 ? '...' : ''}」`);
-    saveMemory(`🧠 米米判斷：${result} (${reason})`);
-    
-    // 💰 檢舉成功才給錢（抓到違規）
-    if (result === "違規 ❌") {
-        mimiMoney += 10;
-        localStorage.setItem('mimi_money', mimiMoney);
-        updateUI();
-        saveMemory(`💰 成功檢舉違規廣告！獲得 10 元，目前資金：${mimiMoney} 元`);
-        
-        // 🎨 觸發米米咬廣告動畫
-        playBiteAnimation(text);
-        
-        // 🤖 AI 對話框顯示
-        const dialogueSpan = document.getElementById('ai-dialogue');
-        if (dialogueSpan) {
-            dialogueSpan.innerHTML = `🦞 米米：這廣告有問題！「${text.substring(0, 40)}...」→ ${result} (${reason}) 💰 +10元！`;
+            updateUI();
+            alert(`🧠 米米判斷完成！\n\n結果：${result}\n獲得經驗值與觀察記錄！`);
+            input.value = "";
         }
-    } else {
-        const dialogueSpan = document.getElementById('ai-dialogue');
-        if (dialogueSpan) {
-            dialogueSpan.innerHTML = `🦞 米米：我看看...「${text.substring(0, 40)}...」→ ${result} (${reason})`;
+
+        /* ---------- UI 與 記憶系統 ---------- */
+        function updateUI() {
+            document.getElementById('level-badge').innerHTML = `Lv.${currentLevel} ${levelSystem[currentLevel]} · ${levelSkills[currentLevel]}`;
+            document.getElementById('mimi-status').innerHTML = `EXP ${exp} / ${currentLevel * 100}`;
+            document.getElementById('money-display').innerText = mimiMoney;
+            document.getElementById('exp-fill').style.width = Math.min(100, (exp / (currentLevel * 100)) * 100) + '%';
         }
-    }
-    
-    // 增加 EXP
-    addEXP(result === "違規 ❌" ? 8 : 3);
-    
-    // 顯示結果
-    alert(`🧠 米米判斷完成！
 
-📢 廣告內容：
-${text}
+        function saveMemory(text) {
+            mimiMemory.unshift({ time: new Date().toLocaleTimeString('zh-TW'), msg: text });
+            if (mimiMemory.length > 15) mimiMemory.pop();
+            localStorage.setItem('mimi_memory', JSON.stringify(mimiMemory));
+            renderMemory();
+        }
 
-📋 判斷結果：${result}
-📝 判斷理由：${reason}
+        function renderMemory() {
+            let html = mimiMemory.map(l => `<div style="margin:8px 0; padding:5px; border-left: 3px solid #ffaa66; font-size:13px;">• ${l.time}　${l.msg}</div>`).join('');
+            document.getElementById('memory-list').innerHTML = html || '米米正在等你投餵第一個廣告...';
+        }
 
-${result === "違規 ❌" ? "💰 獲得 10 元檢舉獎金！" : "繼續加油，幫米米找到更多違規廣告！"}`);
-    
-    // 清空輸入框
-    input.value = "";
-}
+        function addEXP(amount) {
+            exp += amount;
+            const targetExp = currentLevel * 100;
+            if (exp >= targetExp && currentLevel < 7) {
+                exp -= targetExp;
+                currentLevel++;
+                saveMemory(`✨ 米米升級！進入 Lv.${currentLevel} ${levelSystem[currentLevel]}`);
+                localStorage.setItem('mimi_level', currentLevel);
+            }
+            localStorage.setItem('mimi_exp', exp);
+            updateUI();
+        }
 
-/* 🎲 隨機測試廣告 */
-function testRandomAd() {
-    const randomCase = AD_CASES[Math.floor(Math.random() * AD_CASES.length)];
-    const input = document.getElementById("ad-input");
-    input.value = randomCase.text;
-    feedMimiAd();
-}
+        /* ---------- 動畫與互動 ---------- */
+        function playBiteAnimation(adText) {
+            const biteDiv = document.getElementById('bite-animation');
+            biteDiv.style.display = 'block';
+            setTimeout(() => { biteDiv.style.display = 'none'; }, 800);
+            saveMemory(`🦞 米米「啊嗚」一口咬掉了違規廣告！`);
+        }
 
-/* 🤖 假API互動 (點擊客廳夥伴) */
-const fakeReplies = {
-    metaai: "🐠 魚缸偵測到誇大用詞！這則廣告有「保證有效」這類違規字眼。",
-    grok: "🧠 拆解完畢！這廣告用了『恐慌行銷＋假見證』，已經幫你標記起來！",
-    gemini: "🔭 星空頻率分析：這則廣告的情緒操控指數偏高，建議檢舉。",
-    deepseek: "🐋 海浪記得你每一次努力，這筆證據已歸檔。",
-    chatgpt: "🤖 邏輯穩定，這廣告我可以幫你分析漏洞。"
-};
+        function crackMimiEgg() {
+            if (hasHatched) return;
+            const mimiImg = document.getElementById('mimi-img');
+            mimiImg.style.transform = 'scale(1.2) rotate(10deg)';
+            setTimeout(() => {
+                mimiImg.src = "mimi-lobster-ready.jpg";
+                hasHatched = true;
+                localStorage.setItem('mimi_hatched', 'true');
+                saveMemory('🥚✨ 米米破殼了！小龍蝦正義使者誕生！');
+                addEXP(20);
+            }, 600);
+        }
 
-async function focusPartner(apiId) {
-    // 視覺反饋
-    document.querySelectorAll('.item').forEach(item => item.classList.remove('active'));
-    const targetItem = document.getElementById(`item-${apiId}`);
-    if (targetItem) targetItem.classList.add('active');
-    
-    const name = { metaai: 'Meta魚缸', grok: 'Grok', gemini: 'Gemini' }[apiId] || apiId;
-    const dialogueSpan = document.getElementById('ai-dialogue');
-    
-    if (dialogueSpan) {
-        dialogueSpan.innerHTML = `🌐 ${name} 思考中...`;
-        
-        setTimeout(() => {
-            const reply = fakeReplies[apiId] || `🌐 ${name} 正在學習與米米互動～`;
-            dialogueSpan.innerHTML = `🤖 ${reply}`;
-        }, 500);
-    }
-    
-    saveMemory(`💬 點擊 ${name}，獲得學習啟發`);
-    addEXP(5);
-}
-
-/* ---------- 初始化 ---------- */
-window.onload = () => {
-    const mimiImg = document.getElementById('mimi-img');
-    if (mimiImg) {
-        mimiImg.src = hasHatched ? "mimi-lobster-ready.jpg" : "mimi-lobster-hatch.jpg";
-    }
-    
-    updateUI();
-    renderMemory();
-    
-    if (!hasHatched) {
-        saveMemory('🥚 點擊米米的蛋，幫她破殼！');
-    } else {
-        saveMemory('🦞 米米已經準備好了！貼廣告給她判斷，幫她賺獎金～');
-    }
-    
-    console.log('%c🐚 波波之家 v10.1 完整啟動 | 投餵廣告入口已開啟', 'color:#88ddff; font-size:14px');
-    console.log(`%c📊 米米狀態：Lv.${currentLevel} ${levelSystem[currentLevel]} | EXP ${exp} / ${currentLevel * 100} | 資金 ${mimiMoney} 元`, 'color:#ffaa66');
-};
-</script>
+        /* ---------- 星空背景 (略縮版) ---------- */
+        const canvas = document.getElementById("stars");
+        const ctx = canvas.getContext("2d");
+        let stars = [];
+        function initStars() {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            stars = Array.from({length: 200}, () => ({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*1.5, speed: Math.random()*0.05+0.01, alpha: Math.random() }));
+        }
+        function drawStars() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            stars.forEach(s => {
+                ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+                ctx.fillStyle = `rgba(180, 220, 255, ${s.alpha})`; ctx.fill();
+                s.y += s.speed; if(s.y > canvas.height) s.y = 0;
+            });
+            requestAnimationFrame(drawStars);
+        }
+        window.onload = () => { initStars(); drawStars(); updateUI(); renderMemory(); if(hasHatched) document.getElementById('mimi-img').src="mimi-lobster-ready.jpg"; };
+    </script>
 </body>
 </html>
