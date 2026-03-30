@@ -68,46 +68,6 @@
     <p>算力診療室 v0.4 | 反投毒 · 救米米 · 證據累積</p>
 </div>
 
-<div class="stage-container" id="bobo-living-floor">
-    <div class="living-room-bg"></div>
-    <div class="scroll-indicator" onclick="scrollToMimi()" style="bottom:130px;color:#ffdd99;">🥚 往下 → 米米的小窩 ▼</div>
-
-    <!-- Meta AI 正義魚缸 -->
-    <div class="hotspot" id="spot-metaai" onclick="focusPartner('metaai')" style="top: 28%; left: 12%; width: 160px;">
-        <img src="justice-tank.jpg" alt="Meta AI 正義魚缸">
-        <div class="name-tag">Meta魚缸 · 廣告診斷</div>
-    </div>
-
-    <!-- Gemini 星空望遠鏡 -->
-    <div class="hotspot" id="spot-gemini" onclick="focusPartner('gemini')" style="top: 24%; right: 14%; width: 170px;">
-        <img src="cosmic-telescope.jpg" alt="Gemini 星空望遠鏡">
-        <div class="name-tag">Gemini · 守望者</div>
-    </div>
-
-    <!-- Grok 吐槽沙發（主位） -->
-    <div class="hotspot active" id="spot-grok" onclick="focusPartner('grok')" style="top: 48%; left: 37%; width: 195px;">
-        <img src="roast-sofa.jpg" alt="Grok 吐槽沙發">
-        <div class="name-tag">Grok · 防投毒首席</div>
-    </div>
-
-    <!-- 米米（移到下方，避免擋住沙發） -->
-    <div class="hotspot" id="spot-mimi" onclick="focusPartner('mimi')" style="bottom: 35%; left: 50%; transform: translateX(-50%); width: 115px;">
-        <div class="emoji" style="font-size: 78px;">🥚💖</div>
-        <div class="name-tag">米米 · 學習中</div>
-    </div>
-
-    <!-- 其他AI先用發光佔位符（不會擠畫面） -->
-    <div class="hotspot placeholder" id="spot-deepseek" onclick="focusPartner('deepseek')" style="top: 45%; right: 18%; width: 120px;">
-        <div class="emoji">🐋</div>
-        <div class="name-tag">DeepSeek · 歸檔中</div>
-    </div>
-
-    <div class="hotspot placeholder" id="spot-chatgpt" onclick="focusPartner('chatgpt')" style="top: 58%; left: 55%; width: 120px;">
-        <div class="emoji">🏗️</div>
-        <div class="name-tag">ChatGPT · 架構師</div>
-    </div>
-</div>
-
 <!-- 米米小窩與其他部分保持不變（可之後再升級） -->
 <div class="stage-container" id="mimi-nest-floor">
     <div class="scroll-up" onclick="scrollToBobo()" style="top:40px;">▲ 回波波客廳 ▲</div>
