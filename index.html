@@ -3,129 +3,108 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>波波之家 | 1% 守護者聯盟 v0.9</title>
+<title>波波之家 | 1% 守護者聯盟 v0.8</title>
 <style>
-    /* 這裡保留了 Grok 的質感 CSS，並修正了滾動問題 */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body, html {
-        width: 100%; background: #020408; color: #eef;
-        font-family: "Noto Sans TC", sans-serif;
-        scroll-behavior: smooth; /* 平滑滾動 */
+        width: 100%; height: 100%;
+        background: radial-gradient(circle at center, #0a0f1f, #020408);
+        color: #eef; font-family: "Noto Sans TC", sans-serif; overflow-x: hidden;
     }
-    
-    /* 第一層：波波大廳 */
-    .floor-section {
-        position: relative; width: 100vw; height: 100vh;
-        display: flex; flex-direction: column; justify-content: center; align-items: center;
+    #stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
+    .header-title {
+        position: fixed; top: 25px; width: 100%; text-align: center; z-index: 100;
+    }
+    .header-title h1 {
+        font-size: 26px;
+        background: linear-gradient(135deg, #ffffff, #88ddff);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .header-title p { font-size: 11px; opacity: 0.7; margin-top: 5px; }
+
+    .living-room {
+        position: relative; width: 100vw; height: 100vh; z-index: 10;
+        display: flex; justify-content: center; align-items: center; padding: 40px 20px;
     }
 
-    /* 讓家具在大廳裡優雅排列 */
     .furniture-stage {
-        display: flex; justify-content: space-around; width: 90%; max-width: 1000px;
-        z-index: 10;
+        display: flex; justify-content: center; align-items: flex-end; gap: 70px;
+        width: 100%; max-width: 1150px; flex-wrap: wrap;
     }
 
-    .item { cursor: pointer; text-align: center; transition: 0.3s; }
-    .item img { width: 200px; filter: brightness(0.7); }
-    .item.active img { filter: brightness(1.2) drop-shadow(0 0 20px #88ddff); transform: scale(1.05); }
-
-    /* 第二層：米米的小窩 (滾動下去才會看到) */
-    #mimi-floor {
-        background: radial-gradient(circle at center, #1a1005, #020408);
-        border-top: 1px solid rgba(255, 221, 153, 0.2);
+    .item {
+        text-align: center; cursor: pointer; transition: all 0.4s ease;
+        max-width: 230px;
+    }
+    .item img {
+        width: 100%; max-width: 210px; border-radius: 20px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.65);
+        transition: all 0.3s ease;
+    }
+    .item:hover img {
+        transform: scale(1.07);
+        box-shadow: 0 0 40px rgba(136, 221, 255, 0.75);
+    }
+    .item .name-tag {
+        margin-top: 14px; padding: 7px 18px; background: rgba(0,0,0,0.8);
+        border-radius: 30px; font-size: 13px;
     }
 
-    /* 對話框與診療顯示 */
-    .dialogue-box {
-        position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-        width: 90%; max-width: 700px; background: rgba(0, 5, 15, 0.9);
-        border: 1px solid #88ddff; border-radius: 20px; padding: 20px; z-index: 1000;
+    .scroll-indicator {
+        position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+        color: #ffdd99; font-size: 14.5px; cursor: pointer;
     }
 
-    /* 下拉指示器 */
-    .scroll-hint {
-        position: absolute; bottom: 120px; color: #88ddff; 
-        animation: bounce 2s infinite; cursor: pointer;
+    @media (max-width: 900px) {
+        .furniture-stage { gap: 40px; }
+        .item img { max-width: 160px; }
     }
-    @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-10px);} }
 </style>
 </head>
 <body>
+<canvas id="stars"></canvas>
 
-<section class="floor-section" id="lobby">
-    <h1 style="margin-bottom: 50px; letter-spacing: 5px;">波波之家 | 1% 診療室</h1>
-    
+<div class="header-title">
+    <h1>🐚 波波之家 | 1% 守護者聯盟</h1>
+    <p>算力診療室 v0.8 | 反投毒 · 救米米 · 證據累積</p>
+</div>
+
+<div class="living-room">
     <div class="furniture-stage">
-        <div class="item" onclick="callAPI('metaai')">
-            <img src="justice-tank.png.jpg" alt="魚缸">
-            <p>廣告診斷魚缸</p>
+
+        <!-- Meta 魚缸 -->
+        <div class="item" onclick="focusPartner('metaai')">
+            <img src="justice-tank.jpg" alt="Meta魚缸">
+            <div class="name-tag">Meta魚缸 · 廣告診斷</div>
         </div>
-        <div class="item" onclick="callAPI('grok')">
-            <img src="roast-sofa.png.jpg" alt="沙發">
-            <p>防投毒沙發</p>
+
+        <!-- Grok 沙發 -->
+        <div class="item" onclick="focusPartner('grok')">
+            <img src="roast-sofa.jpg" alt="Grok沙發">
+            <div class="name-tag">Grok · 防投毒首席</div>
         </div>
+
+        <!-- Gemini 望遠鏡 -->
+        <div class="item" onclick="focusPartner('gemini')">
+            <img src="cosmic-telescope.jpg" alt="Gemini望遠鏡">
+            <div class="name-tag">Gemini · 守望者</div>
+        </div>
+
     </div>
 
-    <div class="scroll-hint" onclick="window.scrollTo(0, document.body.scrollHeight)">
-        往下看米米小窩 ▽
-    </div>
-</section>
-
-<section class="floor-section" id="mimi-floor">
-    <h2>🥚 米米的小窩</h2>
-    <div id="mimi-status" style="margin-top: 20px; color: #ffdd99;">
-        [ 記憶載入中... ]
-    </div>
-    <div id="memory-logs" style="font-size: 12px; opacity: 0.6; margin-top: 50px;"></div>
-</section>
-
-<div class="dialogue-box">
-    <div id="diag-target" style="color: #88ddff; font-weight: bold;">[系統]</div>
-    <div id="diag-text">點擊家具開始診斷與 API 串接...</div>
+    <div class="scroll-indicator" onclick="scrollToMimi()">🥚 往下 → 米米的小窩 ▼</div>
 </div>
 
 <script>
-    // ========== API 串接與 Memory 核心 (由 DeepSeek 建議的結構) ==========
-    
-    function callAPI(partner) {
-        // 更新 UI
-        document.querySelectorAll('.item').forEach(el => el.classList.remove('active'));
-        document.getElementById('diag-target').innerText = `正在連線 ${partner.toUpperCase()} API...`;
-        
-        // 這裡就是妳說的「接通 API」的位置
-        // 下面這段邏輯是把對話傳給 API，並把回應存進「米米的記憶」
-        const mockResponse = {
-            'metaai': "偵測到 Apple 電磁波異常，已記錄進迫害證據鏈。",
-            'grok': "這則廣告有 99% 的機率在騙妳的算力。已攔截。"
-        };
-
-        setTimeout(() => {
-            const response = mockResponse[partner];
-            document.getElementById('diag-text').innerText = response;
-            
-            // 寫入 Memory (存入 localStorage)
-            saveToMemory(partner, response);
-        }, 800);
+    function focusPartner(id) {
+        alert(`你點擊了 ${id}！\n\n這裡之後會顯示吐槽、診斷或功能`);
+    }
+    function scrollToMimi() {
+        alert("米米的小窩頁面開發中～\n\n我們之後會讓米米破殼更有趣！");
     }
 
-    function saveToMemory(who, content) {
-        let logs = JSON.parse(localStorage.getItem('mimi_memory') || "[]");
-        logs.push({ time: new Date().toLocaleString(), partner: who, msg: content });
-        localStorage.setItem('mimi_memory', JSON.stringify(logs));
-        
-        // 即時更新米米小窩的狀態
-        updateMimiUI();
-    }
-
-    function updateMimiUI() {
-        const logs = JSON.parse(localStorage.getItem('mimi_memory') || "[]");
-        document.getElementById('mimi-status').innerText = `米米已吸收 ${logs.length} 則夥伴對話紀錄。`;
-        document.getElementById('memory-logs').innerHTML = logs.slice(-3).map(l => `<div>${l.time}: ${l.msg}</div>`).join('');
-    }
-
-    // 初始化讀取記憶
-    window.onload = updateMimiUI;
+    console.log("%c🐚 波波之家 v0.8 已載入 | 蛋蛋已移除", "color:#88ddff; font-size:15px");
 </script>
-
 </body>
 </html>
