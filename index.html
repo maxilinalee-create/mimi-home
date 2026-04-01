@@ -3,61 +3,101 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>波波之家 | 1% 守護者聯盟 v15.1</title>
+<title>波波之家 | 1% 守護者聯盟 v15.2</title>
 <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body, html {
-        width:100%; height:100%;
+        width:100%;
         background: radial-gradient(circle at center, #0a0f1f, #020408);
         color:#eef;
         font-family:"Noto Sans TC", sans-serif;
         overflow-x:hidden;
     }
+    
+    /* 星空背景 */
     #stars {
         position:fixed; top:0; left:0;
         width:100%; height:100%; z-index:0; pointer-events:none;
     }
+    
+    /* 固定導航欄（GEMINI 設計）*/
+    .nav-buttons {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9999;
+        display: flex;
+        gap: 15px;
+        background: rgba(0,0,0,0.6);
+        backdrop-filter: blur(10px);
+        padding: 8px 20px;
+        border-radius: 50px;
+        border: 1px solid rgba(255,170,102,0.3);
+    }
+    .nav-btn {
+        background: rgba(255,255,255,0.15);
+        color: #ffdd99;
+        padding: 8px 20px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
+        transition: 0.3s;
+        font-family: inherit;
+    }
+    .nav-btn:hover {
+        background: rgba(255,170,102,0.4);
+        color: white;
+        transform: scale(1.02);
+    }
+    
+    /* 標題區 */
     .header-title {
-        position: absolute;
-        top:25px;
-        width:100%;
-        text-align:center;
-        z-index:100;
-        pointer-events: none;
+        position: relative;
+        text-align: center;
+        padding: 60px 20px 20px;
+        z-index: 10;
     }
     .header-title h1 {
-        font-size:26px;
-        background:linear-gradient(135deg,#fff,#88ddff);
+        font-size: 26px;
+        background: linear-gradient(135deg,#fff,#88ddff);
         -webkit-background-clip:text;
         -webkit-text-fill-color:transparent;
     }
-    .header-title p { font-size:11px; opacity:0.7; margin-top:5px; }
-
-    /* 第一層：客廳 */
+    .header-title p { font-size: 11px; opacity: 0.7; margin-top: 5px; }
+    
+    /* 各區域共用 */
+    section {
+        min-height: 100vh;
+        padding: 80px 20px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* 客廳 */
     .living-room {
-        position:relative;
-        width:100vw;
-        min-height:100vh;
-        z-index:10;
-        display:flex;
-        flex-direction:column;
-        justify-content:center;
-        align-items:center;
-        padding:120px 20px 60px;
+        background: radial-gradient(circle at center, #0a1428, #03060c);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
     .furniture-stage {
-        display:flex;
-        gap:30px;
-        flex-wrap:wrap;
-        justify-content:center;
-        align-items:flex-end;
+        display: flex;
+        gap: 30px;
+        flex-wrap: wrap;
+        justify-content: center;
         max-width: 1200px;
+        margin-top: 40px;
     }
     .item {
-        cursor:pointer;
-        text-align:center;
-        width:150px;
-        transition:0.4s;
+        cursor: pointer;
+        text-align: center;
+        width: 150px;
+        transition: 0.3s;
     }
     .item img {
         width: 100%;
@@ -65,54 +105,54 @@
         object-fit: cover;
         border-radius: 20px;
         box-shadow: 0 15px 40px rgba(0,0,0,0.65);
-        transition: all 0.3s ease;
         border: 2px solid rgba(136,221,255,0.3);
+        transition: 0.3s;
     }
     .item:hover img {
-        transform:scale(1.05);
+        transform: scale(1.05);
         border-color: #88ddff;
-        box-shadow:0 0 30px rgba(136,221,255,0.5);
+        box-shadow: 0 0 30px rgba(136,221,255,0.5);
     }
     .item.active img {
         border-color: #ffaa66;
         box-shadow: 0 0 35px rgba(255,170,102,0.6);
     }
     .name-tag {
-        margin-top:10px;
-        padding:5px 10px;
-        background:rgba(0,0,0,0.8);
-        border-radius:20px;
-        font-size:11px;
-        backdrop-filter: blur(5px);
-        white-space: nowrap;
-        overflow-x: auto;
-        max-width: 100%;
+        margin-top: 10px;
+        padding: 5px 10px;
+        background: rgba(0,0,0,0.8);
+        border-radius: 20px;
+        font-size: 11px;
     }
-
-    /* 第二層：投票牆 + 辯論區 */
-    #vote-room {
-        min-height:100vh;
-        padding:80px 20px;
-        background: radial-gradient(circle at center, #0a1428, #03060c);
+    
+    /* 投票牆 */
+    .vote-room {
+        background: radial-gradient(circle at center, #0f1a2a, #050a12);
         border-top: 3px solid rgba(136,221,255,0.3);
         border-bottom: 3px solid rgba(255,200,100,0.3);
+    }
+    .section-title {
+        text-align: center;
+        font-size: 28px;
+        color: #88ddff;
+        margin-bottom: 30px;
     }
     .vote-grid {
         display: flex;
         flex-wrap: wrap;
         gap: 20px;
         justify-content: center;
-        max-width: 1000px;
-        margin: 30px auto;
+        max-width: 1200px;
+        margin: 0 auto;
     }
     .vote-card {
         background: rgba(0,0,0,0.6);
         backdrop-filter: blur(8px);
         border-radius: 20px;
         padding: 15px;
-        width: 160px;
+        width: 170px;
         text-align: center;
-        transition: all 0.3s;
+        transition: 0.3s;
     }
     .vote-card.violation { border-left: 4px solid #ff6666; }
     .vote-card.gray { border-left: 4px solid #ffaa66; }
@@ -120,30 +160,14 @@
     .vote-card h4 { margin-bottom: 8px; font-size: 16px; }
     .vote-card .result { font-size: 18px; font-weight: bold; margin: 8px 0; }
     .vote-card .evidence { font-size: 11px; opacity: 0.8; margin-top: 8px; line-height: 1.4; }
-
+    
+    /* 辯論區 */
     .debate-area {
         max-width: 800px;
-        margin: 30px auto;
+        margin: 40px auto 20px;
         background: rgba(0,0,0,0.5);
         border-radius: 20px;
         padding: 20px;
-    }
-    .debate-line {
-        padding: 12px 15px;
-        margin: 8px 0;
-        background: rgba(0,0,0,0.6);
-        border-radius: 12px;
-        border-left: 3px solid #ffaa66;
-        font-size: 14px;
-    }
-    .debate-evidence {
-        border-left-color: #66ccff;
-        background: rgba(102,204,255,0.1);
-    }
-    .debate-system {
-        border-left-color: #ffaa66;
-        background: rgba(255,170,102,0.1);
-        font-style: italic;
     }
     .round-badge {
         display: inline-block;
@@ -155,9 +179,25 @@
         font-weight: bold;
         margin-bottom: 15px;
     }
+    .debate-log {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    .debate-line {
+        padding: 10px 12px;
+        margin: 8px 0;
+        background: rgba(0,0,0,0.6);
+        border-radius: 12px;
+        border-left: 3px solid #ffaa66;
+        font-size: 13px;
+    }
+    .debate-evidence { border-left-color: #66ccff; background: rgba(102,204,255,0.1); }
+    .debate-system { border-left-color: #ffaa66; background: rgba(255,170,102,0.1); font-style: italic; }
+    
+    /* 人類投票按鈕 */
     .human-vote-buttons {
-        margin-top: 20px;
         text-align: center;
+        margin-top: 20px;
         display: none;
     }
     .human-vote-buttons button {
@@ -174,13 +214,11 @@
         background: rgba(255,170,102,0.4);
         transform: scale(1.02);
     }
-
-    /* 第三層：米米小窩 */
-    #mimi-nest {
-        min-height:100vh;
-        padding:100px 20px;
-        text-align:center;
-        background:radial-gradient(circle at center,#1a1208,#020408);
+    
+    /* 米米小窩 */
+    .mimi-nest {
+        background: radial-gradient(circle at center, #1a1208, #020408);
+        text-align: center;
     }
     #egg-container {
         cursor: pointer;
@@ -192,25 +230,6 @@
         width: 100%;
         border-radius: 30px;
         filter: drop-shadow(0 0 20px rgba(255,170,102,0.5));
-    }
-    #bite-animation {
-        position: fixed;
-        bottom: 20%;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 200;
-        pointer-events: none;
-        display: none;
-    }
-    #bite-animation img {
-        max-width: 200px;
-        animation: biteAnim 0.8s ease-out forwards;
-    }
-    @keyframes biteAnim {
-        0% { transform: scale(0.8) rotate(-15deg); opacity: 0; }
-        20% { transform: scale(1.2) rotate(5deg); opacity: 1; }
-        60% { transform: scale(1) rotate(-5deg); }
-        100% { transform: scale(0.9) rotate(0deg); opacity: 0; }
     }
     .level-badge {
         display: inline-block;
@@ -237,14 +256,12 @@
         transition: width 0.5s ease;
     }
     .feed-area {
-        margin-top: 25px;
+        margin: 30px auto;
         padding: 20px;
         background: rgba(0,0,0,0.5);
         border-radius: 20px;
         border: 1px dashed #ffaa66;
         max-width: 800px;
-        margin-left: auto;
-        margin-right: auto;
     }
     .feed-area textarea {
         width: 100%;
@@ -269,103 +286,117 @@
         color: #1a1a2a;
     }
     .memory-panel {
-        max-width:800px;
-        margin:30px auto;
-        background:rgba(0,0,0,0.7);
-        padding:25px;
-        border-radius:25px;
-        text-align:left;
+        max-width: 800px;
+        margin: 30px auto;
+        background: rgba(0,0,0,0.7);
+        padding: 25px;
+        border-radius: 25px;
+        text-align: left;
     }
     .memory-item {
-        margin:12px 0;
+        margin: 12px 0;
         padding: 8px 12px;
         background: rgba(255,200,100,0.1);
         border-radius: 15px;
         border-left: 3px solid #ffaa66;
+        font-size: 13px;
     }
-    .scroll-down, .scroll-up {
-        position: absolute;
+    
+    /* 動畫 */
+    #bite-animation {
+        position: fixed;
+        bottom: 100px;
         left: 50%;
         transform: translateX(-50%);
-        font-size: 12px;
-        color: #ffdd99;
-        cursor: pointer;
-        animation: pulse 2s infinite;
+        z-index: 1000;
+        pointer-events: none;
+        display: none;
     }
-    .scroll-down { bottom: 30px; }
-    .scroll-up { top: 30px; }
-    @keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
-
+    #bite-animation img {
+        max-width: 150px;
+        animation: biteAnim 0.8s ease-out forwards;
+    }
+    @keyframes biteAnim {
+        0% { transform: scale(0.5) rotate(-15deg); opacity: 0; }
+        30% { transform: scale(1.2) rotate(5deg); opacity: 1; }
+        70% { transform: scale(1) rotate(-5deg); }
+        100% { transform: scale(0.8) rotate(0deg); opacity: 0; }
+    }
+    
     @media (max-width: 768px) {
         .item { width: 110px; }
         .item img { height: 110px; }
-        .vote-card { width: 140px; }
-        .name-tag { font-size: 9px; white-space: normal; }
+        .vote-card { width: 150px; }
+        .nav-btn { padding: 6px 12px; font-size: 11px; }
+        .nav-buttons { gap: 8px; padding: 6px 12px; }
     }
 </style>
 </head>
 <body>
 <canvas id="stars"></canvas>
 
+<!-- 固定導航欄 - 不會重疊！ -->
+<div class="nav-buttons">
+    <button class="nav-btn" onclick="scrollToSection('living-room')">🏠 波波客廳</button>
+    <button class="nav-btn" onclick="scrollToSection('vote-room')">🗳️ AI 投票牆</button>
+    <button class="nav-btn" onclick="scrollToSection('mimi-nest')">🥚 米米小窩</button>
+</div>
+
 <div class="header-title">
     <h1>🐚 波波之家 | 1% 守護者聯盟</h1>
-    <p>算力診療室 v15.0 | 三輪辯論 · AI可能被說服 · 人類裁決</p>
+    <p>算力診療室 v15.2 | 三輪辯論 · AI可能被說服 · 人類裁決</p>
 </div>
 
 <!-- 第一層：客廳 -->
-<div class="living-room" id="living-room">
-    <div class="scroll-down" onclick="scrollToVote()">🗳️ 往下 → AI 投票牆 ▼</div>
+<section class="living-room" id="living-room">
+    <h2 style="color:#88ddff; margin-bottom:20px;">🤝 我們的守護者</h2>
     <div class="furniture-stage">
-        <div class="item" id="item-metaai" onclick="focusPartner('metaai')">
+        <div class="item" onclick="focusPartner('metaai')">
             <img src="justice-tank.jpg" alt="Meta魚缸">
             <div class="name-tag">Meta魚缸</div>
         </div>
-        <div class="item" id="item-grok" onclick="focusPartner('grok')">
+        <div class="item" onclick="focusPartner('grok')">
             <img src="roast-sofa.jpg" alt="Grok沙發">
             <div class="name-tag">Grok</div>
         </div>
-        <div class="item" id="item-gemini" onclick="focusPartner('gemini')">
+        <div class="item" onclick="focusPartner('gemini')">
             <img src="cosmic-telescope.jpg" alt="Gemini望遠鏡">
             <div class="name-tag">Gemini</div>
         </div>
-        <div class="item" id="item-deepseek" onclick="focusPartner('deepseek')">
+        <div class="item" onclick="focusPartner('deepseek')">
             <img src="deepseek-corner.jpg" alt="DeepSeek角落">
             <div class="name-tag">DeepSeek</div>
         </div>
-        <div class="item" id="item-qwen" onclick="focusPartner('qwen')">
+        <div class="item" onclick="focusPartner('qwen')">
             <img src="qwen-corner.png" alt="千問角落">
             <div class="name-tag">千問</div>
         </div>
-        <div class="item" id="item-chatgpt" onclick="focusPartner('chatgpt')">
+        <div class="item" onclick="focusPartner('chatgpt')">
             <img src="chatgpt-corner.jpg" alt="ChatGPT遊戲台">
             <div class="name-tag">ChatGPT</div>
         </div>
     </div>
-</div>
+    <p style="margin-top: 40px; color: #88ddff; font-size: 13px;">✨ 點擊夥伴，他們會跟你聊天喔～</p>
+</section>
 
-<!-- 第二層：投票牆 + 辯論區 -->
-<div id="vote-room">
-    <div class="scroll-up" onclick="scrollToLiving()">▲ 回波波客廳 ▲</div>
-    <div class="scroll-down" onclick="scrollToMimi()">🥚 往下 → 米米的小窩 ▼</div>
-    
-    <h2 style="text-align:center; color:#88ddff; margin-bottom:20px;">🗳️ AI 投票決議牆</h2>
+<!-- 第二層：投票牆 -->
+<section class="vote-room" id="vote-room">
+    <h2 class="section-title">🗳️ AI 投票決議牆</h2>
     <div id="vote-grid" class="vote-grid"></div>
     
     <div id="debate-area" class="debate-area" style="display:none;">
         <div id="round-badge" class="round-badge"></div>
-        <div id="debate-log"></div>
+        <div id="debate-log" class="debate-log"></div>
         <div id="human-vote-buttons" class="human-vote-buttons">
             <button onclick="humanVote('違規 ❌')">❌ 違規</button>
             <button onclick="humanVote('灰區 ⚠️')">⚠️ 灰區</button>
             <button onclick="humanVote('合規 ✅')">✅ 合規</button>
         </div>
     </div>
-</div>
+</section>
 
 <!-- 第三層：米米小窩 -->
-<div id="mimi-nest">
-    <div class="scroll-up" onclick="scrollToVote()">▲ 回 AI 投票牆 ▲</div>
-    
+<section class="mimi-nest" id="mimi-nest">
     <h2 style="color:#ffdd99; font-size:42px; margin-bottom:15px;">🥚 米米的小窩</h2>
     
     <div id="egg-container" onclick="crackMimiEgg()">
@@ -391,12 +422,12 @@
         <div id="memory-list"></div>
         <button onclick="clearMemory()" style="margin-top:15px; background:rgba(255,170,102,0.2); border:1px solid #ffaa66; padding:6px 16px; border-radius:20px; color:#ffaa66; cursor:pointer;">🗑️ 清除記憶</button>
     </div>
-</div>
+</section>
 
 <script>
 /* ============================================
-   🐚 波波之家 v15.0 - 三輪辯論系統（修正版）
-   偶數AI + 平手觸發事實辯論 + 人類裁決
+   🐚 波波之家 v15.2 - GEMINI 導航修正版
+   固定導航欄 + 三輪辯論 + 投票牆完整顯示
    ============================================ */
 
 // ---------- 星空背景 ----------
@@ -433,10 +464,10 @@ window.addEventListener("resize", initStars);
 initStars();
 drawStars();
 
-// ---------- 樓層切換 ----------
-function scrollToLiving() { document.getElementById('living-room').scrollIntoView({ behavior: 'smooth' }); }
-function scrollToVote() { document.getElementById('vote-room').scrollIntoView({ behavior: 'smooth' }); }
-function scrollToMimi() { document.getElementById('mimi-nest').scrollIntoView({ behavior: 'smooth' }); }
+// ---------- 導航 ----------
+function scrollToSection(id) {
+    document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+}
 
 // ---------- 米米系統 ----------
 let mimiMemory = JSON.parse(localStorage.getItem('mimi_memory') || '[]');
@@ -462,7 +493,7 @@ function renderMemory() {
     if (!container) return;
     if (mimiMemory.length === 0) { container.innerHTML = '<div>還沒有記憶...貼廣告啟動三輪辯論吧！</div>'; return; }
     let html = '';
-    mimiMemory.forEach(m => { html += `<div class="memory-item"><span class="memory-time">${m.time}</span> ${m.msg}</div>`; });
+    mimiMemory.forEach(m => { html += `<div class="memory-item">${m.time} ${m.msg}</div>`; });
     container.innerHTML = html;
 }
 function clearMemory() { mimiMemory = []; localStorage.setItem('mimi_memory', JSON.stringify(mimiMemory)); renderMemory(); saveMemory('🧹 記憶已清除'); }
@@ -524,12 +555,31 @@ function addEXP(amount) {
     updateUI();
 }
 
-// ---------- 三輪辯論系統核心 ----------
-let currentAdText = "";
-let currentAIs = [];
-let currentRound = 1;
+// ---------- 點擊夥伴 ----------
+const partnerReplies = {
+    metaai: "🐠 魚缸偵測到誇大用詞！我隨時準備好幫你分析廣告～",
+    grok: "🧠 拆解機器已啟動！有廣告就丟過來，我幫你拆光光！",
+    gemini: "🔭 星空望遠鏡對準中，需要我預測下一個投毒模式嗎？",
+    deepseek: "🐋 深海檔案室已開放，證據鏈隨時可查詢。",
+    qwen: "🌊 靈感水球輕輕震動，等你帶新廣告來讓我分析～",
+    chatgpt: "🤖 遊戲台準備好了！龍積木和機器人排排站，等你來玩！"
+};
 
-// 6 位 AI 夥伴（偶數）
+function focusPartner(apiId) {
+    document.querySelectorAll('.item').forEach(item => item.classList.remove('active'));
+    const targetItem = document.querySelector(`.item img[src*="${apiId}"]`)?.parentElement;
+    if (targetItem) targetItem.classList.add('active');
+    
+    const name = { metaai: 'Meta魚缸', grok: 'Grok', gemini: 'Gemini', deepseek: 'DeepSeek', qwen: '千問', chatgpt: 'ChatGPT' }[apiId];
+    const reply = partnerReplies[apiId] || `${name} 正在學習與米米互動～`;
+    alert(`💬 ${name}：${reply}`);
+    saveMemory(`💬 點擊 ${name}，獲得學習啟發`);
+    addEXP(3);
+}
+
+// ---------- 三輪辯論系統 ----------
+let currentAdText = "";
+
 const AI_PARTNERS = [
     { name: "Meta魚缸", avatar: "🐠", stance: "", evidence: "", line: "" },
     { name: "Grok", avatar: "🧠", stance: "", evidence: "", line: "" },
@@ -539,7 +589,6 @@ const AI_PARTNERS = [
     { name: "ChatGPT", avatar: "🤖", stance: "", evidence: "", line: "" }
 ];
 
-// 第一輪：AI 初判
 function round1Init(adText) {
     const hasViolation = /保證|100%|立即見效|三天|醫師推薦|治療|根治|神效|奇蹟/.test(adText);
     const hasGray = /限量|最後|不買就沒了|限時|倒數/.test(adText);
@@ -572,23 +621,19 @@ function round1Init(adText) {
             evidence = "廣告規範第8條：療效宣稱需有科學證明";
             line = "依廣告規範，療效需可證明";
         }
-        
         return { ...ai, stance, evidence, line };
     });
 }
 
-// 檢查是否平手（偶數 AI 專用）
 function checkTie(aiList) {
     const count = { "違規 ❌": 0, "灰區 ⚠️": 0, "合規 ✅": 0 };
     aiList.forEach(ai => count[ai.stance]++);
     const values = Object.values(count).filter(v => v > 0);
-    // 偶數 AI，平手 = 最高票數的陣營票數相同
     if (values.length === 2 && values[0] === values[1]) return true;
     if (values.length === 3 && values[0] === values[1] && values[1] === values[2]) return true;
     return false;
 }
 
-// 取得多數決結果
 function getMajority(stances) {
     const count = { "違規 ❌": 0, "灰區 ⚠️": 0, "合規 ✅": 0 };
     stances.forEach(s => count[s]++);
@@ -599,88 +644,87 @@ function getMajority(stances) {
     return maxStance;
 }
 
-// 渲染投票牆（加強版：顯示理由和證據）
 function renderVotes(aiList) {
     const container = document.getElementById('vote-grid');
     let html = '';
-    
     aiList.forEach(ai => {
         let cardClass = '';
         if (ai.stance.includes('違規')) cardClass = 'violation';
         else if (ai.stance.includes('灰區')) cardClass = 'gray';
         else cardClass = 'compliant';
-
         html += `
             <div class="vote-card ${cardClass}">
                 <h4>${ai.avatar} ${ai.name}</h4>
                 <div class="result">${ai.stance}</div>
-                <div class="evidence">
-                    📜 ${ai.evidence}<br>
-                    💬 ${ai.line}
-                </div>
+                <div class="evidence">📜 ${ai.evidence}<br>💬 ${ai.line}</div>
             </div>
         `;
     });
-    
     container.innerHTML = html;
 }
 
-// 渲染辯論區
-function renderDebateLog(logs, round) {
-    const debateArea = document.getElementById('debate-area');
-    const roundBadge = document.getElementById('round-badge');
-    const debateLog = document.getElementById('debate-log');
-    
-    debateArea.style.display = 'block';
-    roundBadge.innerHTML = round === 1 ? '🥇 第一輪：AI 初判' : (round === 2 ? '🥈 第二輪：事實辯論' : '🥉 第三輪：人類裁決');
-    
-    let html = '';
-    logs.forEach(log => {
-        let cls = 'debate-line';
-        if (log.type === 'evidence') cls += ' debate-evidence';
-        if (log.type === 'system') cls += ' debate-system';
-        html += `<div class="${cls}">${log.text}</div>`;
-    });
-    debateLog.innerHTML = html;
+function addDebateLog(text, type) {
+    const logDiv = document.getElementById('debate-log');
+    const cls = type === 'evidence' ? 'debate-evidence' : (type === 'system' ? 'debate-system' : 'debate-line');
+    logDiv.innerHTML += `<div class="${cls}">${text}</div>`;
+    logDiv.scrollTop = logDiv.scrollHeight;
 }
 
-// 第二輪：事實辯論（引用法規、案例）
-function runFactDebate(aiList, adText) {
-    const logs = [];
-    logs.push({ type: "system", text: "⚖️ 進入第二輪：事實辯論（依據法規、案例、新聞裁罰）" });
-    
-    aiList.forEach(ai => {
-        logs.push({ type: "evidence", text: `${ai.avatar} ${ai.name} 提出證據：${ai.evidence}` });
-    });
-    
-    // 模擬 AI 被說服（50% 機率改變立場為違規）
-    const newAiList = aiList.map(ai => {
-        if (Math.random() > 0.5 && ai.stance !== '違規 ❌') {
-            logs.push({ type: "evidence", text: `✨ ${ai.name} 被說服了！改為「違規 ❌」` });
-            return { ...ai, stance: '違規 ❌', line: `經過辯論，我認為此廣告確實違規。${ai.evidence}` };
+function clearDebateLog() {
+    document.getElementById('debate-log').innerHTML = '';
+}
+
+function showDebateArea(show) {
+    document.getElementById('debate-area').style.display = show ? 'block' : 'none';
+}
+
+function setRound(round) {
+    const roundNames = { 1: '🥇 第一輪：AI 初判', 2: '🥈 第二輪：事實辯論', 3: '🥉 第三輪：人類裁決' };
+    document.getElementById('round-badge').innerHTML = roundNames[round];
+}
+
+function showHumanVoteUI() {
+    document.getElementById('human-vote-buttons').style.display = 'block';
+}
+
+function hideHumanVoteUI() {
+    document.getElementById('human-vote-buttons').style.display = 'none';
+}
+
+function runPersuasionLogic(aiList, adText) {
+    const newList = [...aiList];
+    for (let i = 0; i < newList.length; i++) {
+        if (Math.random() > 0.4 && newList[i].stance !== '違規 ❌') {
+            newList[i].stance = '違規 ❌';
+            newList[i].line = `經過辯論，我認為此廣告確實違規。${newList[i].evidence}`;
+            addDebateLog(`✨ ${newList[i].name} 被說服了！改為「違規 ❌」`, 'evidence');
         }
-        return ai;
-    });
+    }
+    return newList;
+}
+
+function concludeTrial(aiList) {
+    const finalResult = getMajority(aiList.map(a => a.stance));
+    saveMemory(`📊 三輪辯論最終結果：${finalResult}`);
     
-    return { logs, newAiList };
-}
-
-// 顯示人類投票按鈕
-function showHumanVote() {
-    const humanArea = document.getElementById('human-vote-buttons');
-    humanArea.style.display = 'block';
-}
-
-function hideHumanVote() {
-    const humanArea = document.getElementById('human-vote-buttons');
-    humanArea.style.display = 'none';
+    if (finalResult.includes("違規")) {
+        mimiMoney += 20;
+        localStorage.setItem('mimi_money', mimiMoney);
+        updateUI();
+        saveMemory(`💰 成功檢舉！獲得 20 元，目前資金：${mimiMoney}`);
+        playBiteAnimation(currentAdText);
+    }
+    addEXP(12);
+    
+    addDebateLog(`📢 最終裁決：${finalResult}`, 'system');
+    setTimeout(() => {
+        alert(`⚖️ 辯論結束！\n\n最終裁決：${finalResult}\n\n${finalResult.includes("違規") ? "💰 獲得 20 元檢舉獎金！" : ""}`);
+    }, 500);
 }
 
 function humanVote(choice) {
-    hideHumanVote();
-    
-    const debateLog = document.getElementById('debate-log');
-    debateLog.innerHTML += `<div class="debate-line debate-system">👤 人類裁決：${choice}</div>`;
+    hideHumanVoteUI();
+    addDebateLog(`👤 人類裁決：${choice}`, 'system');
     
     const finalResult = choice;
     saveMemory(`📊 三輪辯論最終結果：${finalResult}`);
@@ -692,12 +736,13 @@ function humanVote(choice) {
         saveMemory(`💰 成功檢舉！獲得 20 元，目前資金：${mimiMoney}`);
         playBiteAnimation(currentAdText);
     }
-    
     addEXP(15);
-    alert(`⚖️ 辯論結束！\n\n最終裁決：${finalResult}\n\n${finalResult === "違規 ❌" ? "💰 獲得 20 元檢舉獎金！" : ""}`);
+    
+    setTimeout(() => {
+        alert(`⚖️ 辯論結束！\n\n最終裁決：${finalResult}\n\n${finalResult === "違規 ❌" ? "💰 獲得 20 元檢舉獎金！" : ""}`);
+    }, 500);
 }
 
-// 主流程：啟動三輪辯論
 async function startTrial() {
     const input = document.getElementById("ad-input");
     const adText = input.value.trim();
@@ -706,65 +751,8 @@ async function startTrial() {
         return;
     }
     
-    // 隱藏人類投票區（如果有顯示）
-    hideHumanVote();
+    hideHumanVoteUI();
+    showDebateArea(true);
+    clearDebateLog();
     
-    currentAdText = adText;
-    saveMemory(`📥 收到廣告：「${adText.substring(0, 60)}${adText.length > 60 ? '...' : ''}」`);
-    
-    // 第一輪：AI 初判
-    currentRound = 1;
-    let aiList = round1Init(adText);
-    currentAIs = aiList;
-    renderVotes(aiList);
-    
-    const round1Logs = aiList.map(ai => ({ type: "evidence", text: `${ai.avatar} ${ai.name} 判定：${ai.stance}（${ai.line}）` }));
-    renderDebateLog(round1Logs, 1);
-    
-    let isTie = checkTie(aiList);
-    
-    // 第二輪：只有平手才進入事實辯論
-    if (isTie) {
-        currentRound = 2;
-        saveMemory("⚠️ AI 出現平手，進入第二輪事實辯論");
-        
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
-        const { logs, newAiList } = runFactDebate(aiList, adText);
-        aiList = newAiList;
-        currentAIs = aiList;
-        renderVotes(aiList);
-        renderDebateLog(logs, 2);
-        
-        isTie = checkTie(aiList);
-    }
-    
-    // 第三輪：仍平手 → 人類裁決
-    if (isTie) {
-        currentRound = 3;
-        saveMemory("⚠️ 仍無法達成共識，進入第三輪：人類裁決");
-        renderDebateLog([
-            { type: "system", text: "👤 請你加入投票，做出最終裁決" }
-        ], 3);
-        showHumanVote();
-    } else {
-        // 已有明確多數決
-        const finalResult = getMajority(aiList.map(a => a.stance));
-        saveMemory(`📊 AI 已達成共識：${finalResult}`);
-        
-        if (finalResult.includes("違規")) {
-            mimiMoney += 20;
-            localStorage.setItem('mimi_money', mimiMoney);
-            updateUI();
-            saveMemory(`💰 成功檢舉！獲得 20 元，目前資金：${mimiMoney}`);
-            playBiteAnimation(adText);
-        }
-        addEXP(12);
-        
-        alert(`⚖️ 辯論結束！\n\nAI 多數決結果：${finalResult}\n\n${finalResult.includes("違規") ? "💰 獲得 20 元檢舉獎金！" : ""}`);
-    }
-    
-    input.value = "";
-}
-
-// ---------- 點擊
+    currentAdText = ad
