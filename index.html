@@ -351,7 +351,7 @@
     <h2 style="color:#ffdd99; font-size:42px; margin-bottom:15px;">🥚 米米的小窩</h2>
     
     <div id="egg-container" onclick="crackMimiEgg()">
-        <img id="mimi-img" src="mimi-lobster-hatch.png" alt="米米蛋">
+        <img id="mimi-img" src="mimi-lobster-hatch.jpb" alt="米米蛋">
     </div>
     
     <div id="bite-animation">
@@ -452,12 +452,12 @@ function clearMemory() { mimiMemory = []; localStorage.setItem('mimi_memory', JS
 function crackMimiEgg() {
     const mimiImg = document.getElementById('mimi-img');
     if (!mimiImg) return;
-    if (hasHatched) { mimiImg.src = "mimi-lobster-ready.png"; saveMemory('🦞 米米開心地看著你'); return; }
+    if (hasHatched) { mimiImg.src = "mimi-lobster-ready.jpg"; saveMemory('🦞 米米開心地看著你'); return; }
     mimiImg.style.transition = 'all 0.5s ease';
     mimiImg.style.transform = 'scale(1.2) rotate(10deg)';
-    mimiImg.src = "mimi-lobster-hatch.png";
+    mimiImg.src = "mimi-lobster-hatch.jpb";
     setTimeout(() => {
-        mimiImg.src = "mimi-lobster-ready.png";
+        mimiImg.src = "mimi-lobster-ready.jpg";
         mimiImg.style.transform = 'scale(1.05) rotate(-5deg)';
         setTimeout(() => { mimiImg.style.transform = 'scale(1) rotate(0deg)'; }, 400);
         hasHatched = true;
