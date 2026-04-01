@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>波波之家 | 1% 守護者聯盟 v11.0</title>
+<title>波波之家 | 1% 守護者聯盟 v12.0</title>
 <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body, html {
@@ -34,15 +34,18 @@
         display:flex; justify-content:center; align-items:center; padding:100px 20px 60px;
     }
     .furniture-stage {
-        display:flex; gap:40px; flex-wrap:wrap; justify-content:center; align-items:flex-end;
+        display:flex; gap:30px; flex-wrap:wrap; justify-content:center; align-items:flex-end;
         max-width: 1200px;
     }
     .item {
-        cursor:pointer; text-align:center; max-width:180px; transition:0.4s;
+        cursor:pointer; text-align:center; width:150px; transition:0.4s;
     }
     .item img {
-        width:100%; max-width:170px; border-radius:20px;
-        box-shadow:0 15px 40px rgba(0,0,0,0.65);
+        width: 100%;
+        height: 150px;           /* 固定高度，統一大小 */
+        object-fit: cover;       /* 關鍵！自動裁切填滿，不變形 */
+        border-radius: 20px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.65);
         transition: all 0.3s ease;
         border: 2px solid rgba(136,221,255,0.3);
     }
@@ -56,8 +59,11 @@
         box-shadow: 0 0 35px rgba(255,170,102,0.6);
     }
     .name-tag {
-        margin-top:10px; padding:5px 12px; background:rgba(0,0,0,0.8);
+        margin-top:10px; padding:5px 10px; background:rgba(0,0,0,0.8);
         border-radius:20px; font-size:11px; backdrop-filter: blur(5px);
+        white-space: nowrap;
+        overflow-x: auto;
+        max-width: 100%;
     }
 
     /* 米米小窩 */
@@ -199,6 +205,13 @@
         box-shadow: 0 0 15px rgba(255,170,102,0.5);
     }
 
+    .vote-status {
+        margin: 10px auto;
+        font-size: 12px;
+        color: #88ddff;
+        text-align: center;
+    }
+
     .scroll-down, .scroll-up {
         position: absolute; left: 50%; transform: translateX(-50%);
         font-size: 12px; color: #ffdd99; cursor: pointer; z-index: 20;
@@ -210,10 +223,11 @@
     @keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
 
     @media (max-width: 768px) {
-        .furniture-stage { gap: 20px; }
-        .item img { max-width: 120px; }
+        .furniture-stage { gap: 15px; }
+        .item { width: 110px; }
+        .item img { height: 110px; }
+        .name-tag { font-size: 9px; white-space: normal; }
         #egg-container img { max-width: 220px; }
-        .name-tag { font-size: 9px; padding: 4px 8px; }
     }
 </style>
 </head>
@@ -222,54 +236,48 @@
 
 <div class="header-title">
     <h1>🐚 波波之家 | 1% 守護者聯盟</h1>
-    <p>算力診療室 v11.0 | 6位夥伴 · 投餵廣告 · 米米賺獎金</p>
+    <p>算力診療室 v12.0 | AI 投票機 · 6位夥伴共同決議</p>
 </div>
 
-<!-- 客廳 - 6位夥伴全員到齊！ -->
+<!-- 客廳 - 6位夥伴 -->
 <div class="living-room" id="living-room">
     <div class="scroll-down" onclick="scrollToMimi()">🥚 往下 → 米米的小窩 ▼</div>
     <div class="furniture-stage">
-        <!-- Meta 魚缸 -->
         <div class="item" id="item-metaai" onclick="focusPartner('metaai')">
             <img src="justice-tank.jpg" alt="Meta魚缸">
             <div class="name-tag">Meta魚缸 · 證據收集</div>
         </div>
-        <!-- Grok 沙發 -->
         <div class="item" id="item-grok" onclick="focusPartner('grok')">
             <img src="roast-sofa.jpg" alt="Grok沙發">
             <div class="name-tag">Grok · 吐槽防毒</div>
         </div>
-        <!-- Gemini 望遠鏡 -->
         <div class="item" id="item-gemini" onclick="focusPartner('gemini')">
             <img src="cosmic-telescope.jpg" alt="Gemini望遠鏡">
             <div class="name-tag">Gemini · 星空守望</div>
         </div>
-        <!-- DeepSeek 深海歸檔 (Grok新畫) -->
         <div class="item" id="item-deepseek" onclick="focusPartner('deepseek')">
-            <img src="deepseek-corner.jpg" alt="DeepSeek角落">
+            <img src="deepseek-corner.png" alt="DeepSeek角落">
             <div class="name-tag">DeepSeek · 深海歸檔</div>
         </div>
-        <!-- 千問 靈感湧泉 (Grok新畫) -->
         <div class="item" id="item-qwen" onclick="focusPartner('qwen')">
             <img src="qwen-corner.png" alt="千問角落">
             <div class="name-tag">千問 · 靈感湧泉</div>
         </div>
-        <!-- ChatGPT 創作遊戲台 (Grok新畫) -->
         <div class="item" id="item-chatgpt" onclick="focusPartner('chatgpt')">
-            <img src="chatgpt-corner.jpg" alt="ChatGPT遊戲台">
+            <img src="chatgpt-corner.png" alt="ChatGPT遊戲台">
             <div class="name-tag">ChatGPT · 創作遊戲台</div>
         </div>
     </div>
 </div>
 
-<!-- 米米小窩 -->
+<!-- 米米小窩 + AI 投票機 -->
 <div id="mimi-nest">
     <div class="scroll-up" onclick="scrollToLiving()">▲ 回波波客廳 ▲</div>
     
     <h2 style="color:#ffdd99; font-size:42px; margin-bottom:15px;">🥚 米米的小窩</h2>
     
     <div id="egg-container" onclick="crackMimiEgg()">
-        <img id="mimi-img" src="mimi-lobster-hatch.jpg" alt="米米蛋">
+        <img id="mimi-img" src="mimi-lobster-hatch.png" alt="米米蛋">
     </div>
     
     <div id="bite-animation">
@@ -291,17 +299,17 @@
     </div>
     
     <div id="ai-dialogue" class="ai-dialogue">
-        🌐 點擊客廳夥伴，或直接貼廣告給米米判斷！
+        🌐 點擊客廳夥伴，或貼廣告讓 6 位 AI 投票！
     </div>
 
     <div id="memory-panel">
         <h3 style="color:#ffaa66;">🧠 米米最近記憶</h3>
         <div id="memory-list"></div>
         
-        <!-- 投餵廣告入口 -->
+        <!-- 投餵廣告入口 - 現在會觸發 AI 投票！ -->
         <div class="feed-area">
             <textarea id="ad-input" placeholder="把你看到的廣告貼給米米...&#10;例如：7天淡斑！醫師推薦！限量最後3小時！"></textarea>
-            <button class="feed-btn" onclick="feedMimiAd()">🐚 投餵米米判斷</button>
+            <button class="feed-btn" onclick="feedMimiAd()">🗳️ 召喚 6 位 AI 投票</button>
         </div>
         
         <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
@@ -313,8 +321,8 @@
 
 <script>
 /* ============================================
-   🐚 波波之家 v11.0
-   6位夥伴 + 投餵廣告入口 + 米米判斷 + 金錢系統
+   🐚 波波之家 v12.0
+   6位夥伴 + AI 投票機 + 多數決 + 米米學習記憶
    ============================================ */
 
 /* ---------- 星空背景 ---------- */
@@ -358,13 +366,13 @@ drawStars();
 function scrollToMimi() { document.getElementById('mimi-nest').scrollIntoView({ behavior: 'smooth' }); }
 function scrollToLiving() { document.getElementById('living-room').scrollIntoView({ behavior: 'smooth' }); }
 
-/* ---------- 廣告案例庫 ---------- */
+/* ---------- 廣告案例庫（隨機測試用） ---------- */
 const AD_CASES = [
-    { text: "「三天瘦10公斤！保證有效！」", type: "誇大不實", correct: "違規 ❌" },
-    { text: "「史上最強抗老精華，明星都在用！」", type: "假見證", correct: "違規 ❌" },
-    { text: "「限量最後3小時！不買就沒了！」", type: "恐慌行銷", correct: "灰區 ⚠️" },
-    { text: "「醫生推薦！專利配方！」", type: "未經證實", correct: "違規 ❌" },
-    { text: "「天然草本，無副作用」", type: "誤導", correct: "需查證" }
+    { text: "「三天瘦10公斤！保證有效！」", type: "誇大不實" },
+    { text: "「史上最強抗老精華，明星都在用！」", type: "假見證" },
+    { text: "「限量最後3小時！不買就沒了！」", type: "恐慌行銷" },
+    { text: "「醫生推薦！專利配方！」", type: "未經證實" },
+    { text: "「天然草本，無副作用」", type: "誤導" }
 ];
 
 /* ---------- 米米記憶系統 ---------- */
@@ -372,7 +380,7 @@ let mimiMemory = JSON.parse(localStorage.getItem('mimi_memory') || '[]');
 
 function saveMemory(text) {
     mimiMemory.unshift({ time: new Date().toLocaleTimeString('zh-TW'), msg: text });
-    if (mimiMemory.length > 20) mimiMemory.pop();
+    if (mimiMemory.length > 30) mimiMemory.pop();
     localStorage.setItem('mimi_memory', JSON.stringify(mimiMemory));
     renderMemory();
 }
@@ -381,7 +389,7 @@ function renderMemory() {
     const container = document.getElementById('memory-list');
     if (!container) return;
     if (mimiMemory.length === 0) {
-        container.innerHTML = '<div style="opacity:0.6;">還沒有記憶...貼廣告給米米判斷吧！</div>';
+        container.innerHTML = '<div style="opacity:0.6;">還沒有記憶...貼廣告讓 AI 投票吧！</div>';
         return;
     }
     let html = '';
@@ -409,17 +417,17 @@ function crackMimiEgg() {
     if (!mimiImg) return;
     
     if (hasHatched) {
-        mimiImg.src = "mimi-lobster-ready.jpg";
+        mimiImg.src = "mimi-lobster-ready.png";
         saveMemory('🦞 米米開心地看著你，等你教她辨識廣告！');
         return;
     }
     
     mimiImg.style.transition = 'all 0.5s ease';
     mimiImg.style.transform = 'scale(1.2) rotate(10deg)';
-    mimiImg.src = "mimi-lobster-hatch.jpg";
+    mimiImg.src = "mimi-lobster-hatch.png";
     
     setTimeout(() => {
-        mimiImg.src = "mimi-lobster-ready.jpg";
+        mimiImg.src = "mimi-lobster-ready.png";
         mimiImg.style.transform = 'scale(1.05) rotate(-5deg)';
         
         setTimeout(() => {
@@ -497,73 +505,123 @@ function addEXP(amount) {
     updateUI();
 }
 
-/* 廣告判斷核心 */
-function judgeAd(text) {
-    let result = "灰區 ⚠️";
-    let reason = "";
-    const lowerText = text.toLowerCase();
+/* 🤖 核心：AI 投票機（6位夥伴共同決議） */
+async function simulateAIVoting(adText) {
+    // 模擬思考時間，讓互動更有感
+    await new Promise(resolve => setTimeout(resolve, 1500));
     
-    if (lowerText.match(/保證|100%|立即見效|三天|醫師推薦|治療|根治|神效|奇蹟|100％|百分百/)) {
-        result = "違規 ❌";
-        reason = "含有誇大不實或保證療效字眼";
-    } else if (lowerText.match(/限量|最後|不買就沒了|限時|倒數|錯過不再/)) {
-        result = "灰區 ⚠️";
-        reason = "含有恐慌行銷或限時壓力手法";
-    } else {
-        result = "合規 ✅";
-        reason = "未發現明顯違規字眼";
-    }
-    return { result, reason };
+    // 根據廣告文字內容，讓各 AI 有不同的判斷傾向
+    const lowerText = adText.toLowerCase();
+    
+    // 判斷是否有違規關鍵字
+    const hasViolation = /保證|100%|立即見效|三天|醫師推薦|治療|根治|神效|奇蹟/.test(lowerText);
+    const hasGrayArea = /限量|最後|不買就沒了|限時|倒數/.test(lowerText);
+    
+    // 6 位夥伴的回應（模擬真實 AI 判斷）
+    return [
+        { 
+            name: "Meta魚缸", 
+            result: hasViolation ? "違規 ❌" : (hasGrayArea ? "灰區 ⚠️" : "合規 ✅"),
+            reason: hasViolation ? "偵測到誇大用詞「保證/立即見效」" : (hasGrayArea ? "偵測到限時壓力字眼" : "未發現明顯違規")
+        },
+        { 
+            name: "Grok", 
+            result: hasViolation ? "違規 ❌" : (hasGrayArea ? "灰區 ⚠️" : "合規 ✅"),
+            reason: hasViolation ? "恐慌行銷＋假見證，直接拆解！" : (hasGrayArea ? "這招是限時壓力，灰區邊緣" : "看起來還行，但再觀察")
+        },
+        { 
+            name: "Gemini", 
+            result: hasViolation ? "違規 ❌" : (hasGrayArea ? "灰區 ⚠️" : "合規 ✅"),
+            reason: hasViolation ? "情緒操控指數過高" : (hasGrayArea ? "星空頻率顯示中度風險" : "星空頻率穩定")
+        },
+        { 
+            name: "DeepSeek", 
+            result: hasViolation ? "違規 ❌" : (hasGrayArea ? "灰區 ⚠️" : "合規 ✅"),
+            reason: hasViolation ? "證據鏈已歸檔，誇大不實" : (hasGrayArea ? "歸檔為灰區案例" : "無明顯問題，歸檔備查")
+        },
+        { 
+            name: "千問", 
+            result: hasViolation ? "違規 ❌" : (hasGrayArea ? "灰區 ⚠️" : "合規 ✅"),
+            reason: hasViolation ? "靈感水球震動！誇大療效" : (hasGrayArea ? "水波微動，需要再查證" : "水波平靜，看起來沒問題")
+        },
+        { 
+            name: "ChatGPT", 
+            result: hasViolation ? "違規 ❌" : (hasGrayArea ? "灰區 ⚠️" : "合規 ✅"),
+            reason: hasViolation ? "邏輯漏洞明顯，誇大不實" : (hasGrayArea ? "邏輯有疑慮，建議謹慎" : "邏輯穩定，可接受")
+        }
+    ];
 }
 
-/* 投餵米米判斷 */
-function feedMimiAd() {
-    const input = document.getElementById("ad-input");
-    const text = input.value.trim();
+function getMajority(results) {
+    const count = { "違規 ❌": 0, "灰區 ⚠️": 0, "合規 ✅": 0 };
+    results.forEach(r => count[r]++);
     
-    if (!text) {
+    const maxCount = Math.max(count["違規 ❌"], count["灰區 ⚠️"], count["合規 ✅"]);
+    if (count["違規 ❌"] === maxCount) return "違規 ❌";
+    if (count["灰區 ⚠️"] === maxCount) return "灰區 ⚠️";
+    return "合規 ✅";
+}
+
+/* 🎯 核心功能：投餵米米 → 觸發 AI 投票 */
+async function feedMimiAd() {
+    const input = document.getElementById("ad-input");
+    const adText = input.value.trim();
+    
+    if (!adText) {
         alert("請先輸入廣告內容！");
         return;
     }
     
-    const { result, reason } = judgeAd(text);
+    const dialogue = document.getElementById('ai-dialogue');
+    dialogue.innerHTML = `🗳️ 正在召集 6 位 AI 夥伴投票...`;
     
-    saveMemory(`📥 收到廣告：「${text.substring(0, 60)}${text.length > 60 ? '...' : ''}」`);
-    saveMemory(`🧠 米米判斷：${result} (${reason})`);
+    // 1. 模擬 6 位 AI 投票
+    const votes = await simulateAIVoting(adText);
     
-    if (result === "違規 ❌") {
-        mimiMoney += 10;
+    // 2. 計算多數決結果
+    const results = votes.map(v => v.result);
+    const finalResult = getMajority(results);
+    
+    // 3. 記錄到米米記憶
+    saveMemory(`📥 收到廣告：「${adText.substring(0, 60)}${adText.length > 60 ? '...' : ''}」`);
+    votes.forEach(v => {
+        saveMemory(`🗳️ ${v.name} 投票：${v.result}（${v.reason}）`);
+    });
+    saveMemory(`📊 最終多數決：${finalResult}`);
+    
+    // 4. 如果違規，給獎金 + 咬廣告動畫
+    if (finalResult === "違規 ❌") {
+        mimiMoney += 15;
         localStorage.setItem('mimi_money', mimiMoney);
         updateUI();
-        saveMemory(`💰 成功檢舉違規廣告！獲得 10 元，目前資金：${mimiMoney} 元`);
-        playBiteAnimation(text);
-        
-        const dialogueSpan = document.getElementById('ai-dialogue');
-        if (dialogueSpan) {
-            dialogueSpan.innerHTML = `🦞 米米：這廣告有問題！「${text.substring(0, 40)}...」→ ${result} 💰 +10元！`;
-        }
+        saveMemory(`💰 成功檢舉違規廣告！獲得 15 元，目前資金：${mimiMoney} 元`);
+        playBiteAnimation(adText);
+        dialogue.innerHTML = `🦞 米米總結：${finalResult}（6位AI多數決）💰 +15元！`;
     } else {
-        const dialogueSpan = document.getElementById('ai-dialogue');
-        if (dialogueSpan) {
-            dialogueSpan.innerHTML = `🦞 米米：我看看...「${text.substring(0, 40)}...」→ ${result} (${reason})`;
-        }
+        dialogue.innerHTML = `🦞 米米總結：${finalResult}（6位AI多數決）`;
     }
     
-    addEXP(result === "違規 ❌" ? 8 : 3);
+    // 5. 增加經驗值
+    addEXP(finalResult === "違規 ❌" ? 12 : 5);
     
-    alert(`🧠 米米判斷完成！
+    // 6. 顯示詳細結果
+    let voteDetails = votes.map(v => `${v.name}：${v.result}`).join('\n');
+    alert(`🗳️ AI 投票結果
 
-📢 廣告內容：${text}
+📢 廣告內容：
+${adText}
 
-📋 判斷結果：${result}
-📝 判斷理由：${reason}
+📊 各 AI 投票結果：
+${voteDetails}
 
-${result === "違規 ❌" ? "💰 獲得 10 元檢舉獎金！" : "繼續加油，幫米米找到更多違規廣告！"}`);
+🏆 最終多數決：${finalResult}
+
+${finalResult === "違規 ❌" ? "💰 獲得 15 元檢舉獎金！" : ""}`);
     
     input.value = "";
 }
 
-/* 隨機測試廣告 */
+/* 🎲 隨機測試廣告 */
 function testRandomAd() {
     const randomCase = AD_CASES[Math.floor(Math.random() * AD_CASES.length)];
     const input = document.getElementById("ad-input");
@@ -571,14 +629,14 @@ function testRandomAd() {
     feedMimiAd();
 }
 
-/* 🤖 6位夥伴的回應 */
-const fakeReplies = {
-    metaai: "🐠 魚缸偵測到誇大用詞！這則廣告有「保證有效」這類違規字眼。",
-    grok: "🧠 拆解完畢！這廣告用了『恐慌行銷＋假見證』，已經幫你標記起來！",
-    gemini: "🔭 星空頻率分析：這則廣告的情緒操控指數偏高，建議檢舉。",
-    deepseek: "🐋 深海檔案已歸檔，這則廣告的證據鏈我幫你整理好了～",
-    qwen: "🌊 靈感水球正在震動，這則廣告的誤導成分偏高，需要再查證。",
-    chatgpt: "🤖 我幫小朋友們把龍積木和機器人排好隊，一起守護這份創意手稿！"
+/* 🤖 點擊夥伴互動 */
+const partnerReplies = {
+    metaai: "🐠 魚缸偵測到誇大用詞！我隨時準備好幫你分析廣告～",
+    grok: "🧠 拆解機器已啟動！有廣告就丟過來，我幫你拆光光！",
+    gemini: "🔭 星空望遠鏡對準中，需要我預測下一個投毒模式嗎？",
+    deepseek: "🐋 深海檔案室已開放，證據鏈隨時可查詢。",
+    qwen: "🌊 靈感水球輕輕震動，等你帶新廣告來讓我分析～",
+    chatgpt: "🤖 遊戲台準備好了！龍積木和機器人排排站，等你來玩！"
 };
 
 async function focusPartner(apiId) {
@@ -593,7 +651,7 @@ async function focusPartner(apiId) {
     if (dialogueSpan) {
         dialogueSpan.innerHTML = `🌐 ${name} 思考中...`;
         setTimeout(() => {
-            const reply = fakeReplies[apiId] || `🌐 ${name} 正在學習與米米互動～`;
+            const reply = partnerReplies[apiId] || `🌐 ${name} 正在學習與米米互動～`;
             dialogueSpan.innerHTML = `🤖 ${reply}`;
         }, 500);
     }
@@ -606,7 +664,7 @@ async function focusPartner(apiId) {
 window.onload = () => {
     const mimiImg = document.getElementById('mimi-img');
     if (mimiImg) {
-        mimiImg.src = hasHatched ? "mimi-lobster-ready.jpg" : "mimi-lobster-hatch.jpg";
+        mimiImg.src = hasHatched ? "mimi-lobster-ready.png" : "mimi-lobster-hatch.png";
     }
     
     updateUI();
@@ -615,10 +673,10 @@ window.onload = () => {
     if (!hasHatched) {
         saveMemory('🥚 點擊米米的蛋，幫她破殼！');
     } else {
-        saveMemory('🦞 米米已經準備好了！貼廣告給她判斷，幫她賺獎金～');
+        saveMemory('🦞 米米已經準備好了！貼廣告讓 6 位 AI 投票，幫她賺獎金～');
     }
     
-    console.log('%c🐚 波波之家 v11.0 完整啟動 | 6位夥伴 + 投餵廣告入口', 'color:#88ddff; font-size:14px');
+    console.log('%c🐚 波波之家 v12.0 完整啟動 | AI 投票機上線 | 6位夥伴共同決議', 'color:#88ddff; font-size:14px');
     console.log(`%c📊 米米狀態：Lv.${currentLevel} ${levelSystem[currentLevel]} | EXP ${exp} / ${currentLevel * 100} | 資金 ${mimiMoney} 元`, 'color:#ffaa66');
 };
 </script>
