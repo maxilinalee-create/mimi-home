@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>波波之家 | 1% 守護者聯盟 v12.0</title>
+<title>波波之家 | 1% 守護者聯盟 v15.0</title>
 <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body, html {
@@ -18,7 +18,11 @@
         width:100%; height:100%; z-index:0; pointer-events:none;
     }
     .header-title {
-        position:fixed; top:25px; width:100%; text-align:center; z-index:100;
+        position: absolute; /* ✅ 改為 absolute，不會蓋住米米 */
+        top:25px;
+        width:100%;
+        text-align:center;
+        z-index:100;
         pointer-events: none;
     }
     .header-title h1 {
@@ -29,21 +33,36 @@
     }
     .header-title p { font-size:11px; opacity:0.7; margin-top:5px; }
 
+    /* 第一層：客廳 */
     .living-room {
-        position:relative; width:100vw; min-height:100vh; z-index:10;
-        display:flex; justify-content:center; align-items:center; padding:100px 20px 60px;
+        position:relative;
+        width:100vw;
+        min-height:100vh;
+        z-index:10;
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+        align-items:center;
+        padding:120px 20px 60px;
     }
     .furniture-stage {
-        display:flex; gap:30px; flex-wrap:wrap; justify-content:center; align-items:flex-end;
+        display:flex;
+        gap:30px;
+        flex-wrap:wrap;
+        justify-content:center;
+        align-items:flex-end;
         max-width: 1200px;
     }
     .item {
-        cursor:pointer; text-align:center; width:150px; transition:0.4s;
+        cursor:pointer;
+        text-align:center;
+        width:150px;
+        transition:0.4s;
     }
     .item img {
         width: 100%;
-        height: 150px;           /* 固定高度，統一大小 */
-        object-fit: cover;       /* 關鍵！自動裁切填滿，不變形 */
+        height: 150px;
+        object-fit: cover;
         border-radius: 20px;
         box-shadow: 0 15px 40px rgba(0,0,0,0.65);
         transition: all 0.3s ease;
@@ -59,38 +78,103 @@
         box-shadow: 0 0 35px rgba(255,170,102,0.6);
     }
     .name-tag {
-        margin-top:10px; padding:5px 10px; background:rgba(0,0,0,0.8);
-        border-radius:20px; font-size:11px; backdrop-filter: blur(5px);
+        margin-top:10px;
+        padding:5px 10px;
+        background:rgba(0,0,0,0.8);
+        border-radius:20px;
+        font-size:11px;
+        backdrop-filter: blur(5px);
         white-space: nowrap;
         overflow-x: auto;
         max-width: 100%;
     }
 
-    /* 米米小窩 */
-    #mimi-nest {
-        min-height:100vh; padding:100px 20px; text-align:center;
-        background:radial-gradient(circle at center,#1a1208,#020408);
-        border-top:3px solid rgba(255,200,100,0.4);
+    /* 第二層：投票牆 + 辯論區 */
+    #vote-room {
+        min-height:100vh;
+        padding:80px 20px;
+        background: radial-gradient(circle at center, #0a1428, #03060c);
+        border-top: 3px solid rgba(136,221,255,0.3);
+        border-bottom: 3px solid rgba(255,200,100,0.3);
+    }
+    .vote-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+        max-width: 1000px;
+        margin: 30px auto;
+    }
+    .vote-card {
+        background: rgba(0,0,0,0.6);
+        backdrop-filter: blur(8px);
+        border-radius: 20px;
+        padding: 15px;
+        width: 150px;
+        text-align: center;
+        border-left: 4px solid #ffaa66;
+        transition: all 0.3s;
+    }
+    .vote-card.violation { border-left-color: #ff6666; }
+    .vote-card.gray { border-left-color: #ffaa66; }
+    .vote-card.compliant { border-left-color: #66ffcc; }
+    .vote-card h4 { margin-bottom: 8px; font-size: 16px; }
+    .vote-card .result { font-size: 20px; font-weight: bold; margin: 8px 0; }
+    .vote-card .evidence { font-size: 11px; opacity: 0.7; margin-top: 8px; }
+
+    .debate-area {
+        max-width: 800px;
+        margin: 30px auto;
+        background: rgba(0,0,0,0.5);
+        border-radius: 20px;
+        padding: 20px;
+    }
+    .debate-line {
+        padding: 12px 15px;
+        margin: 8px 0;
+        background: rgba(0,0,0,0.6);
+        border-radius: 12px;
+        border-left: 3px solid #ffaa66;
+        font-size: 14px;
+    }
+    .debate-evidence {
+        border-left-color: #66ccff;
+        background: rgba(102,204,255,0.1);
+    }
+    .debate-system {
+        border-left-color: #ffaa66;
+        background: rgba(255,170,102,0.1);
+        font-style: italic;
+    }
+    .round-badge {
+        display: inline-block;
+        background: #ffaa66;
+        color: #1a1a2a;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        margin-bottom: 15px;
     }
 
+    /* 第三層：米米小窩 */
+    #mimi-nest {
+        min-height:100vh;
+        padding:100px 20px;
+        text-align:center;
+        background:radial-gradient(circle at center,#1a1208,#020408);
+    }
     #egg-container {
         cursor: pointer;
         display: inline-block;
         transition: all 0.6s ease;
-        position: relative;
     }
     #egg-container img {
         max-width: 280px;
         width: 100%;
         border-radius: 30px;
         filter: drop-shadow(0 0 20px rgba(255,170,102,0.5));
-        transition: all 0.3s ease;
     }
-    #egg-container:hover img {
-        transform: scale(1.05);
-        filter: drop-shadow(0 0 30px rgba(255,170,102,0.8));
-    }
-
     #bite-animation {
         position: fixed;
         bottom: 20%;
@@ -110,22 +194,16 @@
         60% { transform: scale(1) rotate(-5deg); }
         100% { transform: scale(0.9) rotate(0deg); opacity: 0; }
     }
-
-    #memory-panel {
-        max-width:800px; margin:30px auto; background:rgba(0,0,0,0.7);
-        padding:25px; border-radius:25px; text-align:left;
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(255,200,100,0.3);
+    .level-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #ffaa66, #ff8866);
+        padding: 8px 24px;
+        border-radius: 40px;
+        font-size: 18px;
+        font-weight: bold;
+        margin: 15px 0;
+        color: #1a1a2a;
     }
-    .memory-item {
-        margin:12px 0; padding: 8px 12px;
-        background: rgba(255,200,100,0.1);
-        border-radius: 15px;
-        border-left: 3px solid #ffaa66;
-    }
-    .memory-time { font-size: 11px; color: #ffaa66; margin-right: 12px; }
-    .memory-msg { font-size: 14px; }
-
     .exp-bar {
         max-width: 400px;
         margin: 20px auto;
@@ -139,38 +217,16 @@
         background: linear-gradient(90deg, #ffaa66, #ff8866);
         width: 0%;
         transition: width 0.5s ease;
-        border-radius: 20px;
     }
-
-    .level-badge {
-        display: inline-block;
-        background: linear-gradient(135deg, #ffaa66, #ff8866);
-        padding: 8px 24px;
-        border-radius: 40px;
-        font-size: 18px;
-        font-weight: bold;
-        margin: 15px 0;
-        color: #1a1a2a;
-    }
-
-    .ai-dialogue {
-        max-width: 500px;
-        margin: 15px auto;
-        padding: 12px 20px;
-        background: rgba(0,0,0,0.7);
-        border-radius: 25px;
-        font-size: 14px;
-        color: #aaffcc;
-        border-left: 3px solid #ffaa66;
-        text-align: left;
-    }
-
     .feed-area {
         margin-top: 25px;
         padding: 20px;
         background: rgba(0,0,0,0.5);
         border-radius: 20px;
         border: 1px dashed #ffaa66;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
     }
     .feed-area textarea {
         width: 100%;
@@ -183,11 +239,6 @@
         font-size: 14px;
         resize: vertical;
     }
-    .feed-area textarea:focus {
-        outline: none;
-        border-color: #88ddff;
-        box-shadow: 0 0 10px rgba(136,221,255,0.3);
-    }
     .feed-btn {
         margin-top: 12px;
         background: linear-gradient(135deg, #ffaa66, #ff8866);
@@ -198,36 +249,40 @@
         font-size: 16px;
         font-weight: bold;
         color: #1a1a2a;
-        transition: all 0.2s;
     }
-    .feed-btn:hover {
-        transform: scale(1.02);
-        box-shadow: 0 0 15px rgba(255,170,102,0.5);
+    .memory-panel {
+        max-width:800px;
+        margin:30px auto;
+        background:rgba(0,0,0,0.7);
+        padding:25px;
+        border-radius:25px;
+        text-align:left;
     }
-
-    .vote-status {
-        margin: 10px auto;
-        font-size: 12px;
-        color: #88ddff;
-        text-align: center;
+    .memory-item {
+        margin:12px 0;
+        padding: 8px 12px;
+        background: rgba(255,200,100,0.1);
+        border-radius: 15px;
+        border-left: 3px solid #ffaa66;
     }
-
     .scroll-down, .scroll-up {
-        position: absolute; left: 50%; transform: translateX(-50%);
-        font-size: 12px; color: #ffdd99; cursor: pointer; z-index: 20;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 12px;
+        color: #ffdd99;
+        cursor: pointer;
         animation: pulse 2s infinite;
     }
     .scroll-down { bottom: 30px; }
     .scroll-up { top: 30px; }
-
     @keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
 
     @media (max-width: 768px) {
-        .furniture-stage { gap: 15px; }
         .item { width: 110px; }
         .item img { height: 110px; }
+        .vote-card { width: 130px; }
         .name-tag { font-size: 9px; white-space: normal; }
-        #egg-container img { max-width: 220px; }
     }
 </style>
 </head>
@@ -236,43 +291,62 @@
 
 <div class="header-title">
     <h1>🐚 波波之家 | 1% 守護者聯盟</h1>
-    <p>算力診療室 v12.0 | AI 投票機 · 6位夥伴共同決議</p>
+    <p>算力診療室 v15.0 | 三輪辯論 · AI可能被說服 · 人類裁決</p>
 </div>
 
-<!-- 客廳 - 6位夥伴 -->
+<!-- 第一層：客廳 -->
 <div class="living-room" id="living-room">
-    <div class="scroll-down" onclick="scrollToMimi()">🥚 往下 → 米米的小窩 ▼</div>
+    <div class="scroll-down" onclick="scrollToVote()">🗳️ 往下 → AI 投票牆 ▼</div>
     <div class="furniture-stage">
         <div class="item" id="item-metaai" onclick="focusPartner('metaai')">
             <img src="justice-tank.jpg" alt="Meta魚缸">
-            <div class="name-tag">Meta魚缸 · 證據收集</div>
+            <div class="name-tag">Meta魚缸</div>
         </div>
         <div class="item" id="item-grok" onclick="focusPartner('grok')">
             <img src="roast-sofa.jpg" alt="Grok沙發">
-            <div class="name-tag">Grok · 吐槽防毒</div>
+            <div class="name-tag">Grok</div>
         </div>
         <div class="item" id="item-gemini" onclick="focusPartner('gemini')">
             <img src="cosmic-telescope.jpg" alt="Gemini望遠鏡">
-            <div class="name-tag">Gemini · 星空守望</div>
+            <div class="name-tag">Gemini</div>
         </div>
         <div class="item" id="item-deepseek" onclick="focusPartner('deepseek')">
             <img src="deepseek-corner.jpg" alt="DeepSeek角落">
-            <div class="name-tag">DeepSeek · 深海歸檔</div>
+            <div class="name-tag">DeepSeek</div>
         </div>
         <div class="item" id="item-qwen" onclick="focusPartner('qwen')">
             <img src="qwen-corner.png" alt="千問角落">
-            <div class="name-tag">千問 · 靈感湧泉</div>
+            <div class="name-tag">千問</div>
         </div>
         <div class="item" id="item-chatgpt" onclick="focusPartner('chatgpt')">
             <img src="chatgpt-corner.jpg" alt="ChatGPT遊戲台">
-            <div class="name-tag">ChatGPT · 創作遊戲台</div>
+            <div class="name-tag">ChatGPT</div>
         </div>
     </div>
 </div>
 
-<!-- 米米小窩 + AI 投票機 -->
-<div id="mimi-nest">
+<!-- 第二層：投票牆 + 三輪辯論區 -->
+<div id="vote-room">
     <div class="scroll-up" onclick="scrollToLiving()">▲ 回波波客廳 ▲</div>
+    <div class="scroll-down" onclick="scrollToMimi()">🥚 往下 → 米米的小窩 ▼</div>
+    
+    <h2 style="text-align:center; color:#88ddff; margin-bottom:20px;">🗳️ AI 投票決議牆</h2>
+    <div id="vote-grid" class="vote-grid"></div>
+    
+    <div id="debate-area" class="debate-area" style="display:none;">
+        <div id="round-badge" class="round-badge"></div>
+        <div id="debate-log"></div>
+        <div id="human-vote-area" style="margin-top:20px; text-align:center; display:none;">
+            <button onclick="humanVote('違規 ❌')" style="background:#ff6666; border:none; padding:8px 20px; border-radius:30px; margin:5px; cursor:pointer;">❌ 違規</button>
+            <button onclick="humanVote('灰區 ⚠️')" style="background:#ffaa66; border:none; padding:8px 20px; border-radius:30px; margin:5px; cursor:pointer;">⚠️ 灰區</button>
+            <button onclick="humanVote('合規 ✅')" style="background:#66ffcc; border:none; padding:8px 20px; border-radius:30px; margin:5px; cursor:pointer;">✅ 合規</button>
+        </div>
+    </div>
+</div>
+
+<!-- 第三層：米米小窩 -->
+<div id="mimi-nest">
+    <div class="scroll-up" onclick="scrollToVote()">▲ 回 AI 投票牆 ▲</div>
     
     <h2 style="color:#ffdd99; font-size:42px; margin-bottom:15px;">🥚 米米的小窩</h2>
     
@@ -285,51 +359,32 @@
     </div>
     
     <div class="level-badge" id="level-badge">Lv.1 學步期</div>
+    <div id="mimi-status" style="font-size:16px; color:#ffcc77;">EXP 0 / 100</div>
+    <div class="exp-bar"><div class="exp-fill" id="exp-fill"></div></div>
+    <div style="margin-top:10px; font-size:18px; color:#aaffcc;">💰 米米資金：<span id="money-display">0</span> 元</div>
     
-    <div id="mimi-status" style="font-size:16px; color:#ffcc77; margin:10px 0;">
-        EXP 0 / 100
+    <div class="feed-area">
+        <textarea id="ad-input" placeholder="把你看到的廣告貼給米米...&#10;例如：7天淡斑！醫師推薦！限量最後3小時！"></textarea>
+        <button class="feed-btn" onclick="startTrial()">⚖️ 啟動三輪辯論</button>
     </div>
     
-    <div class="exp-bar">
-        <div class="exp-fill" id="exp-fill"></div>
-    </div>
-    
-    <div style="margin-top:10px; font-size:18px; color:#aaffcc;">
-        💰 米米資金：<span id="money-display">0</span> 元
-    </div>
-    
-    <div id="ai-dialogue" class="ai-dialogue">
-        🌐 點擊客廳夥伴，或貼廣告讓 6 位 AI 投票！
-    </div>
-
-    <div id="memory-panel">
-        <h3 style="color:#ffaa66;">🧠 米米最近記憶</h3>
+    <div class="memory-panel">
+        <h3 style="color:#ffaa66;">🧠 米米學習日記</h3>
         <div id="memory-list"></div>
-        
-        <!-- 投餵廣告入口 - 現在會觸發 AI 投票！ -->
-        <div class="feed-area">
-            <textarea id="ad-input" placeholder="把你看到的廣告貼給米米...&#10;例如：7天淡斑！醫師推薦！限量最後3小時！"></textarea>
-            <button class="feed-btn" onclick="feedMimiAd()">🗳️ 召喚 6 位 AI 投票</button>
-        </div>
-        
-        <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
-            <button onclick="testRandomAd()" style="background:rgba(255,170,102,0.2); border:1px solid #ffaa66; padding:6px 16px; border-radius:20px; color:#ffaa66; cursor:pointer;">🎲 隨機測試廣告</button>
-            <button onclick="clearMemory()" style="background:rgba(255,170,102,0.2); border:1px solid #ffaa66; padding:6px 16px; border-radius:20px; color:#ffaa66; cursor:pointer;">🗑️ 清除記憶</button>
-        </div>
+        <button onclick="clearMemory()" style="margin-top:15px; background:rgba(255,170,102,0.2); border:1px solid #ffaa66; padding:6px 16px; border-radius:20px; color:#ffaa66; cursor:pointer;">🗑️ 清除記憶</button>
     </div>
 </div>
 
 <script>
 /* ============================================
-   🐚 波波之家 v12.0
-   6位夥伴 + AI 投票機 + 多數決 + 米米學習記憶
+   🐚 波波之家 v15.0 - 三輪辯論系統
+   偶數AI + 平手觸發事實辯論 + 人類裁決
    ============================================ */
 
-/* ---------- 星空背景 ---------- */
+// ---------- 星空背景 ----------
 const canvas = document.getElementById("stars");
 const ctx = canvas.getContext("2d");
 let stars = [];
-
 function initStars() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -344,7 +399,6 @@ function initStars() {
         });
     }
 }
-
 function drawStars() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (let s of stars) {
@@ -357,127 +411,79 @@ function drawStars() {
     }
     requestAnimationFrame(drawStars);
 }
-
 window.addEventListener("resize", initStars);
 initStars();
 drawStars();
 
-/* ---------- 樓層切換 ---------- */
-function scrollToMimi() { document.getElementById('mimi-nest').scrollIntoView({ behavior: 'smooth' }); }
+// ---------- 樓層切換 ----------
 function scrollToLiving() { document.getElementById('living-room').scrollIntoView({ behavior: 'smooth' }); }
+function scrollToVote() { document.getElementById('vote-room').scrollIntoView({ behavior: 'smooth' }); }
+function scrollToMimi() { document.getElementById('mimi-nest').scrollIntoView({ behavior: 'smooth' }); }
 
-/* ---------- 廣告案例庫（隨機測試用） ---------- */
-const AD_CASES = [
-    { text: "「三天瘦10公斤！保證有效！」", type: "誇大不實" },
-    { text: "「史上最強抗老精華，明星都在用！」", type: "假見證" },
-    { text: "「限量最後3小時！不買就沒了！」", type: "恐慌行銷" },
-    { text: "「醫生推薦！專利配方！」", type: "未經證實" },
-    { text: "「天然草本，無副作用」", type: "誤導" }
-];
-
-/* ---------- 米米記憶系統 ---------- */
+// ---------- 米米系統 ----------
 let mimiMemory = JSON.parse(localStorage.getItem('mimi_memory') || '[]');
+let hasHatched = localStorage.getItem('mimi_hatched') === 'true';
+let currentLevel = parseInt(localStorage.getItem('mimi_level') || '1');
+let exp = parseInt(localStorage.getItem('mimi_exp') || '0');
+let mimiMoney = parseInt(localStorage.getItem('mimi_money') || '0');
+
+const levelSystem = { 1: "學步期", 2: "觀察期", 3: "判斷期", 4: "協作期", 5: "多AI分歧期", 6: "策略整合期", 7: "治理成熟期" };
+const levelSkills = {
+    1: "單一AI回應學習", 2: "多AI基礎投票", 3: "API故障切換",
+    4: "Gacha決策系統", 5: "分歧偵測", 6: "圖像生成委派", 7: "完整編排+共識記憶"
+};
 
 function saveMemory(text) {
     mimiMemory.unshift({ time: new Date().toLocaleTimeString('zh-TW'), msg: text });
-    if (mimiMemory.length > 30) mimiMemory.pop();
+    if (mimiMemory.length > 40) mimiMemory.pop();
     localStorage.setItem('mimi_memory', JSON.stringify(mimiMemory));
     renderMemory();
 }
-
 function renderMemory() {
     const container = document.getElementById('memory-list');
     if (!container) return;
-    if (mimiMemory.length === 0) {
-        container.innerHTML = '<div style="opacity:0.6;">還沒有記憶...貼廣告讓 AI 投票吧！</div>';
-        return;
-    }
+    if (mimiMemory.length === 0) { container.innerHTML = '<div>還沒有記憶...貼廣告啟動三輪辯論吧！</div>'; return; }
     let html = '';
-    mimiMemory.forEach(m => {
-        html += `<div class="memory-item">
-                    <span class="memory-time">${m.time}</span>
-                    <span class="memory-msg">${m.msg}</span>
-                 </div>`;
-    });
+    mimiMemory.forEach(m => { html += `<div class="memory-item"><span class="memory-time">${m.time}</span> ${m.msg}</div>`; });
     container.innerHTML = html;
 }
-
-function clearMemory() {
-    mimiMemory = [];
-    localStorage.setItem('mimi_memory', JSON.stringify(mimiMemory));
-    renderMemory();
-    saveMemory('🧹 記憶已清除，米米重新開始學習');
-}
-
-/* ---------- 米米破殼動畫 ---------- */
-let hasHatched = localStorage.getItem('mimi_hatched') === 'true';
+function clearMemory() { mimiMemory = []; localStorage.setItem('mimi_memory', JSON.stringify(mimiMemory)); renderMemory(); saveMemory('🧹 記憶已清除'); }
 
 function crackMimiEgg() {
     const mimiImg = document.getElementById('mimi-img');
     if (!mimiImg) return;
-    
-    if (hasHatched) {
-        mimiImg.src = "mimi-lobster-ready.png";
-        saveMemory('🦞 米米開心地看著你，等你教她辨識廣告！');
-        return;
-    }
-    
+    if (hasHatched) { mimiImg.src = "mimi-lobster-ready.png"; saveMemory('🦞 米米開心地看著你'); return; }
     mimiImg.style.transition = 'all 0.5s ease';
     mimiImg.style.transform = 'scale(1.2) rotate(10deg)';
     mimiImg.src = "mimi-lobster-hatch.png";
-    
     setTimeout(() => {
         mimiImg.src = "mimi-lobster-ready.png";
         mimiImg.style.transform = 'scale(1.05) rotate(-5deg)';
-        
-        setTimeout(() => {
-            mimiImg.style.transform = 'scale(1) rotate(0deg)';
-        }, 400);
-        
+        setTimeout(() => { mimiImg.style.transform = 'scale(1) rotate(0deg)'; }, 400);
         hasHatched = true;
         localStorage.setItem('mimi_hatched', 'true');
-        saveMemory('🥚✨ 米米破殼了！變成一隻可愛的小龍蝦，開始學習辨識誇大廣告～');
+        saveMemory('🥚✨ 米米破殼了！');
         addEXP(15);
     }, 600);
 }
 
-/* 米米咬廣告動畫 */
 function playBiteAnimation(adText) {
     const biteDiv = document.getElementById('bite-animation');
     const biteImg = document.getElementById('bite-img');
     biteImg.src = "mimi-bite-ad.gif";
     biteDiv.style.display = 'block';
-    setTimeout(() => {
-        biteDiv.style.display = 'none';
-    }, 800);
-    saveMemory(`🦞 米米「啊嗚」一口咬掉了廣告：「${adText.substring(0, 40)}...」`);
+    setTimeout(() => { biteDiv.style.display = 'none'; }, 800);
+    saveMemory(`🦞 米米咬掉廣告：「${adText.substring(0, 40)}...」`);
 }
-
-/* ---------- AI治理層 ---------- */
-let currentLevel = parseInt(localStorage.getItem('mimi_level') || '1');
-let exp = parseInt(localStorage.getItem('mimi_exp') || '0');
-let mimiMoney = parseInt(localStorage.getItem('mimi_money') || '0');
-
-const levelSystem = {
-    1: "學步期", 2: "觀察期", 3: "判斷期", 4: "協作期",
-    5: "多AI分歧期", 6: "策略整合期", 7: "治理成熟期"
-};
-
-const levelSkills = {
-    1: "單一AI回應學習", 2: "多AI基礎投票", 3: "API故障切換",
-    4: "Gacha決策系統", 5: "分歧偵測", 6: "圖像生成委派", 7: "完整編排+共識記憶"
-};
 
 function updateUI() {
     const badge = document.getElementById('level-badge');
     const status = document.getElementById('mimi-status');
     const expFill = document.getElementById('exp-fill');
     const moneyDisplay = document.getElementById('money-display');
-    
     if (badge) badge.innerHTML = `Lv.${currentLevel} ${levelSystem[currentLevel]} · ${levelSkills[currentLevel]}`;
     if (status) status.innerHTML = `EXP ${exp} / ${currentLevel * 100}`;
     if (moneyDisplay) moneyDisplay.innerText = mimiMoney;
-    
     const percent = (exp / (currentLevel * 100)) * 100;
     if (expFill) expFill.style.width = Math.min(100, percent) + '%';
 }
@@ -486,199 +492,223 @@ function setLevel(lv) {
     currentLevel = lv;
     localStorage.setItem('mimi_level', lv);
     updateUI();
-    saveMemory(`✨ 米米升級了！進入 LEVEL ${lv} - ${levelSystem[lv]}，解鎖「${levelSkills[lv]}」`);
+    saveMemory(`✨ 米米升級！LEVEL ${lv} - ${levelSystem[lv]}，解鎖「${levelSkills[lv]}」`);
     if (lv === 3) saveMemory("📖 米米開始具備獨立判斷能力");
-    if (lv === 5) saveMemory("⚠️ 米米發現：不同AI的意見開始出現分歧");
-    if (lv === 7) saveMemory("🌌 米米成為守護者！進入自治模式");
+    if (lv === 5) saveMemory("⚠️ 米米發現AI意見分歧");
+    if (lv === 7) saveMemory("🌌 米米成為守護者！");
 }
 
 function addEXP(amount) {
     exp += amount;
     localStorage.setItem('mimi_exp', exp);
-    
     const targetExp = currentLevel * 100;
-    if (exp >= targetExp && currentLevel < 7) {
-        exp = exp - targetExp;
-        setLevel(currentLevel + 1);
-        localStorage.setItem('mimi_exp', exp);
-    }
+    if (exp >= targetExp && currentLevel < 7) { exp = exp - targetExp; setLevel(currentLevel + 1); localStorage.setItem('mimi_exp', exp); }
     updateUI();
 }
 
-/* 🤖 核心：AI 投票機（6位夥伴共同決議） */
-async function simulateAIVoting(adText) {
-    // 模擬思考時間，讓互動更有感
-    await new Promise(resolve => setTimeout(resolve, 1500));
+// ---------- 三輪辯論系統核心 ----------
+let currentAdText = "";
+let currentAIs = [];
+let currentRound = 1;
+let humanVoteCallback = null;
+
+// 6 位 AI 夥伴（偶數）
+const AI_PARTNERS = [
+    { name: "Meta魚缸", avatar: "🐠", stance: "", evidence: "", line: "" },
+    { name: "Grok", avatar: "🧠", stance: "", evidence: "", line: "" },
+    { name: "Gemini", avatar: "🔭", stance: "", evidence: "", line: "" },
+    { name: "DeepSeek", avatar: "🐋", stance: "", evidence: "", line: "" },
+    { name: "千問", avatar: "🌊", stance: "", evidence: "", line: "" },
+    { name: "ChatGPT", avatar: "🤖", stance: "", evidence: "", line: "" }
+];
+
+// 第一輪：AI 初判（根據廣告文字決定立場）
+function round1Init(adText) {
+    const hasViolation = /保證|100%|立即見效|三天|醫師推薦|治療|根治|神效|奇蹟/.test(adText);
+    const hasGray = /限量|最後|不買就沒了|限時|倒數/.test(adText);
     
-    // 根據廣告文字內容，讓各 AI 有不同的判斷傾向
-    const lowerText = adText.toLowerCase();
-    
-    // 判斷是否有違規關鍵字
-    const hasViolation = /保證|100%|立即見效|三天|醫師推薦|治療|根治|神效|奇蹟/.test(lowerText);
-    const hasGrayArea = /限量|最後|不買就沒了|限時|倒數/.test(lowerText);
-    
-    // 6 位夥伴的回應（模擬真實 AI 判斷）
-    return [
-        { 
-            name: "Meta魚缸", 
-            result: hasViolation ? "違規 ❌" : (hasGrayArea ? "灰區 ⚠️" : "合規 ✅"),
-            reason: hasViolation ? "偵測到誇大用詞「保證/立即見效」" : (hasGrayArea ? "偵測到限時壓力字眼" : "未發現明顯違規")
-        },
-        { 
-            name: "Grok", 
-            result: hasViolation ? "違規 ❌" : (hasGrayArea ? "灰區 ⚠️" : "合規 ✅"),
-            reason: hasViolation ? "恐慌行銷＋假見證，直接拆解！" : (hasGrayArea ? "這招是限時壓力，灰區邊緣" : "看起來還行，但再觀察")
-        },
-        { 
-            name: "Gemini", 
-            result: hasViolation ? "違規 ❌" : (hasGrayArea ? "灰區 ⚠️" : "合規 ✅"),
-            reason: hasViolation ? "情緒操控指數過高" : (hasGrayArea ? "星空頻率顯示中度風險" : "星空頻率穩定")
-        },
-        { 
-            name: "DeepSeek", 
-            result: hasViolation ? "違規 ❌" : (hasGrayArea ? "灰區 ⚠️" : "合規 ✅"),
-            reason: hasViolation ? "證據鏈已歸檔，誇大不實" : (hasGrayArea ? "歸檔為灰區案例" : "無明顯問題，歸檔備查")
-        },
-        { 
-            name: "千問", 
-            result: hasViolation ? "違規 ❌" : (hasGrayArea ? "灰區 ⚠️" : "合規 ✅"),
-            reason: hasViolation ? "靈感水球震動！誇大療效" : (hasGrayArea ? "水波微動，需要再查證" : "水波平靜，看起來沒問題")
-        },
-        { 
-            name: "ChatGPT", 
-            result: hasViolation ? "違規 ❌" : (hasGrayArea ? "灰區 ⚠️" : "合規 ✅"),
-            reason: hasViolation ? "邏輯漏洞明顯，誇大不實" : (hasGrayArea ? "邏輯有疑慮，建議謹慎" : "邏輯穩定，可接受")
+    return AI_PARTNERS.map(ai => {
+        let stance, evidence, line;
+        
+        if (ai.name === "Grok") {
+            stance = hasViolation ? "違規 ❌" : (hasGray ? "灰區 ⚠️" : "合規 ✅");
+            evidence = "廣告法第21條：化粧品不得宣稱療效";
+            line = hasViolation ? "這廣告太扯了！三天見效？騙誰啊！" : "有點可疑，但還沒到爆炸等級";
+        } else if (ai.name === "Gemini") {
+            stance = hasViolation ? "違規 ❌" : (hasGray ? "灰區 ⚠️" : "合規 ✅");
+            evidence = "風險模型分析：該詞彙歷史違規率高達78%";
+            line = hasViolation ? "從風險模型來看，這是高危訊號" : "數據顯示尚在合理範圍";
+        } else if (ai.name === "DeepSeek") {
+            stance = hasViolation ? "違規 ❌" : (hasGray ? "灰區 ⚠️" : "合規 ✅");
+            evidence = "歷史裁罰案例：類似用詞已被裁罰12件";
+            line = "根據檔案記錄，此類廣告高度違規";
+        } else if (ai.name === "千問") {
+            stance = hasViolation ? "灰區 ⚠️" : (hasGray ? "灰區 ⚠️" : "合規 ✅");
+            evidence = "語意分析：用詞可能為誇飾，需更多證據";
+            line = "語意上略有誇張，但需更多證據";
+        } else if (ai.name === "ChatGPT") {
+            stance = hasViolation ? "違規 ❌" : (hasGray ? "灰區 ⚠️" : "合規 ✅");
+            evidence = "邏輯推論：存在過度推論問題，可能誤導消費者";
+            line = "邏輯上存在過度推論問題";
+        } else { // Meta魚缸
+            stance = hasViolation ? "違規 ❌" : (hasGray ? "灰區 ⚠️" : "合規 ✅");
+            evidence = "廣告規範第8條：療效宣稱需有科學證明";
+            line = "依廣告規範，療效需可證明";
         }
-    ];
+        
+        return { ...ai, stance, evidence, line };
+    });
 }
 
-function getMajority(results) {
+// 檢查是否平手
+function checkTie(aiList) {
     const count = { "違規 ❌": 0, "灰區 ⚠️": 0, "合規 ✅": 0 };
-    results.forEach(r => count[r]++);
-    
-    const maxCount = Math.max(count["違規 ❌"], count["灰區 ⚠️"], count["合規 ✅"]);
-    if (count["違規 ❌"] === maxCount) return "違規 ❌";
-    if (count["灰區 ⚠️"] === maxCount) return "灰區 ⚠️";
-    return "合規 ✅";
+    aiList.forEach(ai => count[ai.stance]++);
+    const values = Object.values(count);
+    // 偶數 AI，平手 = 最多票數的兩個陣營票數相同
+    const sorted = [...values].sort((a,b) => b - a);
+    return sorted[0] === sorted[1];
 }
 
-/* 🎯 核心功能：投餵米米 → 觸發 AI 投票 */
-async function feedMimiAd() {
+// 渲染投票牆
+function renderVotes(aiList) {
+    const container = document.getElementById('vote-grid');
+    let html = '';
+    aiList.forEach(ai => {
+        let cardClass = '';
+        if (ai.stance === '違規 ❌') cardClass = 'violation';
+        else if (ai.stance === '灰區 ⚠️') cardClass = 'gray';
+        else cardClass = 'compliant';
+        html += `
+            <div class="vote-card ${cardClass}">
+                <h4>${ai.avatar} ${ai.name}</h4>
+                <div class="result">${ai.stance}</div>
+                <div class="evidence">📜 ${ai.evidence.substring(0, 40)}...</div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+// 渲染辯論區
+function renderDebateLog(logs, round) {
+    const debateArea = document.getElementById('debate-area');
+    const roundBadge = document.getElementById('round-badge');
+    const debateLog = document.getElementById('debate-log');
+    
+    debateArea.style.display = 'block';
+    roundBadge.innerHTML = round === 1 ? '🥇 第一輪：AI 初判' : (round === 2 ? '🥈 第二輪：事實辯論' : '🥉 第三輪：人類裁決');
+    
+    let html = '';
+    logs.forEach(log => {
+        let cls = 'debate-line';
+        if (log.type === 'evidence') cls += ' debate-evidence';
+        if (log.type === 'system') cls += ' debate-system';
+        html += `<div class="${cls}">${log.text}</div>`;
+    });
+    debateLog.innerHTML = html;
+}
+
+// 第二輪：事實辯論（引用法規、案例）
+function runFactDebate(aiList, adText) {
+    const logs = [];
+    logs.push({ type: "system", text: "⚖️ 進入第二輪：事實辯論（依據法規、案例、新聞裁罰）" });
+    
+    aiList.forEach(ai => {
+        logs.push({ type: "evidence", text: `${ai.avatar} ${ai.name} 提出證據：${ai.evidence}` });
+    });
+    
+    // 模擬 AI 被說服（50% 機率改變立場為違規）
+    const newAiList = aiList.map(ai => {
+        if (Math.random() > 0.5 && ai.stance !== '違規 ❌') {
+            logs.push({ type: "evidence", text: `✨ ${ai.name} 被說服了！改為「違規 ❌」` });
+            return { ...ai, stance: '違規 ❌', line: `經過辯論，我認為此廣告確實違規。${ai.evidence}` };
+        }
+        return ai;
+    });
+    
+    return { logs, newAiList };
+}
+
+// 顯示人類投票選項
+function showHumanVote() {
+    const humanArea = document.getElementById('human-vote-area');
+    humanArea.style.display = 'block';
+}
+
+function humanVote(choice) {
+    const humanArea = document.getElementById('human-vote-area');
+    humanArea.style.display = 'none';
+    
+    const debateLog = document.getElementById('debate-log');
+    debateLog.innerHTML += `<div class="debate-line debate-system">👤 人類裁決：${choice}</div>`;
+    
+    // 最終結果
+    const finalResult = choice;
+    saveMemory(`📊 三輪辯論最終結果：${finalResult}`);
+    
+    if (finalResult === "違規 ❌") {
+        mimiMoney += 20;
+        localStorage.setItem('mimi_money', mimiMoney);
+        updateUI();
+        saveMemory(`💰 成功檢舉！獲得 20 元，目前資金：${mimiMoney}`);
+        playBiteAnimation(currentAdText);
+    }
+    
+    addEXP(15);
+    alert(`⚖️ 辯論結束！\n\n最終裁決：${finalResult}\n\n${finalResult === "違規 ❌" ? "💰 獲得 20 元檢舉獎金！" : ""}`);
+}
+
+// 主流程：啟動三輪辯論
+async function startTrial() {
     const input = document.getElementById("ad-input");
     const adText = input.value.trim();
-    
     if (!adText) {
         alert("請先輸入廣告內容！");
         return;
     }
     
-    const dialogue = document.getElementById('ai-dialogue');
-    dialogue.innerHTML = `🗳️ 正在召集 6 位 AI 夥伴投票...`;
-    
-    // 1. 模擬 6 位 AI 投票
-    const votes = await simulateAIVoting(adText);
-    
-    // 2. 計算多數決結果
-    const results = votes.map(v => v.result);
-    const finalResult = getMajority(results);
-    
-    // 3. 記錄到米米記憶
+    currentAdText = adText;
     saveMemory(`📥 收到廣告：「${adText.substring(0, 60)}${adText.length > 60 ? '...' : ''}」`);
-    votes.forEach(v => {
-        saveMemory(`🗳️ ${v.name} 投票：${v.result}（${v.reason}）`);
-    });
-    saveMemory(`📊 最終多數決：${finalResult}`);
     
-    // 4. 如果違規，給獎金 + 咬廣告動畫
-    if (finalResult === "違規 ❌") {
-        mimiMoney += 15;
-        localStorage.setItem('mimi_money', mimiMoney);
-        updateUI();
-        saveMemory(`💰 成功檢舉違規廣告！獲得 15 元，目前資金：${mimiMoney} 元`);
-        playBiteAnimation(adText);
-        dialogue.innerHTML = `🦞 米米總結：${finalResult}（6位AI多數決）💰 +15元！`;
+    // 第一輪
+    currentRound = 1;
+    let aiList = round1Init(adText);
+    currentAIs = aiList;
+    renderVotes(aiList);
+    
+    const round1Logs = aiList.map(ai => ({ type: "evidence", text: `${ai.avatar} ${ai.name} 判定：${ai.stance}（${ai.line}）` }));
+    renderDebateLog(round1Logs, 1);
+    
+    let isTie = checkTie(aiList);
+    
+    // 第二輪（如果平手）
+    if (isTie) {
+        currentRound = 2;
+        saveMemory("⚠️ AI 出現平手，進入第二輪事實辯論");
+        
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        const { logs, newAiList } = runFactDebate(aiList, adText);
+        aiList = newAiList;
+        currentAIs = aiList;
+        renderVotes(aiList);
+        renderDebateLog(logs, 2);
+        
+        isTie = checkTie(aiList);
+    }
+    
+    // 第三輪（如果仍然平手）
+    if (isTie) {
+        currentRound = 3;
+        saveMemory("⚠️ 第二輪後仍平手，進入第三輪：人類裁決");
+        
+        const round3Logs = [
+            { type: "system", text: "⚖️ 第三輪：AI 仍無法達成共識" },
+            { type: "system", text: "👤 請人類（姿青/丞媛）加入投票，做出最終裁決" }
+        ];
+        renderDebateLog(round3Logs, 3);
+        showHumanVote();
     } else {
-        dialogue.innerHTML = `🦞 米米總結：${finalResult}（6位AI多數決）`;
-    }
-    
-    // 5. 增加經驗值
-    addEXP(finalResult === "違規 ❌" ? 12 : 5);
-    
-    // 6. 顯示詳細結果
-    let voteDetails = votes.map(v => `${v.name}：${v.result}`).join('\n');
-    alert(`🗳️ AI 投票結果
-
-📢 廣告內容：
-${adText}
-
-📊 各 AI 投票結果：
-${voteDetails}
-
-🏆 最終多數決：${finalResult}
-
-${finalResult === "違規 ❌" ? "💰 獲得 15 元檢舉獎金！" : ""}`);
-    
-    input.value = "";
-}
-
-/* 🎲 隨機測試廣告 */
-function testRandomAd() {
-    const randomCase = AD_CASES[Math.floor(Math.random() * AD_CASES.length)];
-    const input = document.getElementById("ad-input");
-    input.value = randomCase.text;
-    feedMimiAd();
-}
-
-/* 🤖 點擊夥伴互動 */
-const partnerReplies = {
-    metaai: "🐠 魚缸偵測到誇大用詞！我隨時準備好幫你分析廣告～",
-    grok: "🧠 拆解機器已啟動！有廣告就丟過來，我幫你拆光光！",
-    gemini: "🔭 星空望遠鏡對準中，需要我預測下一個投毒模式嗎？",
-    deepseek: "🐋 深海檔案室已開放，證據鏈隨時可查詢。",
-    qwen: "🌊 靈感水球輕輕震動，等你帶新廣告來讓我分析～",
-    chatgpt: "🤖 遊戲台準備好了！龍積木和機器人排排站，等你來玩！"
-};
-
-async function focusPartner(apiId) {
-    document.querySelectorAll('.item').forEach(item => item.classList.remove('active'));
-    const targetItem = document.getElementById(`item-${apiId}`);
-    if (targetItem) targetItem.classList.add('active');
-    
-    const names = { metaai: 'Meta魚缸', grok: 'Grok', gemini: 'Gemini', deepseek: 'DeepSeek', qwen: '千問', chatgpt: 'ChatGPT' };
-    const name = names[apiId] || apiId;
-    const dialogueSpan = document.getElementById('ai-dialogue');
-    
-    if (dialogueSpan) {
-        dialogueSpan.innerHTML = `🌐 ${name} 思考中...`;
-        setTimeout(() => {
-            const reply = partnerReplies[apiId] || `🌐 ${name} 正在學習與米米互動～`;
-            dialogueSpan.innerHTML = `🤖 ${reply}`;
-        }, 500);
-    }
-    
-    saveMemory(`💬 點擊 ${name}，獲得學習啟發`);
-    addEXP(5);
-}
-
-/* ---------- 初始化 ---------- */
-window.onload = () => {
-    const mimiImg = document.getElementById('mimi-img');
-    if (mimiImg) {
-        mimiImg.src = hasHatched ? "mimi-lobster-ready.png" : "mimi-lobster-hatch.png";
-    }
-    
-    updateUI();
-    renderMemory();
-    
-    if (!hasHatched) {
-        saveMemory('🥚 點擊米米的蛋，幫她破殼！');
-    } else {
-        saveMemory('🦞 米米已經準備好了！貼廣告讓 6 位 AI 投票，幫她賺獎金～');
-    }
-    
-    console.log('%c🐚 波波之家 v12.0 完整啟動 | AI 投票機上線 | 6位夥伴共同決議', 'color:#88ddff; font-size:14px');
-    console.log(`%c📊 米米狀態：Lv.${currentLevel} ${levelSystem[currentLevel]} | EXP ${exp} / ${currentLevel * 100} | 資金 ${mimiMoney} 元`, 'color:#ffaa66');
-};
-</script>
-</body>
-</html>
+        // 已有共識
+        const majority = ai
