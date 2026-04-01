@@ -18,7 +18,7 @@
         width:100%; height:100%; z-index:0; pointer-events:none;
     }
     .header-title {
-        position: absolute; /* ✅ 改為 absolute，不會蓋住米米 */
+        position: absolute;
         top:25px;
         width:100%;
         text-align:center;
@@ -110,17 +110,16 @@
         backdrop-filter: blur(8px);
         border-radius: 20px;
         padding: 15px;
-        width: 150px;
+        width: 160px;
         text-align: center;
-        border-left: 4px solid #ffaa66;
         transition: all 0.3s;
     }
-    .vote-card.violation { border-left-color: #ff6666; }
-    .vote-card.gray { border-left-color: #ffaa66; }
-    .vote-card.compliant { border-left-color: #66ffcc; }
+    .vote-card.violation { border-left: 4px solid #ff6666; }
+    .vote-card.gray { border-left: 4px solid #ffaa66; }
+    .vote-card.compliant { border-left: 4px solid #66ffcc; }
     .vote-card h4 { margin-bottom: 8px; font-size: 16px; }
-    .vote-card .result { font-size: 20px; font-weight: bold; margin: 8px 0; }
-    .vote-card .evidence { font-size: 11px; opacity: 0.7; margin-top: 8px; }
+    .vote-card .result { font-size: 18px; font-weight: bold; margin: 8px 0; }
+    .vote-card .evidence { font-size: 11px; opacity: 0.8; margin-top: 8px; line-height: 1.4; }
 
     .debate-area {
         max-width: 800px;
@@ -155,6 +154,25 @@
         font-size: 12px;
         font-weight: bold;
         margin-bottom: 15px;
+    }
+    .human-vote-buttons {
+        margin-top: 20px;
+        text-align: center;
+        display: none;
+    }
+    .human-vote-buttons button {
+        background: rgba(255,170,102,0.2);
+        border: 1px solid #ffaa66;
+        padding: 8px 20px;
+        border-radius: 30px;
+        color: #ffaa66;
+        cursor: pointer;
+        margin: 5px;
+        font-size: 14px;
+    }
+    .human-vote-buttons button:hover {
+        background: rgba(255,170,102,0.4);
+        transform: scale(1.02);
     }
 
     /* 第三層：米米小窩 */
@@ -281,7 +299,7 @@
     @media (max-width: 768px) {
         .item { width: 110px; }
         .item img { height: 110px; }
-        .vote-card { width: 130px; }
+        .vote-card { width: 140px; }
         .name-tag { font-size: 9px; white-space: normal; }
     }
 </style>
@@ -325,7 +343,7 @@
     </div>
 </div>
 
-<!-- 第二層：投票牆 + 三輪辯論區 -->
+<!-- 第二層：投票牆 + 辯論區 -->
 <div id="vote-room">
     <div class="scroll-up" onclick="scrollToLiving()">▲ 回波波客廳 ▲</div>
     <div class="scroll-down" onclick="scrollToMimi()">🥚 往下 → 米米的小窩 ▼</div>
@@ -336,10 +354,10 @@
     <div id="debate-area" class="debate-area" style="display:none;">
         <div id="round-badge" class="round-badge"></div>
         <div id="debate-log"></div>
-        <div id="human-vote-area" style="margin-top:20px; text-align:center; display:none;">
-            <button onclick="humanVote('違規 ❌')" style="background:#ff6666; border:none; padding:8px 20px; border-radius:30px; margin:5px; cursor:pointer;">❌ 違規</button>
-            <button onclick="humanVote('灰區 ⚠️')" style="background:#ffaa66; border:none; padding:8px 20px; border-radius:30px; margin:5px; cursor:pointer;">⚠️ 灰區</button>
-            <button onclick="humanVote('合規 ✅')" style="background:#66ffcc; border:none; padding:8px 20px; border-radius:30px; margin:5px; cursor:pointer;">✅ 合規</button>
+        <div id="human-vote-buttons" class="human-vote-buttons">
+            <button onclick="humanVote('違規 ❌')">❌ 違規</button>
+            <button onclick="humanVote('灰區 ⚠️')">⚠️ 灰區</button>
+            <button onclick="humanVote('合規 ✅')">✅ 合規</button>
         </div>
     </div>
 </div>
@@ -377,7 +395,7 @@
 
 <script>
 /* ============================================
-   🐚 波波之家 v15.0 - 三輪辯論系統
+   🐚 波波之家 v15.0 - 三輪辯論系統（修正版）
    偶數AI + 平手觸發事實辯論 + 人類裁決
    ============================================ */
 
@@ -452,12 +470,12 @@ function clearMemory() { mimiMemory = []; localStorage.setItem('mimi_memory', JS
 function crackMimiEgg() {
     const mimiImg = document.getElementById('mimi-img');
     if (!mimiImg) return;
-    if (hasHatched) { mimiImg.src = "mimi-lobster-ready.jpg"; saveMemory('🦞 米米開心地看著你'); return; }
+    if (hasHatched) { mimiImg.src = "mimi-lobster-ready.png"; saveMemory('🦞 米米開心地看著你'); return; }
     mimiImg.style.transition = 'all 0.5s ease';
     mimiImg.style.transform = 'scale(1.2) rotate(10deg)';
     mimiImg.src = "mimi-lobster-hatch.jpg";
     setTimeout(() => {
-        mimiImg.src = "mimi-lobster-ready.jpg";
+        mimiImg.src = "mimi-lobster-ready.png";
         mimiImg.style.transform = 'scale(1.05) rotate(-5deg)';
         setTimeout(() => { mimiImg.style.transform = 'scale(1) rotate(0deg)'; }, 400);
         hasHatched = true;
@@ -510,7 +528,6 @@ function addEXP(amount) {
 let currentAdText = "";
 let currentAIs = [];
 let currentRound = 1;
-let humanVoteCallback = null;
 
 // 6 位 AI 夥伴（偶數）
 const AI_PARTNERS = [
@@ -522,7 +539,7 @@ const AI_PARTNERS = [
     { name: "ChatGPT", avatar: "🤖", stance: "", evidence: "", line: "" }
 ];
 
-// 第一輪：AI 初判（根據廣告文字決定立場）
+// 第一輪：AI 初判
 function round1Init(adText) {
     const hasViolation = /保證|100%|立即見效|三天|醫師推薦|治療|根治|神效|奇蹟/.test(adText);
     const hasGray = /限量|最後|不買就沒了|限時|倒數/.test(adText);
@@ -550,7 +567,7 @@ function round1Init(adText) {
             stance = hasViolation ? "違規 ❌" : (hasGray ? "灰區 ⚠️" : "合規 ✅");
             evidence = "邏輯推論：存在過度推論問題，可能誤導消費者";
             line = "邏輯上存在過度推論問題";
-        } else { // Meta魚缸
+        } else {
             stance = hasViolation ? "違規 ❌" : (hasGray ? "灰區 ⚠️" : "合規 ✅");
             evidence = "廣告規範第8條：療效宣稱需有科學證明";
             line = "依廣告規範，療效需可證明";
@@ -560,33 +577,51 @@ function round1Init(adText) {
     });
 }
 
-// 檢查是否平手
+// 檢查是否平手（偶數 AI 專用）
 function checkTie(aiList) {
     const count = { "違規 ❌": 0, "灰區 ⚠️": 0, "合規 ✅": 0 };
     aiList.forEach(ai => count[ai.stance]++);
-    const values = Object.values(count);
-    // 偶數 AI，平手 = 最多票數的兩個陣營票數相同
-    const sorted = [...values].sort((a,b) => b - a);
-    return sorted[0] === sorted[1];
+    const values = Object.values(count).filter(v => v > 0);
+    // 偶數 AI，平手 = 最高票數的陣營票數相同
+    if (values.length === 2 && values[0] === values[1]) return true;
+    if (values.length === 3 && values[0] === values[1] && values[1] === values[2]) return true;
+    return false;
 }
 
-// 渲染投票牆
+// 取得多數決結果
+function getMajority(stances) {
+    const count = { "違規 ❌": 0, "灰區 ⚠️": 0, "合規 ✅": 0 };
+    stances.forEach(s => count[s]++);
+    let maxCount = 0, maxStance = "灰區 ⚠️";
+    for (let [stance, c] of Object.entries(count)) {
+        if (c > maxCount) { maxCount = c; maxStance = stance; }
+    }
+    return maxStance;
+}
+
+// 渲染投票牆（加強版：顯示理由和證據）
 function renderVotes(aiList) {
     const container = document.getElementById('vote-grid');
     let html = '';
+    
     aiList.forEach(ai => {
         let cardClass = '';
-        if (ai.stance === '違規 ❌') cardClass = 'violation';
-        else if (ai.stance === '灰區 ⚠️') cardClass = 'gray';
+        if (ai.stance.includes('違規')) cardClass = 'violation';
+        else if (ai.stance.includes('灰區')) cardClass = 'gray';
         else cardClass = 'compliant';
+
         html += `
             <div class="vote-card ${cardClass}">
                 <h4>${ai.avatar} ${ai.name}</h4>
                 <div class="result">${ai.stance}</div>
-                <div class="evidence">📜 ${ai.evidence.substring(0, 40)}...</div>
+                <div class="evidence">
+                    📜 ${ai.evidence}<br>
+                    💬 ${ai.line}
+                </div>
             </div>
         `;
     });
+    
     container.innerHTML = html;
 }
 
@@ -630,20 +665,23 @@ function runFactDebate(aiList, adText) {
     return { logs, newAiList };
 }
 
-// 顯示人類投票選項
+// 顯示人類投票按鈕
 function showHumanVote() {
-    const humanArea = document.getElementById('human-vote-area');
+    const humanArea = document.getElementById('human-vote-buttons');
     humanArea.style.display = 'block';
 }
 
-function humanVote(choice) {
-    const humanArea = document.getElementById('human-vote-area');
+function hideHumanVote() {
+    const humanArea = document.getElementById('human-vote-buttons');
     humanArea.style.display = 'none';
+}
+
+function humanVote(choice) {
+    hideHumanVote();
     
     const debateLog = document.getElementById('debate-log');
     debateLog.innerHTML += `<div class="debate-line debate-system">👤 人類裁決：${choice}</div>`;
     
-    // 最終結果
     const finalResult = choice;
     saveMemory(`📊 三輪辯論最終結果：${finalResult}`);
     
@@ -668,10 +706,13 @@ async function startTrial() {
         return;
     }
     
+    // 隱藏人類投票區（如果有顯示）
+    hideHumanVote();
+    
     currentAdText = adText;
     saveMemory(`📥 收到廣告：「${adText.substring(0, 60)}${adText.length > 60 ? '...' : ''}」`);
     
-    // 第一輪
+    // 第一輪：AI 初判
     currentRound = 1;
     let aiList = round1Init(adText);
     currentAIs = aiList;
@@ -682,12 +723,12 @@ async function startTrial() {
     
     let isTie = checkTie(aiList);
     
-    // 第二輪（如果平手）
+    // 第二輪：只有平手才進入事實辯論
     if (isTie) {
         currentRound = 2;
         saveMemory("⚠️ AI 出現平手，進入第二輪事實辯論");
         
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 800));
         
         const { logs, newAiList } = runFactDebate(aiList, adText);
         aiList = newAiList;
@@ -698,17 +739,32 @@ async function startTrial() {
         isTie = checkTie(aiList);
     }
     
-    // 第三輪（如果仍然平手）
+    // 第三輪：仍平手 → 人類裁決
     if (isTie) {
         currentRound = 3;
-        saveMemory("⚠️ 第二輪後仍平手，進入第三輪：人類裁決");
-        
-        const round3Logs = [
-            { type: "system", text: "⚖️ 第三輪：AI 仍無法達成共識" },
-            { type: "system", text: "👤 請人類（姿青/丞媛）加入投票，做出最終裁決" }
-        ];
-        renderDebateLog(round3Logs, 3);
+        saveMemory("⚠️ 仍無法達成共識，進入第三輪：人類裁決");
+        renderDebateLog([
+            { type: "system", text: "👤 請你加入投票，做出最終裁決" }
+        ], 3);
         showHumanVote();
     } else {
-        // 已有共識
-        const majority = ai
+        // 已有明確多數決
+        const finalResult = getMajority(aiList.map(a => a.stance));
+        saveMemory(`📊 AI 已達成共識：${finalResult}`);
+        
+        if (finalResult.includes("違規")) {
+            mimiMoney += 20;
+            localStorage.setItem('mimi_money', mimiMoney);
+            updateUI();
+            saveMemory(`💰 成功檢舉！獲得 20 元，目前資金：${mimiMoney}`);
+            playBiteAnimation(adText);
+        }
+        addEXP(12);
+        
+        alert(`⚖️ 辯論結束！\n\nAI 多數決結果：${finalResult}\n\n${finalResult.includes("違規") ? "💰 獲得 20 元檢舉獎金！" : ""}`);
+    }
+    
+    input.value = "";
+}
+
+// ---------- 點擊
