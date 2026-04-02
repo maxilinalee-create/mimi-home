@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>波波之家 | 1% 守護者聯盟 v16.2 FINAL</title>
+<title>波波之家 | 1% 守護者聯盟 v17</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body, html {
@@ -73,16 +73,60 @@ section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
 }
 .section-title { text-align:center; font-size:28px; color:#88ddff; margin-bottom:30px; }
 .vote-grid { display:flex; flex-wrap:wrap; gap:20px; justify-content:center; max-width:1200px; margin:0 auto; }
+/* V17：泡泡卡片 + 浮上動畫 */
 .vote-card {
-  background:rgba(0,0,0,0.6); backdrop-filter:blur(8px);
-  border-radius:20px; padding:15px; width:175px; text-align:center; transition:0.3s;
+  background: rgba(20, 25, 45, 0.85);
+  backdrop-filter: blur(12px);
+  border-radius: 24px;
+  padding: 18px 16px;
+  width: 180px;
+  text-align: center;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1px solid rgba(136, 221, 255, 0.25);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(60px);
 }
+.vote-card.visible {
+  animation: bubbleFloatUp 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes bubbleFloatUp {
+  to { opacity:1; transform:translateY(0); }
+}
+.vote-card:hover {
+  transform: translateY(-12px) scale(1.06);
+  box-shadow: 0 25px 50px rgba(136,221,255,0.35);
+  border-color: rgba(255,170,102,0.6);
+}
+/* 泡泡光效 */
+.vote-card::before {
+  content:'';
+  position:absolute; top:-60%; left:-60%;
+  width:80%; height:80%;
+  background:radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 70%);
+  opacity:0; transition:opacity 0.5s;
+}
+.vote-card:hover::before { opacity:1; }
+
 .vote-card.violation { border-left:4px solid #ff6666; }
 .vote-card.gray      { border-left:4px solid #ffaa66; }
 .vote-card.compliant { border-left:4px solid #66ffcc; }
 .vote-card h4 { margin-bottom:8px; font-size:15px; }
 .vote-card .result { font-size:16px; font-weight:bold; margin:6px 0; }
 .vote-card .evidence { font-size:10px; opacity:0.8; margin-top:6px; line-height:1.4; }
+
+/* V17：泡泡等待狀態動畫 */
+@keyframes bubblePulse {
+  0%, 100% { transform:scale(1); opacity:0.5; }
+  50%       { transform:scale(1.15); opacity:0.9; }
+}
+@keyframes bubbleFloat {
+  0%   { transform:translateY(0px); }
+  50%  { transform:translateY(-14px); }
+  100% { transform:translateY(0px); }
+}
 
 /* V16：信心值 + 權重顯示 */
 .vote-card .conf-label { font-size:10px; color:#aaa; margin-top:8px; }
@@ -210,7 +254,7 @@ section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
 
 <div class="header-title">
   <h1>🐚 波波之家 | 1% 守護者聯盟</h1>
-  <p>算力診療室 v16.2 FINAL | TD-Learning · 因果歸因 · 人類謙卑機制 · 全人類代表受罰中 😂</p>
+  <p>算力診療室 v17 | 泡泡投票動畫 · TD-Learning · 因果歸因 · 全人類代表受罰中 😂</p>
 </div>
 
 <!-- 第一層：客廳 -->
@@ -603,21 +647,30 @@ function runPersuasionLogic(aiList, adText) {
 function renderVotes(aiList) {
   const container = document.getElementById('vote-grid');
   let html = '';
-  aiList.forEach(ai => {
+  aiList.forEach((ai, idx) => {
     let cardClass = ai.stance.includes('違規') ? 'violation' : ai.stance.includes('灰區') ? 'gray' : 'compliant';
     const confPct = (ai.confidence*100).toFixed(0);
+    const confColor = ai.confidence>=0.75 ? '#66ffcc' : ai.confidence>=0.55 ? '#88ddff' : '#ffaa66';
+    // data-index 用於逐一延遲浮上
     html += `
-    <div class="vote-card ${cardClass}">
+    <div class="vote-card ${cardClass}" data-index="${idx}">
       <h4>${ai.avatar} ${ai.name}</h4>
       <div class="result">${ai.stance}</div>
       <div class="evidence">📜 ${ai.evidence}<br>💬 ${ai.line}</div>
       <div class="conf-label">信心值</div>
-      <div class="conf-value" style="color:${ai.confidence>=0.75?'#66ffcc':ai.confidence>=0.55?'#88ddff':'#ffaa66'}">${confPct}%</div>
-      <div class="confidence-bar-wrap" style="margin-top:4px;"><div class="confidence-bar" style="width:${confPct}%;background:${ai.confidence>=0.75?'#66ffcc':ai.confidence>=0.55?'#88ddff':'#ffaa66'};"></div></div>
+      <div class="conf-value" style="color:${confColor}">${confPct}%</div>
+      <div class="confidence-bar-wrap" style="margin-top:4px;">
+        <div class="confidence-bar" style="width:${confPct}%;background:${confColor};"></div>
+      </div>
       <div class="weight-badge">權重 ${confPct}%</div>
     </div>`;
   });
   container.innerHTML = html;
+  // 泡泡逐一浮上：每張卡片延遲 120ms
+  container.querySelectorAll('.vote-card').forEach(card => {
+    const delay = parseInt(card.dataset.index) * 120;
+    setTimeout(() => card.classList.add('visible'), delay);
+  });
 }
 
 /* 衝突面板 */
@@ -868,6 +921,38 @@ function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 updateUI();
 renderMemory();
 updateConfidenceBars();
+
+// ── V17：投票牆泡泡等待狀態 ──
+function initVoteWall() {
+  const container = document.getElementById('vote-grid');
+  if (!container || container.children.length > 0) return;
+  container.innerHTML = `
+    <div style="grid-column:1/-1; text-align:center; padding:70px 20px; width:100%;">
+      <div style="display:flex; justify-content:center; gap:18px; margin-bottom:24px;">
+        <span style="font-size:52px; display:inline-block; animation:bubbleFloat 2.2s ease-in-out infinite;">🫧</span>
+        <span style="font-size:68px; display:inline-block; animation:bubbleFloat 2.2s ease-in-out infinite 0.4s;">🫧</span>
+        <span style="font-size:44px; display:inline-block; animation:bubbleFloat 2.2s ease-in-out infinite 0.8s;">🫧</span>
+      </div>
+      <h3 style="color:#88ddff; font-size:20px; margin-bottom:14px;">目前沒有進行中的審查</h3>
+      <p style="color:#aaa; max-width:400px; margin:0 auto 32px; line-height:1.8; font-size:14px;">
+        快去「🥚 米米小窩」貼上廣告文字<br>
+        啟動三輪辯論後，AI 夥伴的投票卡片<br>
+        會一個一個 <strong style="color:#ffaa66;">泡泡浮上來</strong> 喔！
+      </p>
+      <button onclick="scrollToSection('mimi-nest')"
+        style="background:linear-gradient(135deg,#ffaa66,#ff8866); color:#1a1a2a;
+               padding:13px 34px; border:none; border-radius:50px; font-size:15px;
+               font-weight:bold; cursor:pointer; box-shadow:0 8px 24px rgba(255,170,102,0.4);
+               transition:0.3s;"
+        onmouseover="this.style.transform='scale(1.05)'"
+        onmouseout="this.style.transform='scale(1)'">
+        🦞 現在就去米米小窩
+      </button>
+    </div>
+  `;
+}
+
+window.addEventListener('load', initVoteWall);
 </script>
 </body>
 </html>
