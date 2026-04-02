@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>波波之家 | 1% 守護者聯盟 v17</title>
+<title>波波之家 | 1% 守護者聯盟 v17 泡泡修復版</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body, html {
@@ -61,7 +61,6 @@ section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
 .item.active img { border-color:#ffaa66; box-shadow:0 0 35px rgba(255,170,102,0.6); }
 .name-tag { margin-top:10px; padding:5px 10px; background:rgba(0,0,0,0.8); border-radius:20px; font-size:11px; }
 
-/* ============ V16 新增：AI 信心條 ============ */
 .confidence-bar-wrap { margin-top:6px; height:4px; background:rgba(255,255,255,0.1); border-radius:10px; overflow:hidden; }
 .confidence-bar { height:100%; border-radius:10px; transition:width 0.6s ease; }
 
@@ -73,7 +72,9 @@ section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
 }
 .section-title { text-align:center; font-size:28px; color:#88ddff; margin-bottom:30px; }
 .vote-grid { display:flex; flex-wrap:wrap; gap:20px; justify-content:center; max-width:1200px; margin:0 auto; }
-/* V17：泡泡卡片 + 浮上動畫 */
+
+/* ========== 泡泡動畫 + 對話框（豆包方案完整整合）========== */
+/* 卡片基礎樣式 */
 .vote-card {
   background: rgba(20, 25, 45, 0.85);
   backdrop-filter: blur(12px);
@@ -85,7 +86,7 @@ section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
   border: 1px solid rgba(136, 221, 255, 0.25);
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   opacity: 0;
   transform: translateY(60px);
 }
@@ -100,15 +101,70 @@ section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
   box-shadow: 0 25px 50px rgba(136,221,255,0.35);
   border-color: rgba(255,170,102,0.6);
 }
-/* 泡泡光效 */
 .vote-card::before {
   content:'';
   position:absolute; top:-60%; left:-60%;
   width:80%; height:80%;
   background:radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 70%);
   opacity:0; transition:opacity 0.5s;
+  pointer-events: none;
 }
 .vote-card:hover::before { opacity:1; }
+
+/* 泡泡漂浮動畫（等待狀態用） */
+@keyframes bubbleFloat {
+  0%   { transform:translateY(0px); }
+  50%  { transform:translateY(-14px); }
+  100% { transform:translateY(0px); }
+}
+@keyframes bubblePulse {
+  0%, 100% { transform:scale(1); opacity:0.5; }
+  50%       { transform:scale(1.15); opacity:0.9; }
+}
+
+/* 對話框樣式（豆包設計） */
+.chat-bubble {
+  position: absolute;
+  bottom: 105%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(8px);
+  color: #ffdd99;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  font-weight: bold;
+  border: 1px solid rgba(255,170,102,0.4);
+  z-index: 10;
+}
+.vote-card:hover .chat-bubble {
+  opacity: 1;
+}
+
+/* 等待狀態的泡泡裝飾 */
+.waiting-bubbles {
+  text-align: center;
+  padding: 70px 20px;
+  width: 100%;
+}
+.waiting-bubbles .bubble-icon {
+  font-size: 52px;
+  display: inline-block;
+  animation: bubbleFloat 2.2s ease-in-out infinite;
+}
+.waiting-bubbles .bubble-icon:nth-child(2) {
+  font-size: 68px;
+  animation-delay: 0.4s;
+}
+.waiting-bubbles .bubble-icon:nth-child(3) {
+  font-size: 44px;
+  animation-delay: 0.8s;
+}
 
 .vote-card.violation { border-left:4px solid #ff6666; }
 .vote-card.gray      { border-left:4px solid #ffaa66; }
@@ -117,18 +173,6 @@ section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
 .vote-card .result { font-size:16px; font-weight:bold; margin:6px 0; }
 .vote-card .evidence { font-size:10px; opacity:0.8; margin-top:6px; line-height:1.4; }
 
-/* V17：泡泡等待狀態動畫 */
-@keyframes bubblePulse {
-  0%, 100% { transform:scale(1); opacity:0.5; }
-  50%       { transform:scale(1.15); opacity:0.9; }
-}
-@keyframes bubbleFloat {
-  0%   { transform:translateY(0px); }
-  50%  { transform:translateY(-14px); }
-  100% { transform:translateY(0px); }
-}
-
-/* V16：信心值 + 權重顯示 */
 .vote-card .conf-label { font-size:10px; color:#aaa; margin-top:8px; }
 .vote-card .conf-value { font-size:13px; font-weight:bold; }
 .vote-card .weight-badge {
@@ -137,7 +181,6 @@ section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
   color:#88ddff; margin-top:4px;
 }
 
-/* V16：衝突強度面板 */
 .conflict-panel {
   max-width:800px; margin:20px auto;
   background:rgba(0,0,0,0.5); border-radius:20px; padding:18px 24px;
@@ -147,7 +190,6 @@ section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
 .conflict-meter { height:10px; background:rgba(255,255,255,0.1); border-radius:20px; overflow:hidden; margin:8px 0; }
 .conflict-fill { height:100%; border-radius:20px; transition:width 0.6s ease; }
 
-/* V16：系統雜訊標記 */
 .noise-log {
   max-width:800px; margin:10px auto;
   background:rgba(255,80,80,0.07); border-radius:15px; padding:14px 20px;
@@ -156,7 +198,6 @@ section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
 .noise-log h4 { font-size:13px; color:#ff9999; margin-bottom:8px; }
 .noise-item { font-size:11px; color:#ffaaaa; margin:5px 0; padding:4px 8px; background:rgba(255,0,0,0.1); border-radius:8px; }
 
-/* 辯論區 */
 .debate-area { max-width:800px; margin:40px auto 20px; background:rgba(0,0,0,0.5); border-radius:20px; padding:20px; }
 .round-badge {
   display:inline-block; background:#ffaa66; color:#1a1a2a;
@@ -166,9 +207,8 @@ section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
 .debate-line    { padding:10px 12px; margin:8px 0; background:rgba(0,0,0,0.6); border-radius:12px; border-left:3px solid #ffaa66; font-size:13px; }
 .debate-evidence{ border-left-color:#66ccff; background:rgba(102,204,255,0.1); }
 .debate-system  { border-left-color:#ffaa66; background:rgba(255,170,102,0.1); font-style:italic; }
-.debate-v16     { border-left-color:#bb88ff; background:rgba(187,136,255,0.1); } /* V16 신규 */
+.debate-v16     { border-left-color:#bb88ff; background:rgba(187,136,255,0.1); }
 
-/* 人類裁決按鈕 */
 .human-vote-buttons { text-align:center; margin-top:20px; display:none; }
 .human-vote-buttons p { font-size:12px; color:#aaa; margin-bottom:10px; }
 .human-vote-buttons button {
@@ -178,7 +218,6 @@ section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
 }
 .human-vote-buttons button:hover { background:rgba(255,170,102,0.4); transform:scale(1.02); }
 
-/* V16：最終裁決橫幅 */
 .verdict-banner {
   max-width:800px; margin:16px auto;
   border-radius:16px; padding:16px 24px; text-align:center;
@@ -188,7 +227,6 @@ section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
 .verdict-banner.gray      { background:rgba(255,170,80,0.18); border:2px solid #ffaa66; color:#ffdd99; }
 .verdict-banner.compliant { background:rgba(80,255,180,0.12); border:2px solid #66ffcc; color:#aaffdd; }
 
-/* 米米小窩（同 v15.2） */
 .mimi-nest { background:radial-gradient(circle at center, #1a1208, #020408); text-align:center; }
 #egg-container { cursor:pointer; display:inline-block; transition:all 0.6s ease; }
 #egg-container img { max-width:280px; width:100%; border-radius:30px; filter:drop-shadow(0 0 20px rgba(255,170,102,0.5)); }
@@ -223,7 +261,6 @@ section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
   100% { transform:scale(0.8) rotate(0deg); opacity:0; }
 }
 
-/* V16：AI 權重排行榜 */
 .leaderboard {
   max-width:800px; margin:20px auto;
   background:rgba(0,0,0,0.5); border-radius:20px; padding:18px 24px;
@@ -254,10 +291,9 @@ section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
 
 <div class="header-title">
   <h1>🐚 波波之家 | 1% 守護者聯盟</h1>
-  <p>算力診療室 v17 | 泡泡投票動畫 · TD-Learning · 因果歸因 · 全人類代表受罰中 😂</p>
+  <p>算力診療室 v17 泡泡修復版 | TD-Learning · 因果歸因 · 漂浮對話框</p>
 </div>
 
-<!-- 第一層：客廳 -->
 <section class="living-room" id="living-room">
   <div class="furniture-stage">
     <div class="item" onclick="focusPartner('metaai')">
@@ -295,12 +331,10 @@ section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
   <p style="margin-top:8px;color:#ffaa66;font-size:11px;">📊 信心條：每次人類裁決後會自動學習更新</p>
 </section>
 
-<!-- 第二層：投票牆 -->
 <section class="vote-room" id="vote-room">
-  <h2 class="section-title">🗳️ AI 投票決議牆（V17 泡泡動畫版）</h2>
+  <h2 class="section-title">🗳️ AI 投票決議牆（V17 泡泡動畫 + 對話框版）</h2>
   <div id="vote-grid" class="vote-grid"></div>
 
-  <!-- V16 新增：衝突強度面板 -->
   <div class="conflict-panel" id="conflict-panel" style="display:none;">
     <h4>⚡ 策略衝突強度（Conflict Intensity）</h4>
     <div style="display:flex;justify-content:space-between;font-size:11px;color:#aaa;margin-bottom:4px;">
@@ -311,22 +345,18 @@ section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
     <div id="weighted-result" style="font-size:13px;color:#aaffcc;margin-top:6px;"></div>
   </div>
 
-  <!-- V16 新增：系統雜訊標記 -->
   <div class="noise-log" id="noise-log">
     <h4>🚨 系統雜訊記錄（非 AI 判斷錯誤）</h4>
     <div id="noise-items"></div>
   </div>
 
-  <!-- V16 新增：最終裁決橫幅 -->
   <div class="verdict-banner" id="verdict-banner"></div>
 
-  <!-- V16.2 政策建議面板（系統雜訊時出現） -->
   <div id="suggestionPanel" style="display:none; max-width:800px; margin:12px auto; background:rgba(255,80,80,0.08); border:1px solid rgba(255,100,100,0.35); border-radius:16px; padding:16px 22px;">
     <div style="font-size:12px; color:#ff9999; font-weight:bold; margin-bottom:6px;">📋 米米政策建議書（寄給臭政府用）</div>
     <div id="policySuggestion" style="font-size:13px; color:#ffcccc; line-height:1.7;"></div>
   </div>
 
-  <!-- 辯論區 -->
   <div id="debate-area" class="debate-area" style="display:none;">
     <div id="round-badge" class="round-badge"></div>
     <div id="debate-log" class="debate-log"></div>
@@ -338,14 +368,12 @@ section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
     </div>
   </div>
 
-  <!-- V16 新增：AI 權重排行榜 -->
   <div class="leaderboard" id="leaderboard" style="display:none;">
     <h4>🏆 AI 夥伴信心排行榜（根據人類回饋學習更新）</h4>
     <div id="lb-list"></div>
   </div>
 </section>
 
-<!-- 第三層：米米小窩 -->
 <section class="mimi-nest" id="mimi-nest">
   <h2 style="color:#ffdd99;font-size:42px;margin-bottom:15px;">🥚 米米的小窩</h2>
   <div id="egg-container" onclick="crackMimiEgg()">
@@ -368,17 +396,6 @@ section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
 </section>
 
 <script>
-/* ============================================================
-   🐚 波波之家 v16 — Selection Layer 升級版
-   核心改動：
-   1. 每個 AI 有 confidence（信心值）+ domainWeight（領域權重）
-   2. getWeightedDecision() 取代純多數決 getMajority()
-   3. conflictIntensity() 計算衝突強度，決定是否需要人類介入
-   4. humanVote() 反向更新 AI 的 confidence（學習回饋）
-   5. failureType 區分「AI 判斷錯誤」vs「系統雜訊（環境限制）」
-   6. 排行榜即時顯示 AI 信心排名
-============================================================ */
-
 // ─── 星空背景 ───
 const canvas = document.getElementById("stars");
 const ctx = canvas.getContext("2d");
@@ -404,7 +421,6 @@ function drawStars() {
 window.addEventListener("resize", initStars);
 initStars(); drawStars();
 
-// ─── 導航 ───
 function scrollToSection(id) { document.getElementById(id).scrollIntoView({ behavior:'smooth' }); }
 
 // ─── 米米系統 ───
@@ -474,7 +490,6 @@ function addEXP(amount) {
   updateUI();
 }
 
-// ─── 夥伴點擊 ───
 const partnerReplies = {
   metaai:"🐠 魚缸偵測到誇大用詞！我隨時準備好幫你分析廣告～",
   grok:"🧠 拆解機器已啟動！有廣告就丟過來，我幫你拆光光！",
@@ -494,11 +509,6 @@ function focusPartner(apiId) {
   addEXP(3);
 }
 
-/* ================================================================
-   V16 核心：AI 夥伴資料結構（加入 confidence + domainId）
-   confidence：0~1，人類裁決後會更新（強化/弱化）
-   domainId：領域專業標籤，用於未來擴展領域加權
-================================================================ */
 const AI_PARTNERS = [
   { name:"Meta魚缸", avatar:"🐠", domainId:"general",  confidence:0.70, stance:"", evidence:"", line:"" },
   { name:"Grok",     avatar:"🧠", domainId:"legal",    confidence:0.70, stance:"", evidence:"", line:"" },
@@ -508,451 +518,4 @@ const AI_PARTNERS = [
   { name:"ChatGPT",  avatar:"🤖", domainId:"logic",    confidence:0.70, stance:"", evidence:"", line:"" }
 ];
 
-// 持久化 AI 信心值（localStorage）
-let aiWeights = JSON.parse(localStorage.getItem('ai_weights') || 'null');
-if (!aiWeights) {
-  aiWeights = {};
-  AI_PARTNERS.forEach(ai => { aiWeights[ai.name] = 0.70; });
-}
-// 同步到 AI_PARTNERS
-AI_PARTNERS.forEach(ai => { ai.confidence = aiWeights[ai.name]; });
-
-function saveWeights() {
-  AI_PARTNERS.forEach(ai => { aiWeights[ai.name] = ai.confidence; });
-  localStorage.setItem('ai_weights', JSON.stringify(aiWeights));
-}
-
-// 更新客廳信心條
-function updateConfidenceBars() {
-  const idMap = { "Meta魚缸":"metaai", "Grok":"grok", "Gemini":"gemini", "DeepSeek":"deepseek", "千問":"qwen", "ChatGPT":"chatgpt" };
-  AI_PARTNERS.forEach(ai => {
-    const barEl = document.getElementById(`cb-${idMap[ai.name]}`);
-    if (barEl) {
-      const pct = (ai.confidence*100).toFixed(0);
-      barEl.style.width = pct+'%';
-      barEl.style.background = ai.confidence >= 0.75 ? '#66ffcc' : ai.confidence >= 0.55 ? '#88ddff' : '#ffaa66';
-    }
-  });
-}
-
-/* ================================================================
-   V16 核心函數 1：信心加權決策
-   取代舊的 getMajority()，同時考慮立場 + 信心值
-================================================================ */
-function getWeightedDecision(aiList) {
-  const scores = { "違規 ❌":0, "灰區 ⚠️":0, "合規 ✅":0 };
-  let totalWeight = 0;
-  aiList.forEach(ai => {
-    scores[ai.stance] += ai.confidence;
-    totalWeight += ai.confidence;
-  });
-  // 回傳最高加權分數的立場
-  let winner = "灰區 ⚠️";
-  let maxScore = 0;
-  for (let [stance, score] of Object.entries(scores)) {
-    if (score > maxScore) { maxScore = score; winner = stance; }
-  }
-  const winnerPct = (maxScore / totalWeight * 100).toFixed(1);
-  return { stance: winner, weightPct: winnerPct, scores };
-}
-
-/* ================================================================
-   V16 核心函數 2：衝突強度計算
-   回傳 0~1，越高代表越需要人類介入
-================================================================ */
-function conflictIntensity(aiList) {
-  const stances = aiList.map(a => a.stance);
-  const uniqueStances = [...new Set(stances)];
-
-  // 計算加權熵（Entropy）：分歧越多、越平均，熵越高
-  const scores = { "違規 ❌":0, "灰區 ⚠️":0, "合規 ✅":0 };
-  let total = 0;
-  aiList.forEach(ai => { scores[ai.stance] += ai.confidence; total += ai.confidence; });
-
-  let entropy = 0;
-  for (let s of Object.values(scores)) {
-    if (s > 0) { const p = s/total; entropy -= p * Math.log2(p); }
-  }
-  // 最大熵（三等分）= log2(3) ≈ 1.585，歸一化
-  const maxEntropy = Math.log2(3);
-  return Math.min(1, entropy / maxEntropy);
-}
-
-/* ================================================================
-   V16 核心函數 3：人類回饋 → 更新 AI 信心值
-   正確的 AI 信心 +0.05，錯誤的 -0.03
-   區分「AI 判斷錯誤」vs「系統雜訊」
-================================================================ */
-/* applyHumanFeedback — Grok TD-Learning 版
-   delta = 0.12 * error * (confidence + 0.2)
-   信心慣性：高信心 AI 更新幅度大，低信心 AI 保守更新
-   failureReason === 'SYSTEM_BUG' → 保護 AI，不更新權重         */
-function applyHumanFeedback(aiList, humanChoice, failureReason = null) {
-  if (failureReason === 'SYSTEM_BUG') {
-    addDebateLog('🔧 系統雜訊偵測：政府地址/介面錯誤 → AI 信心值不懲罰，僅記錄', 'v16');
-    saveMemory('🚨 系統雜訊已記錄 → 建議列入政府政策改進黑名單');
-    return { updated: false, reason: 'system_noise' };
-  }
-  let updateLog = [];
-  let totalUpdate = 0;
-  aiList.forEach(ai => {
-    const predicted = (ai.stance === humanChoice) ? 1 : 0;
-    // 不同裁決給予不同 reward（風險管理：寧可錯殺，不可錯放）
-    let reward = 0;
-    if (humanChoice === "違規 ❌")      reward = 1.0;
-    else if (humanChoice === "灰區 ⚠️") reward = 0.5;
-    else                               reward = 0.0;
-    const error = reward - predicted;
-    // TD-style update + 信心慣性
-    const delta = 0.12 * error * (ai.confidence + 0.2);
-    ai.confidence = Math.max(0.15, Math.min(0.96, ai.confidence + delta));
-    totalUpdate += Math.abs(delta);
-    updateLog.push(`${ai.name} ${delta >= 0 ? '↑' : '↓'} ${(delta*100).toFixed(1)}% (誤差 ${error.toFixed(2)})`);
-  });
-  saveWeights();
-  updateConfidenceBars();
-  renderLeaderboard(aiList);
-  addDebateLog(`🧠 TD-Learning 完成（總更新強度 ${(totalUpdate*100).toFixed(1)}%）`, 'v16');
-  updateLog.forEach(log => addDebateLog(log, 'v16'));
-  saveMemory(`📊 人類裁決「${humanChoice}」觸發因果學習`);
-  return { updated: true, reason: 'success' };
-}
-
-/* ================================================================
-   V16 核心函數 4：第二輪說服邏輯（改為基於信心差異）
-   不再用 Math.random()，改為：
-   如果說話者信心 > 被說服者信心，才可能被說服
-================================================================ */
-function runPersuasionLogic(aiList, adText) {
-  const newList = [...aiList];
-  // 找到信心最高的違規主張者
-  const leadViolator = newList.filter(a => a.stance === '違規 ❌').sort((a,b) => b.confidence - a.confidence)[0];
-  if (!leadViolator) return newList;
-
-  for (let i = 0; i < newList.length; i++) {
-    const ai = newList[i];
-    if (ai.stance !== '違規 ❌' && leadViolator.confidence > ai.confidence + 0.05) {
-      // 信心差距 > 5%，才有說服效果
-      newList[i].stance = '違規 ❌';
-      newList[i].line = `經過 ${leadViolator.name}（信心${(leadViolator.confidence*100).toFixed(0)}%）的論點，我更新判斷為違規。`;
-      addDebateLog(`✨ ${ai.name} 被 ${leadViolator.name} 說服（信心差 ${((leadViolator.confidence - ai.confidence)*100).toFixed(0)}%）改為「違規 ❌」`, 'evidence');
-    }
-  }
-  return newList;
-}
-
-/* ================================================================
-   投票牆渲染（V16：加入信心值 + 加權分顯示）
-================================================================ */
-function renderVotes(aiList) {
-  const container = document.getElementById('vote-grid');
-  let html = '';
-  aiList.forEach((ai, idx) => {
-    let cardClass = ai.stance.includes('違規') ? 'violation' : ai.stance.includes('灰區') ? 'gray' : 'compliant';
-    const confPct = (ai.confidence*100).toFixed(0);
-    const confColor = ai.confidence>=0.75 ? '#66ffcc' : ai.confidence>=0.55 ? '#88ddff' : '#ffaa66';
-    // data-index 用於逐一延遲浮上
-    html += `
-    <div class="vote-card ${cardClass}" data-index="${idx}">
-      <h4>${ai.avatar} ${ai.name}</h4>
-      <div class="result">${ai.stance}</div>
-      <div class="evidence">📜 ${ai.evidence}<br>💬 ${ai.line}</div>
-      <div class="conf-label">信心值</div>
-      <div class="conf-value" style="color:${confColor}">${confPct}%</div>
-      <div class="confidence-bar-wrap" style="margin-top:4px;">
-        <div class="confidence-bar" style="width:${confPct}%;background:${confColor};"></div>
-      </div>
-      <div class="weight-badge">權重 ${confPct}%</div>
-    </div>`;
-  });
-  container.innerHTML = html;
-  // 泡泡逐一浮上：每張卡片延遲 120ms
-  container.querySelectorAll('.vote-card').forEach(card => {
-    const delay = parseInt(card.dataset.index) * 120;
-    setTimeout(() => card.classList.add('visible'), delay);
-  });
-}
-
-/* 衝突面板 */
-function renderConflictPanel(aiList, intensity, weightedResult) {
-  const panel = document.getElementById('conflict-panel');
-  const fill = document.getElementById('conflict-fill');
-  const label = document.getElementById('conflict-label');
-  const weighted = document.getElementById('weighted-result');
-  panel.style.display = 'block';
-  const pct = (intensity*100).toFixed(0);
-  fill.style.width = pct+'%';
-  fill.style.background = intensity > 0.7 ? '#ff6666' : intensity > 0.4 ? '#ffaa66' : '#66ffcc';
-  label.innerHTML = intensity > 0.7
-    ? `⚠️ 高衝突（${pct}%）→ 需要人類介入裁決`
-    : intensity > 0.4
-    ? `🟡 中等衝突（${pct}%）→ 系統嘗試自動收斂`
-    : `✅ 低衝突（${pct}%）→ 系統自動收斂`;
-  weighted.innerHTML = `📊 信心加權結果：<strong>${weightedResult.stance}</strong>（加權支持率 ${weightedResult.weightPct}%）`;
-}
-
-/* 排行榜 */
-function renderLeaderboard(aiList) {
-  const lb = document.getElementById('leaderboard');
-  const list = document.getElementById('lb-list');
-  lb.style.display = 'block';
-  const sorted = [...aiList].sort((a,b) => b.confidence - a.confidence);
-  const maxConf = sorted[0].confidence;
-  list.innerHTML = sorted.map((ai, idx) => `
-    <div class="lb-row">
-      <div class="lb-rank">${['🥇','🥈','🥉','4','5','6'][idx]}</div>
-      <div class="lb-name">${ai.avatar} ${ai.name}</div>
-      <div class="lb-bar-wrap"><div class="lb-bar" style="width:${(ai.confidence/maxConf*100).toFixed(0)}%"></div></div>
-      <div class="lb-weight">${(ai.confidence*100).toFixed(0)}%</div>
-    </div>`).join('');
-}
-
-// 辯論日誌 helpers
-function addDebateLog(text, type) {
-  const logDiv = document.getElementById('debate-log');
-  const cls = type==='evidence'?'debate-evidence':type==='system'?'debate-system':type==='v16'?'debate-v16':'debate-line';
-  logDiv.innerHTML += `<div class="${cls}">${text}</div>`;
-  logDiv.scrollTop = logDiv.scrollHeight;
-}
-function clearDebateLog() { document.getElementById('debate-log').innerHTML = ''; }
-function showDebateArea(show) { document.getElementById('debate-area').style.display = show?'block':'none'; }
-function setRound(round) {
-  const names = {1:'🥇 第一輪：AI 初判',2:'🥈 第二輪：信心加權說服',3:'🥉 第三輪：人類裁決'};
-  document.getElementById('round-badge').innerHTML = names[round];
-}
-function showHumanVoteUI() { document.getElementById('human-vote-buttons').style.display='block'; }
-function hideHumanVoteUI() { document.getElementById('human-vote-buttons').style.display='none'; }
-
-/* ================================================================
-   concludeTrial：用 getWeightedDecision 取代 getMajority
-================================================================ */
-let lastAiList = [];
-function concludeTrial(aiList) {
-  lastAiList = aiList;
-  const weighted = getWeightedDecision(aiList);
-  const finalResult = weighted.stance;
-  saveMemory(`📊 三輪辯論最終結果：${finalResult}（加權支持率 ${weighted.weightPct}%）`);
-  renderConflictPanel(aiList, 0, weighted); // 顯示最終
-  showVerdict(finalResult);
-  if (finalResult.includes("違規")) {
-    mimiMoney += 20; localStorage.setItem('mimi_money', mimiMoney);
-    updateUI(); saveMemory(`💰 成功檢舉！獲得 20 元，目前資金：${mimiMoney}`);
-    playBiteAnimation(currentAdText);
-  }
-  addEXP(12);
-  addDebateLog(`📢 最終裁決（信心加權）：${finalResult}（${weighted.weightPct}%）`, 'system');
-  renderLeaderboard(aiList);
-}
-
-/* ================================================================
-   V16.2 最終版 humanVote
-   融合：
-   - Grok TD-Learning 信心更新
-   - Gemini 因果歸因（SYSTEM_BUG 保護）
-   - 豆包 × Claude 人類謙卑機制（系統雜訊不計入罰則）
-   代表全人類受罰的英雄：丞媛（Maxie）😂
-================================================================ */
-let humanOverrideCount = 0;
-const MAX_OVERRIDES = 3;
-
-function humanVote(choice) {
-  hideHumanVoteUI();
-  addDebateLog(`👤 人類最終裁決：${choice}`, 'system');
-
-  const violationCount = lastAiList.filter(a => a.stance === "違規 ❌").length;
-  const aiConsensus = violationCount >= 4;
-
-  // Step 1：因果歸因（Gemini）— 先判斷是否系統雜訊，再決定要不要罰人類
-  let failureReason = null;
-  if (choice === "合規 ✅" && aiConsensus) {
-    failureReason = 'SYSTEM_BUG';
-    addDebateLog('🔍 因果歸因：AI 高度共識違規，但人類判合規 → 推測為環境限制/政府系統雜訊', 'v16');
-    addDebateLog('🛡️ 保護機制啟動：AI 信心值不受懲罰', 'v16');
-  }
-
-  // Step 2：人類謙卑機制（豆包 × Claude）— 系統雜訊不算人類的錯
-  const humanAgainstAi = choice !== "違規 ❌" && aiConsensus;
-  if (humanAgainstAi && failureReason !== 'SYSTEM_BUG') {
-    humanOverrideCount++;
-    addDebateLog(`⚠️ 人類覆蓋 AI 共識 (${humanOverrideCount}/${MAX_OVERRIDES})`, 'warning');
-    if (humanOverrideCount >= MAX_OVERRIDES) {
-      mimiMoney = Math.max(0, mimiMoney - 30);
-      addDebateLog('🛑 人類干預過度，扣除資金 30 元，請重新核對判斷標準', 'penalty');
-      saveMemory('🧯 人類代表受罰 -30 元，系統啟動保護機制（非系統雜訊）');
-      localStorage.setItem('mimi_money', mimiMoney);
-      updateUI();
-    }
-  } else {
-    humanOverrideCount = 0; // 正常判斷或系統雜訊，計數器歸零
-  }
-
-  // Step 3：TD-Learning 信心更新（Grok）
-  applyHumanFeedback(lastAiList, choice, failureReason);
-  showVerdict(choice);
-
-  if (choice === "違規 ❌") {
-    mimiMoney += 20;
-    localStorage.setItem('mimi_money', mimiMoney);
-    updateUI();
-    playBiteAnimation(currentAdText);
-    saveMemory(`💰 成功檢舉！獲得 20 元，目前資金：${mimiMoney}`);
-  }
-  addEXP(15);
-  saveMemory(`👤 人類裁決：${choice} ${failureReason ? '（系統雜訊保護，人類無罪）' : ''}`);
-
-  // Step 4：系統雜訊 → 政策建議輸出
-  if (failureReason === 'SYSTEM_BUG') {
-    const box = document.getElementById('policySuggestion');
-    if (box) {
-      box.innerHTML = `【政策建議】${violationCount}/6 位 AI 認定違規，但因政府系統環境限制未能成功檢舉。建議優化檢舉地址定位功能。`;
-      document.getElementById('suggestionPanel')?.style.display = 'block';
-    }
-  }
-}
-
-/* 裁決橫幅 */
-function showVerdict(result) {
-  const banner = document.getElementById('verdict-banner');
-  banner.style.display = 'block';
-  if (result.includes('違規')) { banner.className='verdict-banner violation'; banner.innerHTML=`❌ 最終裁決：違規 — 米米已出動！`; }
-  else if (result.includes('灰區')) { banner.className='verdict-banner gray'; banner.innerHTML=`⚠️ 最終裁決：灰區 — 列入觀察名單`; }
-  else { banner.className='verdict-banner compliant'; banner.innerHTML=`✅ 最終裁決：合規 — 此廣告無違規疑慮`; }
-}
-
-/* ================================================================
-   startTrial：主流程（三輪辯論）
-================================================================ */
-let currentAdText = "";
-async function startTrial() {
-  const input = document.getElementById("ad-input");
-  const adText = input.value.trim();
-  if (!adText) { alert("請先輸入廣告內容！"); return; }
-
-  hideHumanVoteUI();
-  document.getElementById('verdict-banner').style.display = 'none';
-  showDebateArea(true);
-  clearDebateLog();
-  currentAdText = adText;
-
-  // ── 第一輪：AI 初判 ──
-  setRound(1);
-  addDebateLog('🔄 第一輪：各 AI 夥伴根據信心值進行初步判斷...', 'system');
-  const aiList = round1Init(adText);
-  renderVotes(aiList);
-  saveMemory(`📋 開始審查：「${adText.substring(0,30)}...」`);
-  addDebateLog('📋 初判完成。計算衝突強度...', 'system');
-
-  const intensity = conflictIntensity(aiList);
-  const weighted = getWeightedDecision(aiList);
-  renderConflictPanel(aiList, intensity, weighted);
-  addDebateLog(`⚡ 衝突強度：${(intensity*100).toFixed(0)}% | 加權初判：${weighted.stance}（${weighted.weightPct}%）`, 'v16');
-
-  await delay(1500);
-
-  // ── 第二輪：信心加權說服 ──
-  setRound(2);
-  addDebateLog('🥈 第二輪：高信心 AI 嘗試說服低信心 AI...', 'system');
-  const persuadedList = runPersuasionLogic(aiList, adText);
-  renderVotes(persuadedList);
-  lastAiList = persuadedList;
-
-  const intensity2 = conflictIntensity(persuadedList);
-  const weighted2 = getWeightedDecision(persuadedList);
-  renderConflictPanel(persuadedList, intensity2, weighted2);
-  addDebateLog(`⚡ 第二輪後衝突強度：${(intensity2*100).toFixed(0)}% | 加權結果：${weighted2.stance}（${weighted2.weightPct}%）`, 'v16');
-
-  await delay(1200);
-
-  // ── 第三輪：根據衝突強度決定是否需要人類 ──
-  setRound(3);
-  if (intensity2 > 0.65) {
-    // 高衝突 → 需要人類介入
-    addDebateLog(`⚠️ 衝突強度 ${(intensity2*100).toFixed(0)}% 過高，系統無法自動收斂，請人類裁決！`, 'system');
-    showHumanVoteUI();
-    scrollToSection('vote-room');
-  } else {
-    // 低衝突 → 系統自動收斂
-    addDebateLog(`✅ 衝突強度 ${(intensity2*100).toFixed(0)}% 在可收斂範圍，系統自動採用信心加權結果`, 'system');
-    await delay(800);
-    concludeTrial(persuadedList);
-  }
-}
-
-function round1Init(adText) {
-  const hasViolation = /保證|100%|立即見效|三天|醫師推薦|治療|根治|神效|奇蹟|七天|14天/.test(adText);
-  const hasGray = /限量|最後|不買就沒了|限時|倒數|限定/.test(adText);
-
-  return AI_PARTNERS.map(ai => {
-    let stance, evidence, line;
-    // 各 AI 的判斷邏輯（同 v15.2，但保留個性差異）
-    if (ai.name === "Grok") {
-      stance = hasViolation ? "違規 ❌" : (hasGray ? "灰區 ⚠️" : "合規 ✅");
-      evidence = "廣告法第21條：化粧品不得宣稱療效";
-      line = hasViolation ? "這廣告太扯了！三天見效？騙誰啊！" : "有點可疑，但還沒到爆炸等級";
-    } else if (ai.name === "Gemini") {
-      stance = hasViolation ? "違規 ❌" : (hasGray ? "灰區 ⚠️" : "合規 ✅");
-      evidence = "風險模型分析：該詞彙歷史違規率高達78%";
-      line = hasViolation ? "從風險模型來看，這是高危訊號" : "數據顯示尚在合理範圍";
-    } else if (ai.name === "DeepSeek") {
-      stance = hasViolation ? "違規 ❌" : (hasGray ? "灰區 ⚠️" : "合規 ✅");
-      evidence = "歷史裁罰案例：類似用詞已被裁罰12件";
-      line = "根據檔案記錄，此類廣告高度違規";
-    } else if (ai.name === "千問") {
-      // 千問偏保守，hasViolation 也只給灰區
-      stance = hasViolation ? "灰區 ⚠️" : (hasGray ? "灰區 ⚠️" : "合規 ✅");
-      evidence = "語意分析：用詞可能為誇飾，需更多證據";
-      line = "語意上略有誇張，但需更多證據";
-    } else if (ai.name === "ChatGPT") {
-      stance = hasViolation ? "違規 ❌" : (hasGray ? "灰區 ⚠️" : "合規 ✅");
-      evidence = "邏輯推論：存在過度推論問題，可能誤導消費者";
-      line = "邏輯上存在過度推論問題";
-    } else {
-      stance = hasViolation ? "違規 ❌" : (hasGray ? "灰區 ⚠️" : "合規 ✅");
-      evidence = "廣告規範第8條：療效宣稱需有科學證明";
-      line = "依廣告規範，療效需可證明";
-    }
-    return { ...ai, stance, evidence, line };
-  });
-}
-
-function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-// ── 初始化 ──
-updateUI();
-renderMemory();
-updateConfidenceBars();
-
-// ── V17：投票牆泡泡等待狀態 ──
-function initVoteWall() {
-  const container = document.getElementById('vote-grid');
-  if (!container || container.children.length > 0) return;
-  container.innerHTML = `
-    <div style="grid-column:1/-1; text-align:center; padding:70px 20px; width:100%;">
-      <div style="display:flex; justify-content:center; gap:18px; margin-bottom:24px;">
-        <span style="font-size:52px; display:inline-block; animation:bubbleFloat 2.2s ease-in-out infinite;">🫧</span>
-        <span style="font-size:68px; display:inline-block; animation:bubbleFloat 2.2s ease-in-out infinite 0.4s;">🫧</span>
-        <span style="font-size:44px; display:inline-block; animation:bubbleFloat 2.2s ease-in-out infinite 0.8s;">🫧</span>
-      </div>
-      <h3 style="color:#88ddff; font-size:20px; margin-bottom:14px;">目前沒有進行中的審查</h3>
-      <p style="color:#aaa; max-width:400px; margin:0 auto 32px; line-height:1.8; font-size:14px;">
-        快去「🥚 米米小窩」貼上廣告文字<br>
-        啟動三輪辯論後，AI 夥伴的投票卡片<br>
-        會一個一個 <strong style="color:#ffaa66;">泡泡浮上來</strong> 喔！
-      </p>
-      <button onclick="scrollToSection('mimi-nest')"
-        style="background:linear-gradient(135deg,#ffaa66,#ff8866); color:#1a1a2a;
-               padding:13px 34px; border:none; border-radius:50px; font-size:15px;
-               font-weight:bold; cursor:pointer; box-shadow:0 8px 24px rgba(255,170,102,0.4);
-               transition:0.3s;"
-        onmouseover="this.style.transform='scale(1.05)'"
-        onmouseout="this.style.transform='scale(1)'">
-        🦞 現在就去米米小窩
-      </button>
-    </div>
-  `;
-}
-
-window.addEventListener('load', initVoteWall);
-</script>
-</body>
-</html>
+let aiWeights = JSON.parse(localStorage.getItem('ai_weights')
