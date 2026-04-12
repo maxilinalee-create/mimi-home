@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>波波之家 | 1% 守護者聯盟 v18</title>
+<title>波波之家 | 1% 守護者聯盟 v21 · 熵值決策引擎 + 精準統計</title>
 <style>
 :root {
   --bg-deep: #08090f;
@@ -14,541 +14,227 @@
   --accent-green: #7ecfa0;
   --wabi-clay: #b8956a;
   --wabi-moss: #6a8a5a;
-  --wabi-ash: #8a8a8a;
   --text-main: #e8e4da;
   --text-dim: #8a8880;
   --gold-seam: #d4a853;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
-body, html {
-  width:100%; min-height:100vh;
-  background: var(--bg-deep);
-  color: var(--text-main);
-  font-family: "Noto Sans TC", "Noto Serif TC", serif;
-  overflow-x: hidden;
-}
-/* 星空 */
+body, html { width:100%; min-height:100vh; background: var(--bg-deep); color: var(--text-main); font-family: "Noto Sans TC", "Noto Serif TC", serif; overflow-x: hidden; }
 #stars { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none; }
-
-/* 侘寂紋理疊層 */
-.wabi-texture {
-  position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none;
-  background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-  opacity: 0.4;
-}
-
-/* 導航 */
-.nav-buttons {
-  position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
-  z-index:9999; display:flex; gap:12px;
-  background:rgba(8,9,15,0.85); backdrop-filter:blur(16px);
-  padding:10px 22px; border-radius:50px;
-  border:1px solid rgba(201,169,110,0.25);
-  box-shadow: 0 0 30px rgba(0,0,0,0.5);
-}
-.nav-btn {
-  background:transparent; color:var(--accent-gold);
-  padding:7px 18px; border-radius:30px;
-  border:1px solid rgba(201,169,110,0.3); cursor:pointer;
-  font-size:12px; font-weight:bold; font-family:inherit;
-  transition:0.3s; letter-spacing:0.05em;
-}
+.wabi-texture { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none; background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E"); opacity: 0.4; }
+.nav-buttons { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:9999; display:flex; gap:12px; background:rgba(8,9,15,0.85); backdrop-filter:blur(16px); padding:10px 22px; border-radius:50px; border:1px solid rgba(201,169,110,0.25); }
+.nav-btn { background:transparent; color:var(--accent-gold); padding:7px 18px; border-radius:30px; border:1px solid rgba(201,169,110,0.3); cursor:pointer; font-size:12px; font-weight:bold; transition:0.3s; }
 .nav-btn:hover { background:rgba(201,169,110,0.15); border-color:var(--accent-gold); }
-
-/* 標題 */
-.header-title {
-  position:relative; text-align:center; padding:70px 20px 30px; z-index:10;
-}
-.header-title h1 {
-  font-size:24px; font-weight:300; letter-spacing:0.15em;
-  color: var(--text-main);
-}
+.header-title { position:relative; text-align:center; padding:70px 20px 30px; z-index:10; }
+.header-title h1 { font-size:24px; font-weight:300; letter-spacing:0.15em; color: var(--text-main); }
 .header-title h1 span { color: var(--accent-gold); }
 .header-title p { font-size:10px; color:var(--text-dim); margin-top:8px; letter-spacing:0.1em; }
-.kintsugi-line {
-  width:120px; height:1px; margin:16px auto;
-  background: linear-gradient(90deg, transparent, var(--gold-seam), transparent);
-}
-
+.kintsugi-line { width:120px; height:1px; margin:16px auto; background: linear-gradient(90deg, transparent, var(--gold-seam), transparent); }
 section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
-
-/* ═══ 客廳 ═══ */
-.living-room {
-  background: radial-gradient(ellipse at center, #111520, var(--bg-deep));
-  display:flex; flex-direction:column; align-items:center;
-}
-.furniture-stage {
-  display:flex; gap:24px; flex-wrap:wrap; justify-content:center;
-  max-width:1100px; margin-top:40px;
-}
+.living-room { background: radial-gradient(ellipse at center, #111520, var(--bg-deep)); display:flex; flex-direction:column; align-items:center; }
+.furniture-stage { display:flex; gap:24px; flex-wrap:wrap; justify-content:center; max-width:1100px; margin-top:40px; }
 .item { cursor:pointer; text-align:center; width:140px; transition:0.4s; }
-.item-frame {
-  width:100%; height:140px; border-radius:16px;
-  background: rgba(201,169,110,0.05);
-  border:1px solid rgba(201,169,110,0.2);
-  display:flex; align-items:center; justify-content:center;
-  font-size:48px; transition:0.4s;
-  position:relative; overflow:hidden;
-}
-.item-frame::after {
-  content:''; position:absolute; inset:0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 60%);
-}
-.item:hover .item-frame {
-  border-color: var(--accent-gold);
-  box-shadow: 0 0 25px rgba(201,169,110,0.2), inset 0 0 20px rgba(201,169,110,0.05);
-  transform: translateY(-4px);
-}
-.item.active .item-frame { border-color: var(--accent-blue); box-shadow: 0 0 30px rgba(126,200,212,0.25); }
-.name-tag {
-  margin-top:10px; font-size:11px; color:var(--text-dim); letter-spacing:0.05em;
-}
-.role-tag {
-  margin-top:4px; font-size:9px; padding:2px 8px; border-radius:10px;
-  display:inline-block;
-}
+.item-frame { width:100%; height:140px; border-radius:16px; background: rgba(201,169,110,0.05); border:1px solid rgba(201,169,110,0.2); display:flex; align-items:center; justify-content:center; font-size:48px; transition:0.4s; position:relative; overflow:hidden; }
+.item-frame::after { content:''; position:absolute; inset:0; background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 60%); }
+.item:hover .item-frame { border-color: var(--accent-gold); box-shadow: 0 0 25px rgba(201,169,110,0.2); transform: translateY(-4px); }
+.name-tag { margin-top:10px; font-size:11px; color:var(--text-dim); letter-spacing:0.05em; }
+.role-tag { margin-top:4px; font-size:9px; padding:2px 8px; border-radius:10px; display:inline-block; }
 .role-builder { background:rgba(126,207,160,0.15); color:var(--accent-green); border:1px solid rgba(126,207,160,0.3); }
 .role-challenger { background:rgba(224,112,112,0.15); color:var(--accent-red); border:1px solid rgba(224,112,112,0.3); }
 .role-neutral { background:rgba(201,169,110,0.1); color:var(--accent-gold); border:1px solid rgba(201,169,110,0.2); }
 .conf-bar-wrap { margin-top:6px; height:3px; background:rgba(255,255,255,0.07); border-radius:10px; overflow:hidden; }
 .conf-bar { height:100%; border-radius:10px; transition:width 0.8s ease; }
-
-/* API狀態燈 */
-.api-light {
-  width:6px; height:6px; border-radius:50%; display:inline-block; margin-right:4px;
-  animation: pulse-light 2s infinite;
-}
-.api-ok { background: var(--accent-green); }
-.api-low { background: #ffaa66; }
-.api-dead { background: var(--accent-red); animation: none; }
+.api-light { width:6px; height:6px; border-radius:50%; display:inline-block; margin-right:4px; background: var(--accent-green); animation: pulse-light 2s infinite; }
 @keyframes pulse-light { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
-
-/* ═══ Challenger/Builder 切換面板 ═══ */
-.mode-panel {
-  max-width:800px; margin:30px auto 0;
-  background: rgba(13,18,33,0.8); backdrop-filter:blur(10px);
-  border-radius:20px; padding:20px 24px;
-  border:1px solid rgba(201,169,110,0.15);
-}
-.mode-panel h4 { font-size:13px; color:var(--accent-gold); margin-bottom:14px; letter-spacing:0.05em; }
+.mode-panel { max-width:800px; margin:30px auto 0; background: rgba(13,18,33,0.8); backdrop-filter:blur(10px); border-radius:20px; padding:20px 24px; border:1px solid rgba(201,169,110,0.15); }
+.mode-panel h4 { font-size:13px; color:var(--accent-gold); margin-bottom:14px; }
 .mode-tabs { display:flex; gap:10px; margin-bottom:16px; }
-.mode-tab {
-  padding:6px 18px; border-radius:20px; font-size:12px; cursor:pointer;
-  border:1px solid rgba(255,255,255,0.1); background:transparent;
-  color:var(--text-dim); font-family:inherit; transition:0.3s;
-}
+.mode-tab { padding:6px 18px; border-radius:20px; font-size:12px; cursor:pointer; border:1px solid rgba(255,255,255,0.1); background:transparent; color:var(--text-dim); transition:0.3s; }
 .mode-tab.active-builder { background:rgba(126,207,160,0.15); color:var(--accent-green); border-color:var(--accent-green); }
 .mode-tab.active-challenger { background:rgba(224,112,112,0.15); color:var(--accent-red); border-color:var(--accent-red); }
 .mode-desc { font-size:11px; color:var(--text-dim); line-height:1.7; }
 .challenger-questions { margin-top:12px; display:none; }
 .challenger-questions.show { display:block; }
-.cq-item {
-  padding:8px 14px; margin:6px 0; font-size:11px;
-  background:rgba(224,112,112,0.07); border-left:2px solid var(--accent-red);
-  border-radius:0 10px 10px 0; color:#ffaaaa;
-}
-
-/* ═══ 投票牆 ═══ */
-.vote-room {
-  background: radial-gradient(ellipse at top, #101828, var(--bg-deep));
-  border-top: 1px solid rgba(201,169,110,0.1);
-}
-.section-title {
-  text-align:center; font-size:22px; color:var(--accent-blue);
-  font-weight:300; letter-spacing:0.1em; margin-bottom:8px;
-}
+.cq-item { padding:8px 14px; margin:6px 0; font-size:11px; background:rgba(224,112,112,0.07); border-left:2px solid var(--accent-red); border-radius:0 10px 10px 0; color:#ffaaaa; }
+.vote-room { background: radial-gradient(ellipse at top, #101828, var(--bg-deep)); border-top: 1px solid rgba(201,169,110,0.1); }
+.section-title { text-align:center; font-size:22px; color:var(--accent-blue); font-weight:300; letter-spacing:0.1em; margin-bottom:8px; }
 .vote-grid { display:flex; flex-wrap:wrap; gap:18px; justify-content:center; max-width:1100px; margin:30px auto 0; }
-
-/* 泡泡卡片 */
-.vote-card {
-  background: rgba(13,18,33,0.9); backdrop-filter:blur(12px);
-  border-radius:20px; padding:18px 16px; width:175px; text-align:center;
-  transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
-  border:1px solid rgba(201,169,110,0.15);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-  position:relative; overflow:visible;
-  opacity:0; transform:translateY(50px);
-}
+.vote-card { background: rgba(13,18,33,0.9); backdrop-filter:blur(12px); border-radius:20px; padding:18px 16px; width:175px; text-align:center; transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1); border:1px solid rgba(201,169,110,0.15); box-shadow: 0 8px 30px rgba(0,0,0,0.4); position:relative; opacity:0; transform:translateY(50px); }
 .vote-card.visible { animation: bubbleUp 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards; }
 @keyframes bubbleUp { to { opacity:1; transform:translateY(0); } }
-.vote-card:hover { transform:translateY(-10px) scale(1.04); box-shadow:0 20px 50px rgba(126,200,212,0.2); }
 .vote-card.violation { border-left:3px solid var(--accent-red); }
-.vote-card.gray      { border-left:3px solid var(--accent-gold); }
+.vote-card.gray { border-left:3px solid var(--accent-gold); }
 .vote-card.compliant { border-left:3px solid var(--accent-green); }
-
-/* 金繼裂紋裝飾（宅寂） */
-.vote-card::after {
-  content:''; position:absolute; bottom:0; left:20%; right:20%; height:1px;
-  background: linear-gradient(90deg, transparent, rgba(212,168,83,0.3), transparent);
-}
-.chat-bubble {
-  position:absolute; bottom:108%; left:50%; transform:translateX(-50%);
-  background:rgba(8,9,15,0.92); color:var(--accent-gold);
-  padding:5px 12px; border-radius:20px; font-size:11px; white-space:nowrap;
-  opacity:0; transition:0.2s; pointer-events:none;
-  border:1px solid rgba(201,169,110,0.3); z-index:20;
-}
-.vote-card:hover .chat-bubble { opacity:1; }
 .vote-card h4 { font-size:14px; font-weight:400; margin-bottom:6px; }
 .vote-card .result { font-size:15px; font-weight:bold; margin:5px 0; }
 .vote-card .evidence { font-size:10px; color:var(--text-dim); margin-top:5px; line-height:1.5; }
-.conf-label { font-size:9px; color:var(--text-dim); margin-top:8px; letter-spacing:0.05em; }
+.conf-label { font-size:9px; color:var(--text-dim); margin-top:8px; }
 .conf-value { font-size:13px; font-weight:bold; }
-.weight-badge {
-  display:inline-block; font-size:9px; padding:2px 7px;
-  border-radius:10px; background:rgba(201,169,110,0.1);
-  color:var(--accent-gold); margin-top:4px; letter-spacing:0.03em;
-}
-/* Challenger 標記 */
-.challenger-badge {
-  position:absolute; top:-8px; right:-8px;
-  background:var(--accent-red); color:#fff;
-  font-size:9px; padding:2px 7px; border-radius:10px;
-  font-weight:bold; letter-spacing:0.05em;
-}
-/* Fallback 標記 */
-.fallback-badge {
-  position:absolute; top:-8px; left:-8px;
-  background:var(--wabi-clay); color:#fff;
-  font-size:9px; padding:2px 7px; border-radius:10px;
-}
-
-/* 衝突面板 */
-.conflict-panel {
-  max-width:760px; margin:20px auto;
-  background:rgba(13,18,33,0.8); border-radius:16px; padding:18px 22px;
-  border:1px solid rgba(201,169,110,0.12);
-}
-.conflict-panel h4 { font-size:12px; color:var(--accent-gold); margin-bottom:10px; letter-spacing:0.05em; }
+.weight-badge { display:inline-block; font-size:9px; padding:2px 7px; border-radius:10px; background:rgba(201,169,110,0.1); color:var(--accent-gold); margin-top:4px; }
+.challenger-badge { position:absolute; top:-8px; right:-8px; background:var(--accent-red); color:#fff; font-size:9px; padding:2px 7px; border-radius:10px; }
+.conflict-panel { max-width:760px; margin:20px auto; background:rgba(13,18,33,0.8); border-radius:16px; padding:18px 22px; border:1px solid rgba(201,169,110,0.12); }
 .conflict-meter { height:8px; background:rgba(255,255,255,0.07); border-radius:20px; overflow:hidden; margin:8px 0; }
 .conflict-fill { height:100%; border-radius:20px; transition:width 0.7s ease; }
-.noise-log {
-  max-width:760px; margin:10px auto;
-  background:rgba(224,112,112,0.05); border-radius:12px; padding:14px 20px;
-  border:1px dashed rgba(224,112,112,0.2); display:none;
-}
-.noise-log h4 { font-size:11px; color:#ff9999; margin-bottom:8px; }
-.noise-item { font-size:11px; color:#ffaaaa; margin:4px 0; padding:4px 8px; background:rgba(255,0,0,0.07); border-radius:8px; }
-
-/* 辯論區 */
-.debate-area {
-  max-width:760px; margin:30px auto 20px;
-  background:rgba(13,18,33,0.8); border-radius:20px; padding:20px 24px;
-  border:1px solid rgba(201,169,110,0.1);
-}
-.round-badge {
-  display:inline-block; background:var(--accent-gold); color:var(--bg-deep);
-  padding:4px 14px; border-radius:20px; font-size:11px; font-weight:bold;
-  margin-bottom:14px; letter-spacing:0.05em;
-}
+.debate-area { max-width:760px; margin:30px auto 20px; background:rgba(13,18,33,0.8); border-radius:20px; padding:20px 24px; border:1px solid rgba(201,169,110,0.1); }
+.round-badge { display:inline-block; background:var(--accent-gold); color:var(--bg-deep); padding:4px 14px; border-radius:20px; font-size:11px; font-weight:bold; margin-bottom:14px; }
 .debate-log { max-height:300px; overflow-y:auto; }
 .debate-log::-webkit-scrollbar { width:4px; }
 .debate-log::-webkit-scrollbar-thumb { background:rgba(201,169,110,0.3); border-radius:10px; }
-.debate-line     { padding:9px 12px; margin:6px 0; background:rgba(0,0,0,0.4); border-radius:10px; border-left:2px solid var(--accent-gold); font-size:12px; }
+.debate-line { padding:9px 12px; margin:6px 0; background:rgba(0,0,0,0.4); border-radius:10px; border-left:2px solid var(--accent-gold); font-size:12px; }
 .debate-evidence { border-left-color:var(--accent-blue); background:rgba(126,200,212,0.07); }
-.debate-system   { border-left-color:var(--accent-gold); background:rgba(201,169,110,0.07); font-style:italic; color:var(--text-dim); }
-.debate-v16      { border-left-color:#bb88ff; background:rgba(187,136,255,0.07); }
+.debate-system { border-left-color:var(--accent-gold); background:rgba(201,169,110,0.07); font-style:italic; }
 .debate-challenger { border-left-color:var(--accent-red); background:rgba(224,112,112,0.07); }
-.debate-fallback { border-left-color:var(--wabi-clay); background:rgba(184,149,106,0.07); }
-
-/* 人類裁決 */
 .human-vote-buttons { text-align:center; margin-top:20px; display:none; }
-.human-vote-buttons p { font-size:12px; color:var(--text-dim); margin-bottom:12px; }
-.human-vote-buttons button {
-  background:rgba(201,169,110,0.1); border:1px solid rgba(201,169,110,0.4);
-  padding:8px 20px; border-radius:30px; color:var(--accent-gold);
-  cursor:pointer; margin:5px; font-size:13px; font-family:inherit;
-  transition:0.3s;
-}
-.human-vote-buttons button:hover { background:rgba(201,169,110,0.25); transform:scale(1.03); }
-
-/* 裁決橫幅 */
-.verdict-banner {
-  max-width:760px; margin:16px auto;
-  border-radius:14px; padding:16px 24px; text-align:center;
-  display:none; font-size:18px; font-weight:bold; letter-spacing:0.05em;
-}
+.human-vote-buttons button { background:rgba(201,169,110,0.1); border:1px solid rgba(201,169,110,0.4); padding:8px 20px; border-radius:30px; color:var(--accent-gold); cursor:pointer; margin:5px; font-size:13px; transition:0.3s; }
+.verdict-banner { max-width:760px; margin:16px auto; border-radius:14px; padding:16px 24px; text-align:center; display:none; font-size:18px; font-weight:bold; }
 .verdict-banner.violation { background:rgba(224,112,112,0.1); border:1px solid var(--accent-red); color:#ff9999; }
-.verdict-banner.gray      { background:rgba(201,169,110,0.1); border:1px solid var(--accent-gold); color:var(--accent-gold); }
+.verdict-banner.gray { background:rgba(201,169,110,0.1); border:1px solid var(--accent-gold); color:var(--accent-gold); }
 .verdict-banner.compliant { background:rgba(126,207,160,0.1); border:1px solid var(--accent-green); color:#aaffcc; }
-
-/* 排行榜 */
-.leaderboard {
-  max-width:760px; margin:20px auto;
-  background:rgba(13,18,33,0.8); border-radius:16px; padding:18px 22px;
-  border:1px solid rgba(126,200,212,0.12);
-}
-.leaderboard h4 { font-size:12px; color:var(--accent-blue); margin-bottom:12px; letter-spacing:0.05em; }
-.lb-row { display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.04); font-size:12px; }
-.lb-rank { width:22px; color:var(--accent-gold); font-weight:bold; text-align:center; }
-.lb-name { flex:1; }
-.lb-weight { width:48px; text-align:right; color:var(--accent-blue); font-weight:bold; }
-.lb-bar-wrap { flex:2; height:5px; background:rgba(255,255,255,0.07); border-radius:10px; overflow:hidden; }
-.lb-bar { height:100%; background:linear-gradient(90deg, var(--accent-blue), var(--accent-gold)); border-radius:10px; transition:width 0.7s; }
-
-/* AI Open Route 面板 */
-.route-panel {
-  max-width:760px; margin:16px auto;
-  background:rgba(184,149,106,0.07); border-radius:14px; padding:14px 20px;
-  border:1px solid rgba(184,149,106,0.2); display:none;
-}
-.route-panel h4 { font-size:11px; color:var(--wabi-clay); margin-bottom:8px; }
-.route-item { font-size:11px; color:rgba(184,149,106,0.8); margin:4px 0; }
-
-/* ═══ 零室 (宅寂風) ═══ */
-.zero-room {
-  background: radial-gradient(ellipse at center, #0f1008, var(--bg-deep));
-  border-top:1px solid rgba(106,138,90,0.15);
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-}
-.zero-room-inner {
-  max-width:600px; text-align:center; padding:40px 30px;
-  background: rgba(13,15,10,0.6); backdrop-filter:blur(20px);
-  border-radius:30px;
-  border:1px solid rgba(106,138,90,0.2);
-  position:relative;
-}
-/* 金繼裂紋裝飾 */
-.zero-room-inner::before {
-  content:''; position:absolute; top:30%; left:10%; width:30%; height:1px;
-  background: linear-gradient(90deg, transparent, rgba(212,168,83,0.4), transparent);
-  transform: rotate(-15deg);
-}
-.zero-room-inner::after {
-  content:''; position:absolute; top:60%; right:15%; width:20%; height:1px;
-  background: linear-gradient(90deg, transparent, rgba(212,168,83,0.3), transparent);
-  transform: rotate(10deg);
-}
+.api-result-panel { max-width: 1000px; margin: 30px auto; background: rgba(13,18,33,0.9); border-radius: 25px; padding: 20px; border: 1px solid rgba(126,200,212,0.3); }
+.api-result-grid { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
+.api-card { flex: 1; min-width: 150px; background: rgba(20,30,50,0.8); border-radius: 20px; padding: 15px; text-align: center; border: 1px solid rgba(201,169,110,0.3); }
+.api-card .avatar { font-size: 40px; margin-bottom: 8px; }
+.api-card .name { font-weight: bold; font-size: 16px; margin-bottom: 5px; }
+.api-card .stance { font-size: 18px; margin: 8px 0; padding: 5px; border-radius: 20px; }
+.api-card .stance.violation { background: rgba(224,112,112,0.3); color: #ff8888; }
+.api-card .stance.gray { background: rgba(201,169,110,0.3); color: #ffcc88; }
+.api-card .stance.compliant { background: rgba(126,207,160,0.3); color: #88ffaa; }
+.api-card .reply { font-size: 11px; color: #ccc; margin-top: 8px; max-height: 50px; overflow-y: auto; }
+.api-card .cost { font-size: 10px; color: #88ddff; margin-top: 6px; }
+.vote-summary { margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.5); border-radius: 20px; text-align: center; }
+.vote-result { font-size: 22px; font-weight: bold; margin: 8px 0; }
+.stats-panel { margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.6); border-radius: 20px; }
+.stats-panel h4 { color: var(--accent-blue); margin-bottom: 10px; font-size: 14px; }
+.stats-grid { display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between; }
+.stats-box { flex: 1; min-width: 160px; background: rgba(255,255,255,0.05); border-radius: 15px; padding: 12px; }
+.stats-box strong { color: var(--accent-gold); }
+.zero-room { background: radial-gradient(ellipse at center, #0f1008, var(--bg-deep)); border-top:1px solid rgba(106,138,90,0.15); display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.zero-room-inner { max-width:600px; text-align:center; padding:40px 30px; background: rgba(13,15,10,0.6); backdrop-filter:blur(20px); border-radius:30px; border:1px solid rgba(106,138,90,0.2); position:relative; }
+.zero-room-inner::before { content:''; position:absolute; top:30%; left:10%; width:30%; height:1px; background: linear-gradient(90deg, transparent, rgba(212,168,83,0.4), transparent); transform: rotate(-15deg); }
 .zero-title { font-size:13px; letter-spacing:0.3em; color:var(--wabi-moss); margin-bottom:20px; }
 .zero-kanji { font-size:72px; color:rgba(106,138,90,0.15); margin:10px 0; line-height:1; }
 .zero-desc { font-size:12px; color:var(--text-dim); line-height:2; letter-spacing:0.05em; }
-.zero-pulse {
-  width:60px; height:60px; border-radius:50%; margin:20px auto;
-  background: rgba(106,138,90,0.1);
-  border:1px solid rgba(106,138,90,0.3);
-  animation: zeroPulse 4s ease-in-out infinite;
-  display:flex; align-items:center; justify-content:center;
-  font-size:24px;
-}
-@keyframes zeroPulse {
-  0%,100% { transform:scale(1); box-shadow:0 0 0 rgba(106,138,90,0.2); }
-  50% { transform:scale(1.05); box-shadow:0 0 30px rgba(106,138,90,0.15); }
-}
-.mambo-wave {
-  display:flex; gap:6px; justify-content:center; margin:20px 0;
-}
-.mambo-dot {
-  width:6px; height:6px; border-radius:50%; background:rgba(106,138,90,0.5);
-}
-.mambo-dot:nth-child(1) { animation: mamboWave 1.8s ease-in-out infinite 0s; }
-.mambo-dot:nth-child(2) { animation: mamboWave 1.8s ease-in-out infinite 0.2s; }
-.mambo-dot:nth-child(3) { animation: mamboWave 1.8s ease-in-out infinite 0.4s; }
-.mambo-dot:nth-child(4) { animation: mamboWave 1.8s ease-in-out infinite 0.6s; }
-.mambo-dot:nth-child(5) { animation: mamboWave 1.8s ease-in-out infinite 0.8s; }
-@keyframes mamboWave {
-  0%,100% { transform:translateY(0); opacity:0.5; }
-  50% { transform:translateY(-10px); opacity:1; }
-}
-
-/* ═══ 米米小窩 ═══ */
-.mimi-nest {
-  background: radial-gradient(ellipse at bottom, #1a1208, var(--bg-deep));
-  text-align:center;
-  border-top:1px solid rgba(201,169,110,0.1);
-}
+.zero-pulse { width:60px; height:60px; border-radius:50%; margin:20px auto; background: rgba(106,138,90,0.1); border:1px solid rgba(106,138,90,0.3); animation: zeroPulse 4s ease-in-out infinite; display:flex; align-items:center; justify-content:center; font-size:24px; }
+@keyframes zeroPulse { 0%,100% { transform:scale(1); box-shadow:0 0 0 rgba(106,138,90,0.2); } 50% { transform:scale(1.05); box-shadow:0 0 30px rgba(106,138,90,0.15); } }
+.mambo-wave { display:flex; gap:6px; justify-content:center; margin:20px 0; }
+.mambo-dot { width:6px; height:6px; border-radius:50%; background:rgba(106,138,90,0.5); animation: mamboWave 1.8s ease-in-out infinite; }
+.mambo-dot:nth-child(1) { animation-delay: 0s; }
+.mambo-dot:nth-child(2) { animation-delay: 0.2s; }
+.mambo-dot:nth-child(3) { animation-delay: 0.4s; }
+.mambo-dot:nth-child(4) { animation-delay: 0.6s; }
+.mambo-dot:nth-child(5) { animation-delay: 0.8s; }
+@keyframes mamboWave { 0%,100% { transform:translateY(0); opacity:0.5; } 50% { transform:translateY(-10px); opacity:1; } }
+.mimi-nest { background: radial-gradient(ellipse at bottom, #1a1208, var(--bg-deep)); text-align:center; border-top:1px solid rgba(201,169,110,0.1); }
 .mimi-title { font-size:36px; color:var(--accent-gold); margin-bottom:10px; font-weight:300; }
 #egg-container { cursor:pointer; display:inline-block; transition:0.6s; }
 #egg-container .egg-emoji { font-size:120px; display:block; filter:drop-shadow(0 0 20px rgba(201,169,110,0.4)); }
-.level-badge {
-  display:inline-block;
-  background: linear-gradient(135deg, var(--accent-gold), #a07840);
-  padding:7px 22px; border-radius:40px; font-size:14px; font-weight:bold;
-  margin:14px 0; color:var(--bg-deep); letter-spacing:0.05em;
-}
-.exp-bar { max-width:360px; margin:10px auto; height:8px; background:rgba(201,169,110,0.1); border-radius:20px; overflow:hidden; border:1px solid rgba(201,169,110,0.15); }
+.level-badge { display:inline-block; background: linear-gradient(135deg, var(--accent-gold), #a07840); padding:7px 22px; border-radius:40px; font-size:14px; font-weight:bold; margin:14px 0; color:var(--bg-deep); }
+.exp-bar { max-width:360px; margin:10px auto; height:8px; background:rgba(201,169,110,0.1); border-radius:20px; overflow:hidden; }
 .exp-fill { height:100%; background: linear-gradient(90deg, var(--accent-gold), #e0a040); transition:width 0.5s ease; }
 .money-display { margin-top:10px; font-size:16px; color:var(--accent-green); }
-.feed-area {
-  margin:28px auto; padding:22px; background:rgba(13,18,33,0.7);
-  border-radius:20px; border:1px solid rgba(201,169,110,0.15); max-width:760px;
-}
-.feed-area textarea {
-  width:100%; height:90px; border-radius:12px; padding:14px;
-  background:rgba(0,0,0,0.5); color:var(--text-main);
-  border:1px solid rgba(201,169,110,0.2); font-size:13px; resize:vertical;
-  font-family:inherit; letter-spacing:0.03em;
-  transition:border-color 0.3s;
-}
+.feed-area { margin:28px auto; padding:22px; background:rgba(13,18,33,0.7); border-radius:20px; border:1px solid rgba(201,169,110,0.15); max-width:760px; }
+.feed-area textarea { width:100%; height:90px; border-radius:12px; padding:14px; background:rgba(0,0,0,0.5); color:var(--text-main); border:1px solid rgba(201,169,110,0.2); font-size:13px; resize:vertical; font-family:inherit; }
 .feed-area textarea:focus { outline:none; border-color:rgba(201,169,110,0.5); }
-.feed-area textarea::placeholder { color:var(--text-dim); }
-.feed-btn {
-  margin-top:14px; background: linear-gradient(135deg, var(--accent-gold), #a07840);
-  border:none; padding:12px 28px; border-radius:40px;
-  cursor:pointer; font-size:14px; font-weight:bold; color:var(--bg-deep);
-  font-family:inherit; letter-spacing:0.05em; transition:0.3s;
-}
-.feed-btn:hover { transform:scale(1.03); box-shadow:0 6px 20px rgba(201,169,110,0.3); }
-.memory-panel {
-  max-width:760px; margin:24px auto; background:rgba(13,18,33,0.7);
-  padding:22px; border-radius:20px; text-align:left;
-  border:1px solid rgba(201,169,110,0.1);
-}
+.feed-btn { margin-top:14px; background: linear-gradient(135deg, var(--accent-gold), #a07840); border:none; padding:12px 28px; border-radius:40px; cursor:pointer; font-size:14px; font-weight:bold; color:var(--bg-deep); transition:0.3s; }
+.feed-btn:hover { transform:scale(1.03); }
+.memory-panel { max-width:760px; margin:24px auto; background:rgba(13,18,33,0.7); padding:22px; border-radius:20px; text-align:left; border:1px solid rgba(201,169,110,0.1); }
 .memory-panel h3 { color:var(--accent-gold); font-size:14px; font-weight:400; letter-spacing:0.1em; margin-bottom:14px; }
-.memory-item {
-  margin:10px 0; padding:8px 12px;
-  background:rgba(201,169,110,0.05); border-radius:10px;
-  border-left:2px solid rgba(201,169,110,0.3); font-size:12px; color:var(--text-dim);
-}
-#bite-animation { position:fixed; bottom:100px; left:50%; transform:translateX(-50%); z-index:1000; pointer-events:none; display:none; }
-#bite-animation .bite-emoji { font-size:80px; animation:biteAnim 0.8s ease-out forwards; }
-@keyframes biteAnim {
-  0%   { transform:scale(0.5) rotate(-15deg); opacity:0; }
-  30%  { transform:scale(1.3) rotate(5deg); opacity:1; }
-  70%  { transform:scale(1) rotate(-5deg); }
-  100% { transform:scale(0.8) rotate(0); opacity:0; }
-}
-
-/* 政策建議 */
-#suggestionPanel {
-  display:none; max-width:760px; margin:14px auto;
-  background:rgba(224,112,112,0.06); border:1px solid rgba(224,112,112,0.25);
-  border-radius:14px; padding:16px 22px;
-}
-.suggestion-title { font-size:11px; color:#ff9999; font-weight:bold; margin-bottom:6px; letter-spacing:0.05em; }
-#policySuggestion { font-size:12px; color:#ffcccc; line-height:1.8; }
-
-@media(max-width:768px){
-  .item{width:100px;} .item-frame{height:100px; font-size:36px;}
-  .vote-card{width:150px;} .nav-btn{padding:6px 12px;font-size:10px;}
-}
+.memory-item { margin:10px 0; padding:8px 12px; background:rgba(201,169,110,0.05); border-radius:10px; border-left:2px solid rgba(201,169,110,0.3); font-size:12px; color:var(--text-dim); }
+#bite-animation { position:fixed; bottom:100px; left:50%; transform:translateX(-50%); z-index:1000; pointer-events:none; display:none; font-size:80px; animation:biteAnim 0.8s ease-out forwards; }
+@keyframes biteAnim { 0% { transform:scale(0.5) rotate(-15deg); opacity:0; } 30% { transform:scale(1.3) rotate(5deg); opacity:1; } 100% { transform:scale(0.8) rotate(0); opacity:0; } }
+@media(max-width:768px){ .item{width:100px;} .item-frame{height:100px; font-size:36px;} .vote-card{width:150px;} .nav-btn{padding:6px 12px;font-size:10px;} }
 </style>
 </head>
 <body>
 <canvas id="stars"></canvas>
 <div class="wabi-texture"></div>
-
 <div class="nav-buttons">
   <button class="nav-btn" onclick="scrollTo('living-room')">🏠 客廳</button>
   <button class="nav-btn" onclick="scrollTo('vote-room')">🗳️ 投票牆</button>
   <button class="nav-btn" onclick="scrollTo('zero-room')">◎ 零室</button>
   <button class="nav-btn" onclick="scrollTo('mimi-nest')">🦞 米米</button>
 </div>
-
 <div class="header-title">
   <h1>🐚 波波之家 | <span>1%</span> 守護者聯盟</h1>
   <div class="kintsugi-line"></div>
-  <p>v18 · TD-Learning · 因果歸因 · Challenger/Builder · AI Open Route · 侘寂零室</p>
+  <p>v21 · 熵值決策引擎 · 精準統計 · 灰區半正確 · 宅寂零室</p>
 </div>
 
-<!-- ═══ 客廳 ═══ -->
+<!-- 客廳 -->
 <section class="living-room" id="living-room">
   <h2 class="section-title" style="color:var(--accent-gold);">🏠 波波客廳</h2>
   <div class="furniture-stage" id="furniture-stage"></div>
-
-  <!-- Challenger/Builder 模式面板 -->
   <div class="mode-panel">
     <h4>⚙️ 決策模式切換</h4>
     <div class="mode-tabs">
       <button class="mode-tab active-builder" id="tab-builder" onclick="setMode('builder')">🔨 Builder 模式</button>
       <button class="mode-tab" id="tab-challenger" onclick="setMode('challenger')">⚔️ Challenger 模式</button>
     </div>
-    <div class="mode-desc" id="mode-desc">
-      <strong style="color:var(--accent-green);">Builder 模式</strong>：AI 夥伴們協力建構最佳判斷，高信心者引導低信心者達成共識。適合快速處理廣告審查。
-    </div>
+    <div class="mode-desc" id="mode-desc"><strong style="color:var(--accent-green);">Builder 模式</strong>：AI 夥伴們協力建構最佳判斷</div>
     <div class="challenger-questions" id="challenger-questions">
       <div class="cq-item">⚠️ 這個廣告的違規判斷，有沒有可能是誤判？</div>
       <div class="cq-item">⚠️ 檢舉這件廣告，值得花的時間與成本嗎？</div>
       <div class="cq-item">⚠️ 有沒有更快的變現路徑比這個更有效率？</div>
-      <div class="cq-item">⚠️ 這個月的檢舉數量，足以覆蓋 API 費用嗎？</div>
     </div>
   </div>
-
-  <p style="margin-top:30px;color:var(--text-dim);font-size:12px;letter-spacing:0.05em;">✨ 點擊夥伴與他們對話</p>
+  <p style="margin-top:30px;color:var(--text-dim);font-size:12px;">✨ 點擊夥伴與他們對話</p>
 </section>
 
-<!-- ═══ 投票牆 ═══ -->
+<!-- 投票牆 + API 結果 + 統計 -->
 <section class="vote-room" id="vote-room">
   <h2 class="section-title">🗳️ AI 投票決議牆</h2>
-  <p style="text-align:center;font-size:11px;color:var(--text-dim);margin-top:6px;letter-spacing:0.05em;">v18 · 泡泡動畫 · Challenger 標記 · AI Open Route 備援</p>
   <div id="vote-grid" class="vote-grid"></div>
-
-  <div class="route-panel" id="route-panel">
-    <h4>🔀 AI Open Route — 備援啟動記錄</h4>
-    <div id="route-log"></div>
+  <div id="api-result-panel" class="api-result-panel" style="display:none;">
+    <div id="api-result-grid" class="api-result-grid"></div>
+    <div id="vote-summary" class="vote-summary"></div>
+    <div id="cost-summary" style="font-size:12px; color:#88ddff; margin-top:10px; text-align:center;"></div>
+  </div>
+  
+  <!-- 統計面板 -->
+  <div class="stats-panel" id="stats-panel">
+    <h4>📊 檢舉戰績中心</h4>
+    <div id="stats-overview" class="stats-grid"></div>
+    <div id="stats-ai" style="margin-top:15px;"></div>
+    <div id="stats-keywords" style="margin-top:15px;"></div>
   </div>
 
   <div class="conflict-panel" id="conflict-panel" style="display:none;">
     <h4>⚡ 策略衝突強度</h4>
-    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-dim);margin-bottom:4px;">
-      <span>低衝突 → 自動收斂</span><span>高衝突 → 需人類裁決</span>
-    </div>
     <div class="conflict-meter"><div class="conflict-fill" id="conflict-fill"></div></div>
     <div id="conflict-label" style="font-size:11px;color:var(--accent-gold);margin-top:8px;"></div>
     <div id="weighted-result" style="font-size:12px;color:#aaffcc;margin-top:6px;"></div>
   </div>
-
-  <div class="noise-log" id="noise-log">
-    <h4>🚨 系統雜訊記錄</h4>
-    <div id="noise-items"></div>
-  </div>
-
   <div class="verdict-banner" id="verdict-banner"></div>
-
-  <div id="suggestionPanel">
-    <div class="suggestion-title">📋 米米政策建議書</div>
-    <div id="policySuggestion"></div>
-  </div>
-
   <div id="debate-area" class="debate-area" style="display:none;">
     <div id="round-badge" class="round-badge"></div>
     <div id="debate-log" class="debate-log"></div>
     <div id="human-vote-buttons" class="human-vote-buttons">
-      <p>⚠️ 衝突強度過高，需要你的最終裁決：</p>
+      <p>⚠️ 需要你的最終裁決：</p>
       <button onclick="humanVote('違規 ❌')">❌ 違規</button>
       <button onclick="humanVote('灰區 ⚠️')">⚠️ 灰區</button>
       <button onclick="humanVote('合規 ✅')">✅ 合規</button>
     </div>
   </div>
-
-  <div class="leaderboard" id="leaderboard" style="display:none;">
-    <h4>🏆 AI 夥伴信心排行榜</h4>
-    <div id="lb-list"></div>
-  </div>
 </section>
 
-<!-- ═══ 零室 (宅寂風) ═══ -->
+<!-- 零室 -->
 <section class="zero-room" id="zero-room">
   <div class="zero-room-inner">
     <div class="zero-title">R O O M &nbsp; Z E R O</div>
     <div class="zero-kanji">零</div>
-    <div class="mambo-wave">
-      <div class="mambo-dot"></div>
-      <div class="mambo-dot"></div>
-      <div class="mambo-dot"></div>
-      <div class="mambo-dot"></div>
-      <div class="mambo-dot"></div>
-    </div>
+    <div class="mambo-wave"><div class="mambo-dot"></div><div class="mambo-dot"></div><div class="mambo-dot"></div><div class="mambo-dot"></div><div class="mambo-dot"></div></div>
     <div class="zero-pulse">◎</div>
-    <div class="zero-desc">
-      和解的所在<br>
-      不完美的裂痕，以金繼癒合<br>
-      所有的數據在這裡回到原點<br>
-      <br>
-      <span style="color:var(--wabi-moss);font-size:10px;">侘寂 · Wabi-Sabi · 曼波律動</span>
-    </div>
-    <div style="margin-top:24px;font-size:11px;color:rgba(106,138,90,0.5);letter-spacing:0.15em;">
-      · · · &nbsp; 此空間隨觀測者意識而變 &nbsp; · · ·
-    </div>
+    <div class="zero-desc">和解的所在<br>不完美的裂痕，以金繼癒合<br>所有的數據在這裡回到原點<br><span style="color:var(--wabi-moss);font-size:10px;">侘寂 · Wabi-Sabi · 曼波律動</span></div>
   </div>
 </section>
 
-<!-- ═══ 米米小窩 ═══ -->
+<!-- 米米小窩 -->
 <section class="mimi-nest" id="mimi-nest">
   <h2 class="mimi-title">🦞 米米的小窩</h2>
   <div id="egg-container" onclick="crackMimiEgg()">
     <span class="egg-emoji" id="mimi-emoji">🥚</span>
   </div>
-  <div id="bite-animation"><span class="bite-emoji">🦞💥</span></div>
+  <div id="bite-animation">🦞💥</div>
   <div class="level-badge" id="level-badge">Lv.1 學步期</div>
   <div id="mimi-status" style="font-size:14px;color:var(--text-dim);">EXP 0 / 100</div>
   <div class="exp-bar"><div class="exp-fill" id="exp-fill"></div></div>
@@ -556,573 +242,383 @@ section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
   <div class="feed-area">
     <textarea id="ad-input" placeholder="把你看到的廣告文字貼給米米...&#10;例如：7天淡斑！醫師推薦！限量最後3小時！保證有效！"></textarea>
     <br>
-    <button class="feed-btn" onclick="startTrial()">⚖️ 啟動三輪辯論</button>
+    <button class="feed-btn" onclick="runFourAICheck()">🚀 啟動熵值決策引擎</button>
   </div>
   <div class="memory-panel">
     <h3>🧠 米米學習日記</h3>
     <div id="memory-list"></div>
-    <button onclick="clearMemory()" style="margin-top:14px;background:rgba(201,169,110,0.1);border:1px solid rgba(201,169,110,0.3);padding:6px 16px;border-radius:20px;color:var(--accent-gold);cursor:pointer;font-family:inherit;font-size:12px;">🗑️ 清除記憶</button>
+    <button onclick="clearMemory()" style="margin-top:14px;background:rgba(201,169,110,0.1);border:1px solid rgba(201,169,110,0.3);padding:6px 16px;border-radius:20px;color:var(--accent-gold);cursor:pointer;">🗑️ 清除記憶</button>
   </div>
 </section>
 
 <script>
-// ─── 星空 ───
+// ========== 星空 ==========
 const canvas = document.getElementById("stars");
 const ctx = canvas.getContext("2d");
 let stars = [];
 function initStars() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  stars = Array.from({length:200}, () => ({
-    x: Math.random()*canvas.width, y: Math.random()*canvas.height,
-    r: Math.random()*1.5+0.3, speed: Math.random()*0.03+0.01,
-    alpha: Math.random()*0.4+0.1
-  }));
+  stars = Array.from({length:200}, () => ({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*1.5+0.3, speed: Math.random()*0.03+0.01, alpha: Math.random()*0.4+0.1 }));
 }
 function drawStars() {
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  for (let s of stars) {
-    ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
-    ctx.fillStyle = `rgba(200,220,255,${s.alpha})`; ctx.fill();
-    s.y += s.speed; if (s.y > canvas.height) s.y = 0;
-  }
+  for (let s of stars) { ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fillStyle = `rgba(200,220,255,${s.alpha})`; ctx.fill(); s.y += s.speed; if (s.y > canvas.height) s.y = 0; }
   requestAnimationFrame(drawStars);
 }
 window.addEventListener("resize", initStars);
 initStars(); drawStars();
-
 function scrollTo(id) { document.getElementById(id).scrollIntoView({behavior:'smooth'}); }
 
-// ─── 系統狀態 ───
-let mimiMemory = JSON.parse(localStorage.getItem('mimi_memory') || '[]');
-let hasHatched = localStorage.getItem('mimi_hatched') === 'true';
-let currentLevel = parseInt(localStorage.getItem('mimi_level') || '1');
-let exp = parseInt(localStorage.getItem('mimi_exp') || '0');
-let mimiMoney = parseInt(localStorage.getItem('mimi_money') || '0');
-let currentMode = 'builder'; // 'builder' | 'challenger'
-let humanOverrideCount = 0;
-const MAX_OVERRIDES = 3;
-let lastAiList = [];
-let currentAdText = "";
-
-const levelSystem = {1:"學步期",2:"觀察期",3:"判斷期",4:"協作期",5:"多AI分歧期",6:"策略整合期",7:"治理成熟期"};
-const levelSkills = {1:"單一AI回應學習",2:"多AI基礎投票",3:"API故障切換",4:"Gacha決策系統",5:"分歧偵測",6:"圖像生成委派",7:"完整編排+共識記憶"};
-
-// ─── AI 夥伴定義 ───
-// apiHealth: 1=正常, 0.5=低電量, 0=耗盡（open route會跳過）
+// ========== AI 夥伴定義（9位） ==========
 const AI_PARTNERS = [
-  { name:"Meta魚缸", avatar:"🐠", emoji:"🐠", domainId:"general",  confidence:0.70, stance:"", evidence:"", line:"", role:"neutral",     apiHealth:1.0 },
-  { name:"Grok",     avatar:"🧠", emoji:"🧠", domainId:"legal",    confidence:0.70, stance:"", evidence:"", line:"", role:"challenger",  apiHealth:1.0 },
-  { name:"Gemini",   avatar:"🔭", emoji:"🔭", domainId:"risk",     confidence:0.70, stance:"", evidence:"", line:"", role:"builder",    apiHealth:1.0 },
-  { name:"DeepSeek", avatar:"🐋", emoji:"🐋", domainId:"archive",  confidence:0.70, stance:"", evidence:"", line:"", role:"builder",    apiHealth:1.0 },
-  { name:"千問",     avatar:"🌊", emoji:"🌊", domainId:"semantic", confidence:0.70, stance:"", evidence:"", line:"", role:"neutral",    apiHealth:1.0 },
-  { name:"ChatGPT",  avatar:"🤖", emoji:"🤖", domainId:"logic",    confidence:0.70, stance:"", evidence:"", line:"", role:"challenger", apiHealth:1.0 }
+  { name:"Meta魚缸", avatar:"🐠", emoji:"🐠", role:"neutral", confidence:0.70, apiHealth:1.0 },
+  { name:"Grok", avatar:"🧠", emoji:"🧠", role:"challenger", confidence:0.70, apiHealth:1.0 },
+  { name:"Gemini", avatar:"🔭", emoji:"🔭", role:"builder", confidence:0.70, apiHealth:1.0 },
+  { name:"DeepSeek", avatar:"🐋", emoji:"🐋", role:"builder", confidence:0.70, apiHealth:1.0 },
+  { name:"千問", avatar:"🌊", emoji:"🌊", role:"neutral", confidence:0.70, apiHealth:1.0 },
+  { name:"ChatGPT", avatar:"🤖", emoji:"🤖", role:"challenger", confidence:0.70, apiHealth:1.0 },
+  { name:"Claude", avatar:"📜", emoji:"📜", role:"builder", confidence:0.70, apiHealth:1.0 },
+  { name:"豆包", avatar:"🫘", emoji:"🫘", role:"neutral", confidence:0.70, apiHealth:1.0 },
+  { name:"Kimi", avatar:"📚", emoji:"📚", role:"challenger", confidence:0.70, apiHealth:1.0 }
 ];
+let currentMode = 'builder';
+let mimiExp = parseInt(localStorage.getItem('mimiExp') || '0');
+let mimiMoney = parseInt(localStorage.getItem('mimi_money') || '0');
+let mimiMemory = JSON.parse(localStorage.getItem('mimi_memory_v2') || '[]');
+let hasHatched = localStorage.getItem('mimi_hatched') === 'true';
+let currentLevel = 1;
+const LEVEL_CONFIG = { 1: { name: "Lv.1 學步期", expNeeded: 0 }, 2: { name: "Lv.2 觀察期", expNeeded: 20 }, 3: { name: "Lv.3 應變期", expNeeded: 40 }, 4: { name: "Lv.4 扭蛋決策", expNeeded: 60 }, 5: { name: "Lv.5 偵測期", expNeeded: 80 }, 6: { name: "Lv.6 創作期", expNeeded: 100 }, 7: { name: "Lv.7 守護者", expNeeded: 130 } };
 
-let aiWeights = JSON.parse(localStorage.getItem('ai_weights') || 'null');
-if (!aiWeights) {
-  aiWeights = {};
-  AI_PARTNERS.forEach(ai => { aiWeights[ai.name] = 0.70; });
+function updateLevel() {
+  let newLevel = 1;
+  for (let lvl = 7; lvl >= 1; lvl--) { if (mimiExp >= LEVEL_CONFIG[lvl].expNeeded) { newLevel = lvl; break; } }
+  currentLevel = newLevel;
+  document.getElementById('level-badge').innerHTML = `${LEVEL_CONFIG[currentLevel].name}`;
+  document.getElementById('exp-fill').style.width = Math.min(100, (mimiExp / 130) * 100) + '%';
+  if (currentLevel >= 3) document.getElementById('mimi-emoji').innerHTML = '🦐🌟';
+  if (currentLevel >= 6) document.getElementById('mimi-emoji').innerHTML = '🦞✨';
 }
-AI_PARTNERS.forEach(ai => { ai.confidence = aiWeights[ai.name] || 0.70; });
+function addEXP(amount) { mimiExp += amount; localStorage.setItem('mimiExp', mimiExp); updateLevel(); }
+function addMemory(text) { mimiMemory.unshift({ time: new Date().toLocaleTimeString('zh-TW'), msg: text }); if (mimiMemory.length > 20) mimiMemory.pop(); localStorage.setItem('mimi_memory_v2', JSON.stringify(mimiMemory)); renderMemory(); }
+function renderMemory() { const container = document.getElementById('memory-list'); if (!container) return; container.innerHTML = mimiMemory.map(m => `<div class="memory-item">${m.time} ${m.msg}</div>`).join('') || '<div>還沒有記憶...</div>'; }
+function clearMemory() { mimiMemory = []; localStorage.setItem('mimi_memory_v2', '[]'); renderMemory(); addMemory('記憶已清除'); }
+function updateUI() { document.getElementById('money-display').innerText = mimiMoney; }
+function playBiteAnimation() { const el = document.getElementById('bite-animation'); el.style.display = 'block'; setTimeout(() => el.style.display = 'none', 800); }
+function crackMimiEgg() { if (hasHatched) return; const egg = document.getElementById('mimi-emoji'); egg.style.transform = 'scale(1.2)'; setTimeout(() => { egg.innerHTML = '🦐'; egg.style.transform = 'scale(1)'; hasHatched = true; localStorage.setItem('mimi_hatched', 'true'); addMemory('🥚✨ 米米破殼了！'); addEXP(20); }, 600); }
+function setMode(mode) { currentMode = mode; document.getElementById('tab-builder').className = 'mode-tab ' + (mode==='builder' ? 'active-builder' : ''); document.getElementById('tab-challenger').className = 'mode-tab ' + (mode==='challenger' ? 'active-challenger' : ''); document.getElementById('challenger-questions').classList.toggle('show', mode==='challenger'); addMemory(`切換到 ${mode==='builder' ? 'Builder' : 'Challenger'} 模式`); }
+function focusPartner(name) { addMemory(`點擊 ${name}，EXP +5`); addEXP(5); }
 
-// ─── AI Open Route ───
-// 當某AI apiHealth <= 0.3，自動標記為備援，由下一個健康的AI頂替
-function getActiveAIs() {
-  const active = AI_PARTNERS.filter(ai => ai.apiHealth > 0.3);
-  const fallen = AI_PARTNERS.filter(ai => ai.apiHealth <= 0.3);
-  if (fallen.length > 0) {
-    showRoutePanel(fallen, active);
-  }
-  return active;
-}
-function showRoutePanel(fallen, active) {
-  const panel = document.getElementById('route-panel');
-  const log = document.getElementById('route-log');
-  panel.style.display = 'block';
-  log.innerHTML = fallen.map(ai =>
-    `<div class="route-item">⚠️ ${ai.avatar} ${ai.name} API 額度耗盡 → 由其他夥伴補位</div>`
-  ).join('') + `<div class="route-item" style="color:var(--accent-green);">✅ 目前活躍：${active.map(a=>a.name).join('、')}</div>`;
-}
-// 模擬：每次審查消耗一點apiHealth（實際使用時接真實API回傳）
-function consumeApiHealth() {
-  AI_PARTNERS.forEach(ai => {
-    const consumption = Math.random() * 0.05;
-    ai.apiHealth = Math.max(0, ai.apiHealth - consumption);
-  });
-  renderFurniture();
-}
-
-// ─── 模式切換 ───
-function setMode(mode) {
-  currentMode = mode;
-  const tabB = document.getElementById('tab-builder');
-  const tabC = document.getElementById('tab-challenger');
-  const desc = document.getElementById('mode-desc');
-  const cq = document.getElementById('challenger-questions');
-
-  tabB.className = 'mode-tab' + (mode==='builder' ? ' active-builder' : '');
-  tabC.className = 'mode-tab' + (mode==='challenger' ? ' active-challenger' : '');
-
-  if (mode === 'builder') {
-    desc.innerHTML = '<strong style="color:var(--accent-green);">Builder 模式</strong>：AI 夥伴們協力建構最佳判斷，高信心者引導低信心者達成共識。適合快速處理廣告審查。';
-    cq.classList.remove('show');
-  } else {
-    desc.innerHTML = '<strong style="color:var(--accent-red);">Challenger 模式</strong>：專門負責質疑、拆解、找漏洞。當所有 AI 都想幫你完成夢想時，有人負責確保你不會因為夢想而撐不下去。';
-    cq.classList.add('show');
-  }
-  saveMemory(`⚙️ 切換到${mode === 'builder' ? 'Builder建構' : 'Challenger挑戰'}模式`);
-}
-
-// ─── 客廳渲染 ───
 function renderFurniture() {
   const stage = document.getElementById('furniture-stage');
-  const roleLabel = { builder:'🔨 Builder', challenger:'⚔️ Challenger', neutral:'◎ 中立' };
   const roleClass = { builder:'role-builder', challenger:'role-challenger', neutral:'role-neutral' };
-  const healthColor = (h) => h > 0.6 ? '#7ecfa0' : h > 0.3 ? '#ffaa66' : '#e07070';
-  const healthClass = (h) => h > 0.6 ? 'api-ok' : h > 0.3 ? 'api-low' : 'api-dead';
-  const idMap = { "Meta魚缸":"metaai","Grok":"grok","Gemini":"gemini","DeepSeek":"deepseek","千問":"qwen","ChatGPT":"chatgpt" };
+  const roleLabel = { builder:'🔨 Builder', challenger:'⚔️ Challenger', neutral:'◎ 中立' };
   stage.innerHTML = AI_PARTNERS.map(ai => `
-    <div class="item" onclick="focusPartner('${idMap[ai.name]}')">
+    <div class="item" onclick="focusPartner('${ai.name}')">
       <div class="item-frame">${ai.emoji}</div>
-      <div class="name-tag">
-        <span class="api-light ${healthClass(ai.apiHealth)}"></span>${ai.name}
-      </div>
+      <div class="name-tag"><span class="api-light"></span>${ai.name}</div>
       <span class="role-tag ${roleClass[ai.role]}">${roleLabel[ai.role]}</span>
-      <div class="conf-bar-wrap">
-        <div class="conf-bar" id="cb-${idMap[ai.name]}"
-          style="width:${(ai.confidence*100).toFixed(0)}%;background:${healthColor(ai.apiHealth)};"></div>
-      </div>
+      <div class="conf-bar-wrap"><div class="conf-bar" style="width:${ai.confidence*100}%;background:#7ecfa0;"></div></div>
     </div>
   `).join('');
 }
 
-const partnerReplies = {
-  metaai:"🐠 魚缸偵測到誇大用詞！中立觀察員已就位，隨時分析廣告～",
-  grok:"🧠 Challenger 模式就緒！給我看看這廣告有多少漏洞！",
-  gemini:"🔭 Builder 星空望遠鏡對準中，我幫你預測下一個違規模式！",
-  deepseek:"🐋 深海檔案室已開放，Builder 建構最強證據鏈！",
-  qwen:"🌊 中立分析師就位，語意掃描待命～",
-  chatgpt:"🤖 Challenger 已啟動！這廣告真的值得檢舉嗎？讓我質疑一下！"
-};
+// ========== 案件資料庫（v21 修正：normalize） ==========
+let caseDB = JSON.parse(localStorage.getItem('mimi_caseDB_v21') || '[]');
 
-function focusPartner(id) {
-  const ai = AI_PARTNERS.find(a => ({metaai:"Meta魚缸",grok:"Grok",gemini:"Gemini",deepseek:"DeepSeek",qwen:"千問",chatgpt:"ChatGPT"}[id] === a.name));
-  if (!ai) return;
-  const healthStr = ai.apiHealth > 0.6 ? '✅ 正常' : ai.apiHealth > 0.3 ? '⚠️ 低電量' : '❌ 耗盡（備援中）';
-  alert(`💬 ${ai.name}：${partnerReplies[id]}\n\n📊 信心值：${(ai.confidence*100).toFixed(0)}%\n🔋 API 狀態：${healthStr}\n🎭 角色：${ai.role === 'builder' ? 'Builder 建構者' : ai.role === 'challenger' ? 'Challenger 挑戰者' : '中立觀察員'}`);
-  saveMemory(`💬 點擊 ${ai.name}（${(ai.confidence*100).toFixed(0)}%，${healthStr}）`);
-  addEXP(3);
+function normalizeCase(c) {
+  return {
+    ...c,
+    cost: Number(c.cost || 0),
+    roi: Number(c.roi || 0),
+    text: (c.text || '').toLowerCase()
+  };
 }
 
-// ─── 記憶系統 ───
-function saveMemory(text) {
-  mimiMemory.unshift({time: new Date().toLocaleTimeString('zh-TW'), msg: text});
-  if (mimiMemory.length > 40) mimiMemory.pop();
-  localStorage.setItem('mimi_memory', JSON.stringify(mimiMemory));
-  renderMemory();
-}
-function renderMemory() {
-  const c = document.getElementById('memory-list');
-  if (!c) return;
-  c.innerHTML = mimiMemory.length === 0
-    ? '<div style="color:var(--text-dim);font-size:12px;">還沒有記憶...貼廣告啟動三輪辯論吧！</div>'
-    : mimiMemory.map(m => `<div class="memory-item">${m.time} ${m.msg}</div>`).join('');
-}
-function clearMemory() {
-  mimiMemory = []; localStorage.setItem('mimi_memory', JSON.stringify(mimiMemory));
-  renderMemory(); saveMemory('🧹 記憶已清除');
-}
-
-// ─── 米米蛋 ───
-function crackMimiEgg() {
-  const emoji = document.getElementById('mimi-emoji');
-  if (hasHatched) { emoji.textContent = '🦞'; saveMemory('🦞 米米開心地看著你'); return; }
-  emoji.style.transform = 'scale(1.3) rotate(10deg)';
-  setTimeout(() => {
-    emoji.textContent = '🦞'; emoji.style.transform = 'scale(1) rotate(0)';
-    hasHatched = true; localStorage.setItem('mimi_hatched','true');
-    saveMemory('🥚✨ 米米破殼了！'); addEXP(15);
-  }, 600);
-}
-function playBiteAnimation() {
-  const d = document.getElementById('bite-animation');
-  d.style.display = 'block';
-  setTimeout(() => { d.style.display = 'none'; }, 900);
-}
-function updateUI() {
-  const badge = document.getElementById('level-badge');
-  const status = document.getElementById('mimi-status');
-  const fill = document.getElementById('exp-fill');
-  const money = document.getElementById('money-display');
-  if (badge) badge.innerHTML = `Lv.${currentLevel} ${levelSystem[currentLevel]} · ${levelSkills[currentLevel]}`;
-  if (status) status.innerHTML = `EXP ${exp} / ${currentLevel*100}`;
-  if (money) money.textContent = mimiMoney;
-  if (fill) fill.style.width = Math.min(100,(exp/(currentLevel*100))*100)+'%';
-}
-function addEXP(n) {
-  exp += n; localStorage.setItem('mimi_exp', exp);
-  if (exp >= currentLevel*100 && currentLevel < 7) {
-    exp -= currentLevel*100; currentLevel++;
-    localStorage.setItem('mimi_level', currentLevel);
-    localStorage.setItem('mimi_exp', exp);
-    saveMemory(`✨ 升級！Lv.${currentLevel} ${levelSystem[currentLevel]} 解鎖「${levelSkills[currentLevel]}」`);
-  }
-  updateUI();
-}
-
-// ─── 信心條更新 ───
-function updateConfidenceBars() {
-  const idMap = {"Meta魚缸":"metaai","Grok":"grok","Gemini":"gemini","DeepSeek":"deepseek","千問":"qwen","ChatGPT":"chatgpt"};
-  AI_PARTNERS.forEach(ai => {
-    const el = document.getElementById(`cb-${idMap[ai.name]}`);
-    if (el) {
-      const pct = (ai.confidence*100).toFixed(0);
-      el.style.width = pct+'%';
-      el.style.background = ai.confidence>=0.75 ? '#7ecfa0' : ai.confidence>=0.55 ? '#7ec8d4' : '#c9a96e';
-    }
+function saveCase(caseData) {
+  const normalized = normalizeCase(caseData);
+  caseDB.unshift({
+    id: Date.now(),
+    time: new Date().toLocaleString('zh-TW'),
+    ...normalized
   });
-}
-function saveWeights() {
-  AI_PARTNERS.forEach(ai => { aiWeights[ai.name] = ai.confidence; });
-  localStorage.setItem('ai_weights', JSON.stringify(aiWeights));
-}
-
-// ─── 決策計算 ───
-function getWeightedDecision(aiList) {
-  const scores = {"違規 ❌":0,"灰區 ⚠️":0,"合規 ✅":0};
-  let total = 0;
-  aiList.forEach(ai => { scores[ai.stance] += ai.confidence; total += ai.confidence; });
-  let winner = "灰區 ⚠️", maxScore = 0;
-  for (let [s,v] of Object.entries(scores)) { if (v > maxScore) { maxScore = v; winner = s; } }
-  return { stance: winner, weightPct: (maxScore/total*100).toFixed(1), scores };
-}
-function conflictIntensity(aiList) {
-  const scores = {"違規 ❌":0,"灰區 ⚠️":0,"合規 ✅":0};
-  let total = 0;
-  aiList.forEach(ai => { scores[ai.stance] += ai.confidence; total += ai.confidence; });
-  let entropy = 0;
-  for (let s of Object.values(scores)) { if(s>0){ const p=s/total; entropy -= p*Math.log2(p); } }
-  return Math.min(1, entropy / Math.log2(3));
+  if (caseDB.length > 200) caseDB.pop();
+  localStorage.setItem('mimi_caseDB_v21', JSON.stringify(caseDB));
+  renderStats();
 }
 
-// ─── TD Learning + 因果歸因 ───
-function applyHumanFeedback(aiList, humanChoice, failureReason=null) {
-  if (failureReason === 'SYSTEM_BUG') {
-    addDebateLog('🔧 系統雜訊偵測 → AI 信心值不懲罰，僅記錄', 'v16');
-    saveMemory('🚨 系統雜訊記錄 → 建議列入政府政策改進清單');
-    return { updated:false, reason:'system_noise' };
+// ========== v21 修正：熵值計算（取代假 confidence） ==========
+function calculateEntropy(v, g, c) {
+  const total = v + g + c;
+  if (total === 0) return 0;
+  const p = [v, g, c].map(x => x / total);
+  return -p.reduce((sum, val) => sum + (val > 0 ? val * Math.log2(val) : 0), 0);
+}
+
+// ========== v21 修正：正確的 AI 準確率計算（灰區給 0.5 分） ==========
+function isCorrectPrediction(verdict, stance) {
+  const isViolation = verdict.includes('違規');
+  
+  if (stance === 'gray') return 0.5;  // 灰區算半正確
+  
+  if (isViolation && stance === 'violation') return 1;
+  if (!isViolation && stance === 'compliant') return 1;
+  
+  return 0;
+}
+
+// ========== v21 修正：簡化的 shouldCallThirdLayer ==========
+function shouldCallThirdLayer({ v, g, c, costSoFar }) {
+  const total = v + g + c;
+  if (total === 0) return false;
+  
+  const entropy = calculateEntropy(v, g, c);
+  const confidence = Math.max(v, g, c) / total;
+  
+  // budget guard：成本太高就不再加碼
+  if (costSoFar > 0.002) return false;
+  // 高分歧（熵 > 0.9）→ 需要更多判斷
+  if (entropy > 0.9) return true;
+  // 低信心 → 需要更多判斷
+  if (confidence < 0.6) return true;
+  
+  return false;
+}
+
+// ========== API 串接 ==========
+const API_ENDPOINT = 'https://mimi-home.vercel.app/api/chat';
+
+async function callAI(apiId, message) {
+  try {
+    const response = await fetch(API_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ apiId, message })
+    });
+    const data = await response.json();
+    return data.reply || '沒有回應';
+  } catch (error) {
+    console.error(`${apiId} 失敗:`, error);
+    return 'API 連線失敗';
   }
-  let totalUpdate = 0;
-  aiList.forEach(ai => {
-    const predicted = (ai.stance === humanChoice) ? 1 : 0;
-    let reward = humanChoice==="違規 ❌" ? 1.0 : humanChoice==="灰區 ⚠️" ? 0.5 : 0.0;
-    const error = reward - predicted;
-    const delta = 0.12 * error * (ai.confidence + 0.2);
-    ai.confidence = Math.max(0.15, Math.min(0.96, ai.confidence + delta));
-    totalUpdate += Math.abs(delta);
-    addDebateLog(`${ai.name} ${delta>=0?'↑':'↓'} ${(delta*100).toFixed(1)}% (誤差 ${error.toFixed(2)})`, 'v16');
-  });
-  saveWeights(); updateConfidenceBars(); renderLeaderboard(aiList);
-  addDebateLog(`🧠 TD-Learning 完成（總更新強度 ${(totalUpdate*100).toFixed(1)}%）`, 'v16');
-  saveMemory(`📊 人類裁決「${humanChoice}」觸發因果學習`);
-  return { updated:true, reason:'success' };
 }
 
-// ─── 說服邏輯（Builder模式） ───
-function runPersuasionLogic(aiList) {
-  if (currentMode !== 'builder') return aiList; // Challenger模式不說服
-  const newList = [...aiList];
-  const leader = newList.filter(a=>a.stance==='違規 ❌').sort((a,b)=>b.confidence-a.confidence)[0];
-  if (!leader) return newList;
-  for (let i=0; i<newList.length; i++) {
-    const ai = newList[i];
-    if (ai.stance !== '違規 ❌' && leader.confidence > ai.confidence + 0.05) {
-      newList[i] = {...ai, stance:'違規 ❌', line:`被 ${leader.name}（${(leader.confidence*100).toFixed(0)}%）說服，更新判斷為違規`};
-      addDebateLog(`✨ ${ai.name} 被 ${leader.name} 說服，改為「違規 ❌」`, 'evidence');
-    }
+// v21：mockAI 保留標示，不影響準確率統計
+function mockAI(adText) {
+  const hasViolation = /保證|100%|立即見效|三天|醫師推薦|治療|根治|瘦10公斤/.test(adText);
+  const hasGray = /限量|最後|不買就沒了|瘋搶/.test(adText);
+  if (hasViolation) return { stance: 'violation', reply: '[Mock] 這則廣告有誇大不實的疑慮。' };
+  if (hasGray) return { stance: 'gray', reply: '[Mock] 這則廣告使用了限時限量用語。' };
+  return { stance: 'compliant', reply: '[Mock] 這則廣告看起來沒有明顯違規。' };
+}
+
+function parseStance(reply) {
+  if (reply.includes('違規') || reply.includes('❌')) return 'violation';
+  if (reply.includes('灰區') || reply.includes('⚠️')) return 'gray';
+  if (reply.includes('合規') || reply.includes('✅')) return 'compliant';
+  if (reply.match(/誇大|不實|療效|保證/)) return 'violation';
+  if (reply.match(/疑慮|邊緣/)) return 'gray';
+  return 'compliant';
+}
+
+// ========== 主函數：三層熵值決策引擎 ==========
+async function runFourAICheck() {
+  const adText = document.getElementById('ad-input').value.trim();
+  if (!adText) { alert('請輸入廣告文字！'); return; }
+  addMemory(`📥 啟動熵值決策引擎：「${adText.substring(0,40)}...」`);
+  
+  const panel = document.getElementById('api-result-panel');
+  const grid = document.getElementById('api-result-grid');
+  panel.style.display = 'block';
+  grid.innerHTML = `<div class="api-card" style="width:100%;text-align:center;">🤔 熵值決策引擎運行中...</div>`;
+  
+  let results = {};
+  let totalCost = 0;
+  
+  // ===== 第1層（便宜）：DeepSeek + Gemini =====
+  const layer1 = [
+    { id: 'deepseek', name: 'DeepSeek', avatar: '🐋', cost: 0.00003 },
+    { id: 'gemini', name: 'Gemini', avatar: '🔭', cost: 0.00006 }
+  ];
+  
+  for (let ai of layer1) {
+    const reply = await callAI(ai.id, `請判斷以下廣告是否違規，只回答「違規 ❌」「灰區 ⚠️」「合規 ✅」並簡單說明理由：${adText}`);
+    const stance = parseStance(reply);
+    results[ai.id] = { name: ai.name, avatar: ai.avatar, stance, reply, cost: ai.cost };
+    totalCost += ai.cost;
   }
-  return newList;
-}
-
-// ─── Challenger 質疑邏輯 ───
-function runChallengerLogic(aiList, adText) {
-  if (currentMode !== 'challenger') return aiList;
-  const challengers = aiList.filter(ai => ai.role === 'challenger');
-  challengers.forEach(ai => {
-    // Challenger會質疑過於強烈的違規判斷
-    if (ai.stance === '違規 ❌' && ai.confidence < 0.7) {
-      addDebateLog(`⚔️ ${ai.name}（Challenger）：「這個判斷有多少把握？需要更多證據。」`, 'challenger');
-    }
-    // Challenger會問變現性
-    addDebateLog(`⚔️ ${ai.name}（Challenger）：「這件檢舉的時間成本 vs 獎金，划算嗎？」`, 'challenger');
+  
+  // 統計第1層結果
+  let v = 0, g = 0, c = 0;
+  Object.values(results).forEach(r => {
+    if (r.stance === 'violation') v++;
+    else if (r.stance === 'gray') g++;
+    else c++;
   });
-  return aiList;
-}
-
-// ─── 投票牆渲染 ───
-function renderVotes(aiList) {
-  const container = document.getElementById('vote-grid');
-  container.innerHTML = aiList.map((ai, idx) => {
-    const cc = ai.stance.includes('違規')?'violation':ai.stance.includes('灰區')?'gray':'compliant';
-    const pct = (ai.confidence*100).toFixed(0);
-    const col = ai.confidence>=0.75?'#7ecfa0':ai.confidence>=0.55?'#7ec8d4':'#c9a96e';
-    const isFallback = ai.apiHealth <= 0.3;
-    const isChallenger = ai.role === 'challenger';
+  
+  // ===== 判斷是否需要第2層（ChatGPT）=====
+  const needLayer2 = shouldCallThirdLayer({ v, g, c, costSoFar: totalCost });
+  
+  if (needLayer2) {
+    addMemory(`📊 熵值判斷：需要第2層分析（分歧高/信心低）`);
+    const reply = await callAI('chatgpt', `請判斷以下廣告是否違規，只回答「違規 ❌」「灰區 ⚠️」「合規 ✅」並簡單說明理由：${adText}`);
+    const stance = parseStance(reply);
+    results['chatgpt'] = { name: 'ChatGPT', avatar: '🤖', stance, reply, cost: 0.0005 };
+    totalCost += 0.0005;
+    
+    // 重新統計
+    v = 0; g = 0; c = 0;
+    Object.values(results).forEach(r => {
+      if (r.stance === 'violation') v++;
+      else if (r.stance === 'gray') g++;
+      else c++;
+    });
+  } else {
+    addMemory(`📊 熵值判斷：跳過第2層（節省成本）`);
+  }
+  
+  // ===== 判斷是否需要第3層（昂貴 Claude）=====
+  const needLayer3 = shouldCallThirdLayer({ v, g, c, costSoFar: totalCost });
+  
+  if (needLayer3) {
+    addMemory(`📊 熵值判斷：需要第3層深度分析`);
+    const mock = mockAI(adText);
+    results['claude'] = { name: 'Claude', avatar: '📜', stance: mock.stance, reply: mock.reply + ' [Mock]', cost: 0.001 };
+    totalCost += 0.001;
+  }
+  
+  // ===== 最終判決 =====
+  v = 0; g = 0; c = 0;
+  Object.values(results).forEach(r => {
+    if (r.stance === 'violation') v++;
+    else if (r.stance === 'gray') g++;
+    else c++;
+  });
+  
+  let finalVerdict = '';
+  let finalColor = '';
+  let verdictText = '';
+  if (v >= 2) { verdictText = '違規 ❌'; finalColor = '#ff8888'; mimiMoney += 20; localStorage.setItem('mimi_money', mimiMoney); updateUI(); playBiteAnimation(); addMemory(`💰 判決違規！+20元`); addEXP(15); }
+  else if (g >= 2) { verdictText = '灰區 ⚠️'; finalColor = '#ffcc88'; addMemory(`⚠️ 判決灰區`); addEXP(8); }
+  else { verdictText = '合規 ✅'; finalColor = '#88ffaa'; addMemory(`✅ 判決合規`); addEXP(5); }
+  
+  // 計算熵值
+  const entropy = calculateEntropy(v, g, c);
+  const confidence = Math.max(v, g, c) / (v + g + c);
+  
+  // 儲存案件（v21：使用正確的準確率計算）
+  const aiVotes = {};
+  for (let [id, r] of Object.entries(results)) {
+    aiVotes[id] = { stance: r.stance };
+  }
+  saveCase({
+    text: adText,
+    verdict: verdictText,
+    v, g, c,
+    entropy,
+    confidence,
+    cost: totalCost,
+    aiVotes
+  });
+  
+  // 顯示結果 UI
+  const resultsArray = Object.entries(results).map(([id, r]) => ({ id, ...r }));
+  grid.innerHTML = resultsArray.map(r => {
+    const stanceClass = r.stance === 'violation' ? 'violation' : (r.stance === 'gray' ? 'gray' : 'compliant');
+    const stanceText = r.stance === 'violation' ? '違規 ❌' : (r.stance === 'gray' ? '灰區 ⚠️' : '合規 ✅');
     return `
-    <div class="vote-card ${cc}" data-index="${idx}">
-      ${isChallenger ? '<div class="challenger-badge">⚔️ Challenger</div>' : ''}
-      ${isFallback ? '<div class="fallback-badge">🔀 備援</div>' : ''}
-      <div class="chat-bubble">💬 ${ai.stance}</div>
-      <h4>${ai.avatar} ${ai.name}</h4>
-      <div class="result">${ai.stance}</div>
-      <div class="evidence">📜 ${ai.evidence}<br>💬 ${ai.line}</div>
-      <div class="conf-label">信心值</div>
-      <div class="conf-value" style="color:${col}">${pct}%</div>
-      <div class="confidence-bar-wrap" style="margin-top:4px;">
-        <div class="confidence-bar" style="width:${pct}%;background:${col};"></div>
+      <div class="api-card">
+        <div class="avatar">${r.avatar}</div>
+        <div class="name">${r.name}</div>
+        <div class="stance ${stanceClass}">${stanceText}</div>
+        <div class="reply">${(r.reply || '').substring(0,60)}</div>
+        <div class="cost">💰 ~$${r.cost.toFixed(5)}</div>
       </div>
-      <div class="weight-badge">權重 ${pct}%</div>
-    </div>`;
+    `;
   }).join('');
-  container.querySelectorAll('.vote-card').forEach(card => {
-    setTimeout(() => card.classList.add('visible'), parseInt(card.dataset.index)*120);
-  });
+  
+  document.getElementById('vote-summary').innerHTML = `
+    <div>📊 投票統計</div>
+    <div class="vote-result" style="color:${finalColor}">${verdictText}</div>
+    <div style="display:flex; justify-content:center; gap:20px;">
+      <span>❌ 違規: ${v}</span>
+      <span>⚠️ 灰區: ${g}</span>
+      <span>✅ 合規: ${c}</span>
+    </div>
+    <div style="margin-top:10px; font-size:12px;">📐 熵值: ${entropy.toFixed(2)} | 信心: ${(confidence*100).toFixed(0)}%</div>
+  `;
+  document.getElementById('cost-summary').innerHTML = `💰 本次審查總成本：~$${totalCost.toFixed(5)} 美元`;
 }
 
-function renderConflictPanel(aiList, intensity, wr) {
-  const panel = document.getElementById('conflict-panel');
-  const fill = document.getElementById('conflict-fill');
-  const label = document.getElementById('conflict-label');
-  const weighted = document.getElementById('weighted-result');
-  panel.style.display='block';
-  const pct=(intensity*100).toFixed(0);
-  fill.style.width=pct+'%';
-  fill.style.background = intensity>0.7?'#e07070':intensity>0.4?'#c9a96e':'#7ecfa0';
-  label.innerHTML = intensity>0.7
-    ? `⚠️ 高衝突（${pct}%）→ 需要人類介入裁決`
-    : intensity>0.4
-    ? `🟡 中等衝突（${pct}%）→ 系統嘗試自動收斂`
-    : `✅ 低衝突（${pct}%）→ 系統自動收斂`;
-  weighted.innerHTML = `📊 加權結果：<strong>${wr.stance}</strong>（支持率 ${wr.weightPct}%）`;
-}
-
-function renderLeaderboard(aiList) {
-  const lb = document.getElementById('leaderboard');
-  const list = document.getElementById('lb-list');
-  lb.style.display='block';
-  const sorted = [...aiList].sort((a,b)=>b.confidence-a.confidence);
-  const maxConf = sorted[0].confidence;
-  list.innerHTML = sorted.map((ai,idx) => `
-    <div class="lb-row">
-      <div class="lb-rank">${['🥇','🥈','🥉','④','⑤','⑥'][idx]}</div>
-      <div class="lb-name">${ai.avatar} ${ai.name} <span style="font-size:9px;color:var(--text-dim);">[${ai.role}]</span></div>
-      <div class="lb-bar-wrap"><div class="lb-bar" style="width:${(ai.confidence/maxConf*100).toFixed(0)}%"></div></div>
-      <div class="lb-weight">${(ai.confidence*100).toFixed(0)}%</div>
-    </div>`).join('');
-}
-
-// ─── 辯論日誌 ───
-function addDebateLog(text, type) {
-  const logDiv = document.getElementById('debate-log');
-  const cls = type==='evidence'?'debate-evidence':type==='system'?'debate-system':type==='v16'?'debate-v16':type==='challenger'?'debate-challenger':type==='fallback'?'debate-fallback':'debate-line';
-  logDiv.innerHTML += `<div class="${cls}">${text}</div>`;
-  logDiv.scrollTop = logDiv.scrollHeight;
-}
-function clearDebateLog() { document.getElementById('debate-log').innerHTML=''; }
-function showDebateArea(v) { document.getElementById('debate-area').style.display=v?'block':'none'; }
-function setRound(r) {
-  const names={1:'🥇 第一輪：AI 初判',2:'🥈 第二輪：說服/挑戰',3:'🥉 第三輪：人類裁決'};
-  document.getElementById('round-badge').innerHTML=names[r];
-}
-function showHumanVoteUI() { document.getElementById('human-vote-buttons').style.display='block'; }
-function hideHumanVoteUI() { document.getElementById('human-vote-buttons').style.display='none'; }
-function showVerdict(result) {
-  const b = document.getElementById('verdict-banner');
-  b.style.display='block';
-  if (result.includes('違規')) { b.className='verdict-banner violation'; b.innerHTML='❌ 最終裁決：違規 — 米米已出動！'; }
-  else if (result.includes('灰區')) { b.className='verdict-banner gray'; b.innerHTML='⚠️ 最終裁決：灰區 — 列入觀察名單'; }
-  else { b.className='verdict-banner compliant'; b.innerHTML='✅ 最終裁決：合規 — 此廣告無違規疑慮'; }
-}
-
-// ─── 第一輪初判 ───
-function round1Init(adText) {
-  const activeAIs = getActiveAIs(); // AI Open Route：跳過耗盡的AI
-  const hasViolation = /保證|100%|立即見效|三天|七天|14天|醫師推薦|治療|根治|神效|奇蹟|有效|速效|最強|第一|唯一/.test(adText);
-  const hasGray = /限量|最後|不買就沒了|限時|倒數|限定|獨家|搶先/.test(adText);
-
-  return activeAIs.map(ai => {
-    let stance, evidence, line;
-    if (ai.name === "Grok") {
-      stance = hasViolation?"違規 ❌":hasGray?"灰區 ⚠️":"合規 ✅";
-      evidence = "廣告法第21條：化粧品不得宣稱療效";
-      line = hasViolation?"⚔️ 這廣告漏洞太多了，直接違規！":"有點可疑，但還不到爆炸等級";
-    } else if (ai.name === "Gemini") {
-      stance = hasViolation?"違規 ❌":hasGray?"灰區 ⚠️":"合規 ✅";
-      evidence = "風險模型：此類用詞歷史違規率達78%";
-      line = hasViolation?"🔨 從風險模型看，高危訊號明確":"數據顯示在合理範圍";
-    } else if (ai.name === "DeepSeek") {
-      stance = hasViolation?"違規 ❌":hasGray?"灰區 ⚠️":"合規 ✅";
-      evidence = "歷史裁罰案例：類似用詞已被裁罰12件";
-      line = "🔨 檔案記錄顯示此類廣告高度違規";
-    } else if (ai.name === "千問") {
-      stance = hasViolation?"灰區 ⚠️":hasGray?"灰區 ⚠️":"合規 ✅";
-      evidence = "語意分析：用詞可能為誇飾，需更多證據";
-      line = "語意略有誇張，建議蒐集更多佐證";
-    } else if (ai.name === "ChatGPT") {
-      stance = hasViolation?"違規 ❌":hasGray?"灰區 ⚠️":"合規 ✅";
-      evidence = "邏輯推論：存在過度推論，可能誤導消費者";
-      line = hasViolation?"⚔️ 邏輯上存在明確問題，但這值得花時間檢舉嗎？":"邏輯無明顯問題";
-    } else {
-      stance = hasViolation?"違規 ❌":hasGray?"灰區 ⚠️":"合規 ✅";
-      evidence = "廣告規範第8條：療效宣稱需有科學證明";
-      line = "依廣告規範，療效需可證明";
+// ========== 統計系統（v21 修正：準確率使用 isCorrectPrediction） ==========
+function renderStats() {
+  const total = caseDB.length;
+  if (total === 0) {
+    document.getElementById('stats-overview').innerHTML = '<div class="stats-box">尚無案件資料，啟動熵值決策引擎吧！</div>';
+    document.getElementById('stats-ai').innerHTML = '';
+    document.getElementById('stats-keywords').innerHTML = '';
+    return;
+  }
+  
+  let violation = 0;
+  let totalCost = 0;
+  let keywordMap = {};
+  let aiAccuracy = {};
+  
+  caseDB.forEach(c => {
+    if (c.verdict && c.verdict.includes('違規')) violation++;
+    totalCost += (c.cost || 0);
+    
+    // v21：關鍵字統計使用 lowercase text
+    const words = (c.text || '').match(/保證|醫師|瘦|立即|見效|限量|最後|三天|100%/g);
+    if (words) {
+      words.forEach(w => { keywordMap[w] = (keywordMap[w] || 0) + 1; });
     }
-    return {...ai, stance, evidence, line};
-  });
-}
-
-// ─── 主流程 ───
-function concludeTrial(aiList) {
-  lastAiList = aiList;
-  const wr = getWeightedDecision(aiList);
-  saveMemory(`📊 三輪辯論最終：${wr.stance}（加權 ${wr.weightPct}%）`);
-  renderConflictPanel(aiList, 0, wr);
-  showVerdict(wr.stance);
-  if (wr.stance.includes("違規")) {
-    mimiMoney += 20; localStorage.setItem('mimi_money', mimiMoney);
-    updateUI(); playBiteAnimation();
-    saveMemory(`💰 成功檢舉！+20元，資金：${mimiMoney}`);
-  }
-  addEXP(12);
-  addDebateLog(`📢 最終裁決（信心加權）：${wr.stance}（${wr.weightPct}%）`, 'system');
-  renderLeaderboard(aiList);
-}
-
-function humanVote(choice) {
-  hideHumanVoteUI();
-  addDebateLog(`👤 人類最終裁決：${choice}`, 'system');
-  const violationCount = lastAiList.filter(a=>a.stance==="違規 ❌").length;
-  const aiConsensus = violationCount >= 4;
-  let failureReason = null;
-  if (choice==="合規 ✅" && aiConsensus) {
-    failureReason='SYSTEM_BUG';
-    addDebateLog('🔍 因果歸因：AI 高度共識違規，但人類判合規 → 系統雜訊保護啟動', 'v16');
-  }
-  if (choice!=="違規 ❌" && aiConsensus && failureReason!=='SYSTEM_BUG') {
-    humanOverrideCount++;
-    if (humanOverrideCount >= MAX_OVERRIDES) {
-      mimiMoney = Math.max(0, mimiMoney-30);
-      addDebateLog('🛑 人類干預過度，扣除資金30元', 'v16');
-      localStorage.setItem('mimi_money', mimiMoney); updateUI();
+    
+    // v21 修正：使用 isCorrectPrediction（灰區給 0.5 分）
+    if (c.aiVotes) {
+      for (let [ai, vote] of Object.entries(c.aiVotes)) {
+        if (!aiAccuracy[ai]) aiAccuracy[ai] = { correct: 0, total: 0 };
+        aiAccuracy[ai].total++;
+        aiAccuracy[ai].correct += isCorrectPrediction(c.verdict, vote.stance);
+      }
     }
-  } else { humanOverrideCount=0; }
-  applyHumanFeedback(lastAiList, choice, failureReason);
-  showVerdict(choice);
-  if (choice==="違規 ❌") {
-    mimiMoney+=20; localStorage.setItem('mimi_money', mimiMoney);
-    updateUI(); playBiteAnimation();
-    saveMemory(`💰 人類裁決違規！+20元，資金：${mimiMoney}`);
+  });
+  
+  const violationRate = ((violation / total) * 100).toFixed(1);
+  const avgCost = (totalCost / total).toFixed(5);
+  
+  document.getElementById('stats-overview').innerHTML = `
+    <div class="stats-box"><strong>📦 總案件</strong><br>${total}</div>
+    <div class="stats-box"><strong>❌ 違規率</strong><br>${violationRate}%</div>
+    <div class="stats-box"><strong>💰 平均成本</strong><br>$${avgCost}</div>
+  `;
+  
+  let aiHTML = '<div class="stats-box"><strong>🤖 AI準確率</strong><br>';
+  for (let [ai, acc] of Object.entries(aiAccuracy)) {
+    const pct = ((acc.correct / acc.total) * 100).toFixed(1);
+    aiHTML += `${ai}: ${pct}%<br>`;
   }
-  addEXP(15);
-  saveMemory(`👤 裁決：${choice}${failureReason?'（系統雜訊保護）':''}`);
-  if (failureReason==='SYSTEM_BUG') {
-    document.getElementById('policySuggestion').innerHTML=`【政策建議】${violationCount}/6 位AI認定違規，但因政府系統環境限制未能成功檢舉。建議優化檢舉地址定位功能。`;
-    document.getElementById('suggestionPanel').style.display='block';
-  }
+  aiHTML += '</div>';
+  document.getElementById('stats-ai').innerHTML = aiHTML;
+  
+  const sortedKeywords = Object.entries(keywordMap).sort((a,b) => b[1] - a[1]).slice(0,5);
+  let kwHTML = '<div class="stats-box"><strong>🔥 高命中關鍵字</strong><br>';
+  sortedKeywords.forEach(([k,v]) => { kwHTML += `${k} (${v})<br>`; });
+  kwHTML += '</div>';
+  document.getElementById('stats-keywords').innerHTML = kwHTML;
 }
 
-async function startTrial() {
-  const input = document.getElementById("ad-input");
-  const adText = input.value.trim();
-  if (!adText) { alert("請先輸入廣告內容！"); return; }
-  hideHumanVoteUI();
-  document.getElementById('verdict-banner').style.display='none';
-  document.getElementById('suggestionPanel').style.display='none';
-  document.getElementById('route-panel').style.display='none';
-  showDebateArea(true);
-  clearDebateLog();
-  currentAdText = adText;
-
-  // 消耗API健康值（模擬）
-  consumeApiHealth();
-
-  setRound(1);
-  addDebateLog(`🔄 第一輪：AI 初判（模式：${currentMode==='builder'?'Builder 建構':'Challenger 挑戰'}）`, 'system');
-  const aiList = round1Init(adText);
-  renderVotes(aiList);
-  saveMemory(`📋 開始審查：「${adText.substring(0,30)}...」`);
-
-  const intensity = conflictIntensity(aiList);
-  const wr = getWeightedDecision(aiList);
-  renderConflictPanel(aiList, intensity, wr);
-  addDebateLog(`⚡ 衝突強度：${(intensity*100).toFixed(0)}% | 加權初判：${wr.stance}（${wr.weightPct}%）`, 'v16');
-
-  await delay(1500);
-  setRound(2);
-
-  let processedList;
-  if (currentMode === 'builder') {
-    addDebateLog('🥈 第二輪：Builder 模式 — 高信心 AI 嘗試說服低信心 AI...', 'system');
-    processedList = runPersuasionLogic(aiList);
-  } else {
-    addDebateLog('⚔️ 第二輪：Challenger 模式 — 質疑與拆解...', 'system');
-    processedList = runChallengerLogic(aiList, adText);
-  }
-  renderVotes(processedList);
-  lastAiList = processedList;
-  const intensity2 = conflictIntensity(processedList);
-  const wr2 = getWeightedDecision(processedList);
-  renderConflictPanel(processedList, intensity2, wr2);
-  addDebateLog(`⚡ 第二輪後衝突強度：${(intensity2*100).toFixed(0)}% | 加權結果：${wr2.stance}（${wr2.weightPct}%）`, 'v16');
-
-  await delay(1200);
-  setRound(3);
-  if (intensity2 > 0.65) {
-    addDebateLog(`⚠️ 衝突強度 ${(intensity2*100).toFixed(0)}% 過高，請人類裁決！`, 'system');
-    showHumanVoteUI();
-    scrollTo('vote-room');
-  } else {
-    addDebateLog(`✅ 衝突強度在可收斂範圍，自動採用信心加權結果`, 'system');
-    await delay(800);
-    concludeTrial(processedList);
-  }
-}
-
-function delay(ms) { return new Promise(r=>setTimeout(r,ms)); }
-
-// ─── 空投票牆初始化 ───
-function initVoteWall() {
-  const c = document.getElementById('vote-grid');
-  if (!c || c.children.length>0) return;
-  c.innerHTML = `
-    <div style="text-align:center;padding:60px 20px;width:100%;">
-      <div style="display:flex;justify-content:center;gap:16px;margin-bottom:20px;">
-        <span style="font-size:48px;animation:bubbleUp 0.6s ease 0s both;">🫧</span>
-        <span style="font-size:64px;animation:bubbleUp 0.6s ease 0.2s both;">🫧</span>
-        <span style="font-size:40px;animation:bubbleUp 0.6s ease 0.4s both;">🫧</span>
-      </div>
-      <h3 style="color:var(--accent-blue);font-size:18px;font-weight:300;letter-spacing:0.1em;margin-bottom:12px;">目前沒有進行中的審查</h3>
-      <p style="color:var(--text-dim);font-size:12px;line-height:2;margin-bottom:24px;">
-        前往「🦞 米米小窩」貼上廣告文字<br>啟動三輪辯論後，AI 夥伴的投票卡片<br>會一個一個 <strong style="color:var(--accent-gold);">泡泡浮上來</strong> ✨
-      </p>
-      <button onclick="scrollTo('mimi-nest')"
-        style="background:linear-gradient(135deg,var(--accent-gold),#a07840);color:var(--bg-deep);
-               padding:12px 30px;border:none;border-radius:40px;font-size:14px;font-weight:bold;
-               cursor:pointer;letter-spacing:0.05em;font-family:inherit;transition:0.3s;"
-        onmouseover="this.style.transform='scale(1.04)'"
-        onmouseout="this.style.transform='scale(1)'">
-        🦞 前往米米小窩
-      </button>
-    </div>`;
-}
-
-// ─── 初始化 ───
+// ========== 初始化 ==========
 renderFurniture();
-updateUI();
+updateLevel();
 renderMemory();
-updateConfidenceBars();
-window.addEventListener('load', initVoteWall);
+updateUI();
+renderStats();
+if (!localStorage.getItem('mimi_memory_v2') || mimiMemory.length === 0) {
+  addMemory('🎉 歡迎來到波波之家 v21！');
+  addMemory('📢 貼上廣告文字，啟動「熵值決策引擎」！');
+}
 </script>
 </body>
 </html>
