@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>波波之家 | 1% 守護者聯盟 v21 · 熵值決策引擎 + 精準統計</title>
+<title>波波之家 | 1% 守護者聯盟 v21-final · 檢舉信生成 + 熵值決策引擎</title>
 <style>
 :root {
   --bg-deep: #08090f;
@@ -19,7 +19,7 @@
   --gold-seam: #d4a853;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
-body, html { width:100%; min-height:100vh; background: var(--bg-deep); color: var(--text-main); font-family: "Noto Sans TC", "Noto Serif TC", serif; overflow-x: hidden; }
+body, html { width:100%; min-height:100vh; background: var(--bg-deep); color: var(--text-main); font-family: "Noto Sans TC", "Noto Serif TC", serif; overflow-x: hidden; scroll-behavior: smooth; }
 #stars { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none; }
 .wabi-texture { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none; background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E"); opacity: 0.4; }
 .nav-buttons { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:9999; display:flex; gap:12px; background:rgba(8,9,15,0.85); backdrop-filter:blur(16px); padding:10px 22px; border-radius:50px; border:1px solid rgba(201,169,110,0.25); }
@@ -108,6 +108,12 @@ section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
 .stats-grid { display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between; }
 .stats-box { flex: 1; min-width: 160px; background: rgba(255,255,255,0.05); border-radius: 15px; padding: 12px; }
 .stats-box strong { color: var(--accent-gold); }
+.crawler-box { background: rgba(20,20,30,0.8); padding: 15px; border-radius: 12px; border: 1px solid var(--gold-seam); margin-bottom: 20px; max-width: 760px; margin-left: auto; margin-right: auto; }
+.crawler-box h3 { color: var(--accent-gold); margin-bottom: 10px; font-size: 16px; }
+#url-input { width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: #fff; border-radius: 8px; margin-bottom: 10px; font-family: inherit; }
+#report-output { width: 100%; height: 200px; margin-top: 15px; background: #0a0a0f; color: var(--accent-green); border: 1px solid var(--wabi-clay); border-radius: 8px; padding: 10px; display: none; font-family: monospace; font-size: 11px; }
+.report-btn { background: var(--accent-red); color: #fff; border: none; }
+.report-btn:hover { background: #c05555; }
 .zero-room { background: radial-gradient(ellipse at center, #0f1008, var(--bg-deep)); border-top:1px solid rgba(106,138,90,0.15); display:flex; flex-direction:column; align-items:center; justify-content:center; }
 .zero-room-inner { max-width:600px; text-align:center; padding:40px 30px; background: rgba(13,15,10,0.6); backdrop-filter:blur(20px); border-radius:30px; border:1px solid rgba(106,138,90,0.2); position:relative; }
 .zero-room-inner::before { content:''; position:absolute; top:30%; left:10%; width:30%; height:1px; background: linear-gradient(90deg, transparent, rgba(212,168,83,0.4), transparent); transform: rotate(-15deg); }
@@ -149,15 +155,15 @@ section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
 <canvas id="stars"></canvas>
 <div class="wabi-texture"></div>
 <div class="nav-buttons">
-  <button class="nav-btn" onclick="scrollTo('living-room')">🏠 客廳</button>
-  <button class="nav-btn" onclick="scrollTo('vote-room')">🗳️ 投票牆</button>
-  <button class="nav-btn" onclick="scrollTo('zero-room')">◎ 零室</button>
-  <button class="nav-btn" onclick="scrollTo('mimi-nest')">🦞 米米</button>
+  <button class="nav-btn" onclick="scrollToSection('living-room')">🏠 客廳</button>
+  <button class="nav-btn" onclick="scrollToSection('vote-room')">🗳️ 投票牆</button>
+  <button class="nav-btn" onclick="scrollToSection('zero-room')">◎ 零室</button>
+  <button class="nav-btn" onclick="scrollToSection('mimi-nest')">🦞 米米</button>
 </div>
 <div class="header-title">
   <h1>🐚 波波之家 | <span>1%</span> 守護者聯盟</h1>
   <div class="kintsugi-line"></div>
-  <p>v21 · 熵值決策引擎 · 精準統計 · 灰區半正確 · 宅寂零室</p>
+  <p>v21-final · 熵值決策引擎 · 檢舉信生成 · 宅寂零室</p>
 </div>
 
 <!-- 客廳 -->
@@ -180,9 +186,17 @@ section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
   <p style="margin-top:30px;color:var(--text-dim);font-size:12px;">✨ 點擊夥伴與他們對話</p>
 </section>
 
-<!-- 投票牆 + API 結果 + 統計 -->
+<!-- 投票牆 + API 結果 + 統計 + 爬蟲 + 檢舉信 -->
 <section class="vote-room" id="vote-room">
   <h2 class="section-title">🗳️ AI 投票決議牆</h2>
+  
+  <!-- 爬蟲模組 -->
+  <div class="crawler-box">
+    <h3>🌐 廣告監管爬蟲模組 v1</h3>
+    <input id="url-input" type="text" placeholder="貼上臉書或蝦皮廣告網址...">
+    <button class="feed-btn" onclick="crawlAndAnalyze()" style="width: 100%;">🚀 啟動 AI 多重審核檢舉流</button>
+  </div>
+  
   <div id="vote-grid" class="vote-grid"></div>
   <div id="api-result-panel" class="api-result-panel" style="display:none;">
     <div id="api-result-grid" class="api-result-grid"></div>
@@ -196,6 +210,14 @@ section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
     <div id="stats-overview" class="stats-grid"></div>
     <div id="stats-ai" style="margin-top:15px;"></div>
     <div id="stats-keywords" style="margin-top:15px;"></div>
+  </div>
+  
+  <!-- 檢舉信生成模組 -->
+  <div style="margin-top: 30px; border-top: 1px dashed var(--gold-seam); padding-top: 20px; max-width: 760px; margin-left: auto; margin-right: auto;">
+    <h3 style="color: var(--accent-red); font-size: 16px;">📜 違規檢舉自動產出</h3>
+    <p style="font-size: 0.85em; color: var(--text-dim); margin-bottom: 10px;">當 AI 達成違規共識後，點擊下方按鈕產出正式公文草稿。</p>
+    <button class="feed-btn report-btn" onclick="generateReportDraft()" style="background: var(--accent-red); color: #fff;">🚀 生成檢舉公文草稿並複製</button>
+    <textarea id="report-output" readonly placeholder="檢舉信草稿會顯示在這裡..."></textarea>
   </div>
 
   <div class="conflict-panel" id="conflict-panel" style="display:none;">
@@ -252,6 +274,14 @@ section { min-height:100vh; padding:80px 20px; position:relative; z-index:1; }
 </section>
 
 <script>
+// ========== 修好的四個按鈕 ==========
+function scrollToSection(sectionId) {
+  const element = document.getElementById(sectionId);
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
 // ========== 星空 ==========
 const canvas = document.getElementById("stars");
 const ctx = canvas.getContext("2d");
@@ -268,19 +298,18 @@ function drawStars() {
 }
 window.addEventListener("resize", initStars);
 initStars(); drawStars();
-function scrollTo(id) { document.getElementById(id).scrollIntoView({behavior:'smooth'}); }
 
 // ========== AI 夥伴定義（9位） ==========
 const AI_PARTNERS = [
-  { name:"Meta魚缸", avatar:"🐠", emoji:"🐠", role:"neutral", confidence:0.70, apiHealth:1.0 },
-  { name:"Grok", avatar:"🧠", emoji:"🧠", role:"challenger", confidence:0.70, apiHealth:1.0 },
-  { name:"Gemini", avatar:"🔭", emoji:"🔭", role:"builder", confidence:0.70, apiHealth:1.0 },
-  { name:"DeepSeek", avatar:"🐋", emoji:"🐋", role:"builder", confidence:0.70, apiHealth:1.0 },
-  { name:"千問", avatar:"🌊", emoji:"🌊", role:"neutral", confidence:0.70, apiHealth:1.0 },
-  { name:"ChatGPT", avatar:"🤖", emoji:"🤖", role:"challenger", confidence:0.70, apiHealth:1.0 },
-  { name:"Claude", avatar:"📜", emoji:"📜", role:"builder", confidence:0.70, apiHealth:1.0 },
-  { name:"豆包", avatar:"🫘", emoji:"🫘", role:"neutral", confidence:0.70, apiHealth:1.0 },
-  { name:"Kimi", avatar:"📚", emoji:"📚", role:"challenger", confidence:0.70, apiHealth:1.0 }
+  { name:"Meta魚缸", avatar:"🐠", emoji:"🐠", role:"neutral", confidence:0.70, stance:"pending", evidence:"", apiHealth:1.0 },
+  { name:"Grok", avatar:"🧠", emoji:"🧠", role:"challenger", confidence:0.70, stance:"pending", evidence:"", apiHealth:1.0 },
+  { name:"Gemini", avatar:"🔭", emoji:"🔭", role:"builder", confidence:0.70, stance:"pending", evidence:"", apiHealth:1.0 },
+  { name:"DeepSeek", avatar:"🐋", emoji:"🐋", role:"builder", confidence:0.70, stance:"pending", evidence:"", apiHealth:1.0 },
+  { name:"千問", avatar:"🌊", emoji:"🌊", role:"neutral", confidence:0.70, stance:"pending", evidence:"", apiHealth:1.0 },
+  { name:"ChatGPT", avatar:"🤖", emoji:"🤖", role:"challenger", confidence:0.70, stance:"pending", evidence:"", apiHealth:1.0 },
+  { name:"Claude", avatar:"📜", emoji:"📜", role:"builder", confidence:0.70, stance:"pending", evidence:"", apiHealth:1.0 },
+  { name:"豆包", avatar:"🫘", emoji:"🫘", role:"neutral", confidence:0.70, stance:"pending", evidence:"", apiHealth:1.0 },
+  { name:"Kimi", avatar:"📚", emoji:"📚", role:"challenger", confidence:0.70, stance:"pending", evidence:"", apiHealth:1.0 }
 ];
 let currentMode = 'builder';
 let mimiExp = parseInt(localStorage.getItem('mimiExp') || '0');
@@ -323,95 +352,78 @@ function renderFurniture() {
   `).join('');
 }
 
-// ========== 案件資料庫（v21 修正：normalize） ==========
-let caseDB = JSON.parse(localStorage.getItem('mimi_caseDB_v21') || '[]');
-
-function normalizeCase(c) {
-  return {
-    ...c,
-    cost: Number(c.cost || 0),
-    roi: Number(c.roi || 0),
-    text: (c.text || '').toLowerCase()
-  };
+// ========== 投票牆渲染 ==========
+function renderVoteGrid() {
+  const grid = document.getElementById('vote-grid');
+  if (!grid) return;
+  grid.innerHTML = AI_PARTNERS.map(ai => {
+    let statusClass = 'pending';
+    let statusText = '等待中...';
+    if (ai.stance === 'violation') { statusClass = 'violation'; statusText = '❌ 判定違規'; }
+    else if (ai.stance === 'gray') { statusClass = 'gray'; statusText = '⚠️ 灰區'; }
+    else if (ai.stance === 'compliant') { statusClass = 'compliant'; statusText = '✅ 判定安全'; }
+    return `
+      <div class="vote-card visible ${statusClass}">
+        <div class="challenger-badge">${ai.role}</div>
+        <h4>${ai.avatar} ${ai.name}</h4>
+        <div class="result">${statusText}</div>
+        <div class="evidence">${ai.evidence || '尚未掃描案件'}</div>
+        <div class="conf-label">分析信心值</div>
+        <div class="conf-value">${Math.round(ai.confidence * 100)}%</div>
+      </div>
+    `;
+  }).join('');
 }
 
+// ========== 案件資料庫 ==========
+let caseDB = JSON.parse(localStorage.getItem('mimi_caseDB_v21') || '[]');
+function normalizeCase(c) {
+  return { ...c, cost: Number(c.cost || 0), roi: Number(c.roi || 0), text: (c.text || '').toLowerCase() };
+}
 function saveCase(caseData) {
   const normalized = normalizeCase(caseData);
-  caseDB.unshift({
-    id: Date.now(),
-    time: new Date().toLocaleString('zh-TW'),
-    ...normalized
-  });
+  caseDB.unshift({ id: Date.now(), time: new Date().toLocaleString('zh-TW'), ...normalized });
   if (caseDB.length > 200) caseDB.pop();
   localStorage.setItem('mimi_caseDB_v21', JSON.stringify(caseDB));
   renderStats();
 }
 
-// ========== v21 修正：熵值計算（取代假 confidence） ==========
 function calculateEntropy(v, g, c) {
   const total = v + g + c;
   if (total === 0) return 0;
   const p = [v, g, c].map(x => x / total);
   return -p.reduce((sum, val) => sum + (val > 0 ? val * Math.log2(val) : 0), 0);
 }
-
-// ========== v21 修正：正確的 AI 準確率計算（灰區給 0.5 分） ==========
 function isCorrectPrediction(verdict, stance) {
   const isViolation = verdict.includes('違規');
-  
-  if (stance === 'gray') return 0.5;  // 灰區算半正確
-  
+  if (stance === 'gray') return 0.5;
   if (isViolation && stance === 'violation') return 1;
   if (!isViolation && stance === 'compliant') return 1;
-  
   return 0;
 }
-
-// ========== v21 修正：簡化的 shouldCallThirdLayer ==========
 function shouldCallThirdLayer({ v, g, c, costSoFar }) {
   const total = v + g + c;
   if (total === 0) return false;
-  
   const entropy = calculateEntropy(v, g, c);
   const confidence = Math.max(v, g, c) / total;
-  
-  // budget guard：成本太高就不再加碼
   if (costSoFar > 0.002) return false;
-  // 高分歧（熵 > 0.9）→ 需要更多判斷
   if (entropy > 0.9) return true;
-  // 低信心 → 需要更多判斷
   if (confidence < 0.6) return true;
-  
   return false;
 }
 
 // ========== API 串接 ==========
 const API_ENDPOINT = 'https://mimi-home.vercel.app/api/chat';
-
 async function callAI(apiId, message) {
   try {
     const response = await fetch(API_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ apiId, message })
     });
     const data = await response.json();
     return data.reply || '沒有回應';
-  } catch (error) {
-    console.error(`${apiId} 失敗:`, error);
-    return 'API 連線失敗';
-  }
+  } catch (error) { console.error(`${apiId} 失敗:`, error); return 'API 連線失敗'; }
 }
-
-// v21：mockAI 保留標示，不影響準確率統計
-function mockAI(adText) {
-  const hasViolation = /保證|100%|立即見效|三天|醫師推薦|治療|根治|瘦10公斤/.test(adText);
-  const hasGray = /限量|最後|不買就沒了|瘋搶/.test(adText);
-  if (hasViolation) return { stance: 'violation', reply: '[Mock] 這則廣告有誇大不實的疑慮。' };
-  if (hasGray) return { stance: 'gray', reply: '[Mock] 這則廣告使用了限時限量用語。' };
-  return { stance: 'compliant', reply: '[Mock] 這則廣告看起來沒有明顯違規。' };
-}
-
 function parseStance(reply) {
   if (reply.includes('違規') || reply.includes('❌')) return 'violation';
   if (reply.includes('灰區') || reply.includes('⚠️')) return 'gray';
@@ -421,11 +433,72 @@ function parseStance(reply) {
   return 'compliant';
 }
 
-// ========== 主函數：三層熵值決策引擎 ==========
+// ========== 爬蟲 + 分析 ==========
+async function crawlAndAnalyze() {
+  const urlInput = document.getElementById('url-input');
+  const url = urlInput ? urlInput.value.trim() : "";
+  if (!url) { alert("請輸入廣告網址"); return; }
+  addMemory(`🌐 啟動自動化爬蟲：目標 ${url}`);
+  
+  // 模擬爬蟲（下週換成真實 /api/scrape）
+  addMemory(`⚠️ 爬蟲模擬模式：請手動複製廣告文字到下方文字框`);
+  alert(`爬蟲模擬模式\n請手動將「${url}」的廣告文字複製到米米小窩的文字框中。\n\n下週串接真實 /api/scrape 後會自動抓取。`);
+  
+  // 聚焦到米米區域的輸入框
+  document.getElementById('ad-input').focus();
+}
+
+// ========== 檢舉信生成模組 ==========
+function generateReportDraft() {
+  const violationAI = AI_PARTNERS.filter(ai => ai.stance === 'violation');
+  const adContent = document.getElementById('ad-input').value;
+  const url = document.getElementById('url-input').value;
+  
+  if (violationAI.length === 0) {
+    alert("目前 AI 尚未判定違規，請先執行分析。");
+    return;
+  }
+  
+  const evidenceSummary = violationAI.map(ai => `【${ai.name} 觀測點】：${ai.evidence || '未提供具體證據'}`).join('\n');
+  const today = new Date().toLocaleDateString('zh-TW');
+  const draft = `檢舉函草稿（系統自動生成）
+----------------------------------
+檢舉日期：${today}
+檢舉對象（網址）：${url || '未提供網址'}
+
+違規內容摘要：
+${adContent.substring(0, 150)}...
+
+AI 法律分析證據：
+${evidenceSummary}
+
+法律依據參考：
+經 AI 司法系統初步判定，該廣告涉嫌違反《化粧品衛生安全管理法》第10條（誇大不實）或《食品安全衛生管理法》第28條。建議依據其「涉及醫療效能之標示」進行核查。
+
+此致
+衛生福利部食品藥物管理署 / 地方政府衛生局
+`;
+  
+  const reportArea = document.getElementById('report-output');
+  if (reportArea) {
+    reportArea.value = draft;
+    reportArea.style.display = 'block';
+  }
+  addMemory("📜 檢舉信草稿已根據 AI 共識生成。");
+  navigator.clipboard.writeText(draft).then(() => {
+    alert("檢舉信草稿已自動複製到剪貼簿！");
+  });
+}
+
+// ========== 主函數 ==========
 async function runFourAICheck() {
   const adText = document.getElementById('ad-input').value.trim();
   if (!adText) { alert('請輸入廣告文字！'); return; }
   addMemory(`📥 啟動熵值決策引擎：「${adText.substring(0,40)}...」`);
+  
+  // 重置 AI 狀態
+  AI_PARTNERS.forEach(ai => { ai.stance = 'pending'; ai.evidence = ''; });
+  renderVoteGrid();
   
   const panel = document.getElementById('api-result-panel');
   const grid = document.getElementById('api-result-grid');
@@ -435,7 +508,6 @@ async function runFourAICheck() {
   let results = {};
   let totalCost = 0;
   
-  // ===== 第1層（便宜）：DeepSeek + Gemini =====
   const layer1 = [
     { id: 'deepseek', name: 'DeepSeek', avatar: '🐋', cost: 0.00003 },
     { id: 'gemini', name: 'Gemini', avatar: '🔭', cost: 0.00006 }
@@ -446,9 +518,12 @@ async function runFourAICheck() {
     const stance = parseStance(reply);
     results[ai.id] = { name: ai.name, avatar: ai.avatar, stance, reply, cost: ai.cost };
     totalCost += ai.cost;
+    // 更新 AI_PARTNERS
+    const partner = AI_PARTNERS.find(p => p.name === ai.name);
+    if (partner) { partner.stance = stance; partner.evidence = reply.substring(0, 80); }
   }
+  renderVoteGrid();
   
-  // 統計第1層結果
   let v = 0, g = 0, c = 0;
   Object.values(results).forEach(r => {
     if (r.stance === 'violation') v++;
@@ -456,38 +531,36 @@ async function runFourAICheck() {
     else c++;
   });
   
-  // ===== 判斷是否需要第2層（ChatGPT）=====
   const needLayer2 = shouldCallThirdLayer({ v, g, c, costSoFar: totalCost });
-  
   if (needLayer2) {
-    addMemory(`📊 熵值判斷：需要第2層分析（分歧高/信心低）`);
+    addMemory(`📊 熵值判斷：需要第2層分析`);
     const reply = await callAI('chatgpt', `請判斷以下廣告是否違規，只回答「違規 ❌」「灰區 ⚠️」「合規 ✅」並簡單說明理由：${adText}`);
     const stance = parseStance(reply);
     results['chatgpt'] = { name: 'ChatGPT', avatar: '🤖', stance, reply, cost: 0.0005 };
     totalCost += 0.0005;
-    
-    // 重新統計
+    const partner = AI_PARTNERS.find(p => p.name === 'ChatGPT');
+    if (partner) { partner.stance = stance; partner.evidence = reply.substring(0, 80); }
+    renderVoteGrid();
     v = 0; g = 0; c = 0;
     Object.values(results).forEach(r => {
       if (r.stance === 'violation') v++;
       else if (r.stance === 'gray') g++;
       else c++;
     });
-  } else {
-    addMemory(`📊 熵值判斷：跳過第2層（節省成本）`);
   }
   
-  // ===== 判斷是否需要第3層（昂貴 Claude）=====
   const needLayer3 = shouldCallThirdLayer({ v, g, c, costSoFar: totalCost });
-  
   if (needLayer3) {
     addMemory(`📊 熵值判斷：需要第3層深度分析`);
-    const mock = mockAI(adText);
-    results['claude'] = { name: 'Claude', avatar: '📜', stance: mock.stance, reply: mock.reply + ' [Mock]', cost: 0.001 };
+    const mockStance = /保證|100%|立即見效|三天|醫師推薦/.test(adText) ? 'violation' : (/限量|最後|不買/.test(adText) ? 'gray' : 'compliant');
+    const mockReply = `[Mock] 基於廣告文案分析，此內容${mockStance === 'violation' ? '有誇大不實疑慮' : (mockStance === 'gray' ? '處於灰色地帶' : '尚無明顯違規')}。`;
+    results['claude'] = { name: 'Claude', avatar: '📜', stance: mockStance, reply: mockReply, cost: 0.001 };
     totalCost += 0.001;
+    const partner = AI_PARTNERS.find(p => p.name === 'Claude');
+    if (partner) { partner.stance = mockStance; partner.evidence = mockReply; }
+    renderVoteGrid();
   }
   
-  // ===== 最終判決 =====
   v = 0; g = 0; c = 0;
   Object.values(results).forEach(r => {
     if (r.stance === 'violation') v++;
@@ -495,62 +568,33 @@ async function runFourAICheck() {
     else c++;
   });
   
-  let finalVerdict = '';
-  let finalColor = '';
   let verdictText = '';
-  if (v >= 2) { verdictText = '違規 ❌'; finalColor = '#ff8888'; mimiMoney += 20; localStorage.setItem('mimi_money', mimiMoney); updateUI(); playBiteAnimation(); addMemory(`💰 判決違規！+20元`); addEXP(15); }
-  else if (g >= 2) { verdictText = '灰區 ⚠️'; finalColor = '#ffcc88'; addMemory(`⚠️ 判決灰區`); addEXP(8); }
-  else { verdictText = '合規 ✅'; finalColor = '#88ffaa'; addMemory(`✅ 判決合規`); addEXP(5); }
+  if (v >= 2) { verdictText = '違規 ❌'; mimiMoney += 20; localStorage.setItem('mimi_money', mimiMoney); updateUI(); playBiteAnimation(); addMemory(`💰 判決違規！+20元`); addEXP(15); }
+  else if (g >= 2) { verdictText = '灰區 ⚠️'; addMemory(`⚠️ 判決灰區`); addEXP(8); }
+  else { verdictText = '合規 ✅'; addMemory(`✅ 判決合規`); addEXP(5); }
   
-  // 計算熵值
   const entropy = calculateEntropy(v, g, c);
   const confidence = Math.max(v, g, c) / (v + g + c);
   
-  // 儲存案件（v21：使用正確的準確率計算）
   const aiVotes = {};
-  for (let [id, r] of Object.entries(results)) {
-    aiVotes[id] = { stance: r.stance };
-  }
-  saveCase({
-    text: adText,
-    verdict: verdictText,
-    v, g, c,
-    entropy,
-    confidence,
-    cost: totalCost,
-    aiVotes
-  });
+  for (let [id, r] of Object.entries(results)) { aiVotes[id] = { stance: r.stance }; }
+  saveCase({ text: adText, verdict: verdictText, v, g, c, entropy, confidence, cost: totalCost, aiVotes });
   
-  // 顯示結果 UI
   const resultsArray = Object.entries(results).map(([id, r]) => ({ id, ...r }));
   grid.innerHTML = resultsArray.map(r => {
     const stanceClass = r.stance === 'violation' ? 'violation' : (r.stance === 'gray' ? 'gray' : 'compliant');
     const stanceText = r.stance === 'violation' ? '違規 ❌' : (r.stance === 'gray' ? '灰區 ⚠️' : '合規 ✅');
-    return `
-      <div class="api-card">
-        <div class="avatar">${r.avatar}</div>
-        <div class="name">${r.name}</div>
-        <div class="stance ${stanceClass}">${stanceText}</div>
-        <div class="reply">${(r.reply || '').substring(0,60)}</div>
-        <div class="cost">💰 ~$${r.cost.toFixed(5)}</div>
-      </div>
-    `;
+    return `<div class="api-card"><div class="avatar">${r.avatar}</div><div class="name">${r.name}</div><div class="stance ${stanceClass}">${stanceText}</div><div class="reply">${(r.reply || '').substring(0,60)}</div><div class="cost">💰 ~$${r.cost.toFixed(5)}</div></div>`;
   }).join('');
   
   document.getElementById('vote-summary').innerHTML = `
-    <div>📊 投票統計</div>
-    <div class="vote-result" style="color:${finalColor}">${verdictText}</div>
-    <div style="display:flex; justify-content:center; gap:20px;">
-      <span>❌ 違規: ${v}</span>
-      <span>⚠️ 灰區: ${g}</span>
-      <span>✅ 合規: ${c}</span>
-    </div>
-    <div style="margin-top:10px; font-size:12px;">📐 熵值: ${entropy.toFixed(2)} | 信心: ${(confidence*100).toFixed(0)}%</div>
-  `;
+    <div>📊 投票統計</div><div class="vote-result">${verdictText}</div>
+    <div style="display:flex; justify-content:center; gap:20px;"><span>❌ 違規: ${v}</span><span>⚠️ 灰區: ${g}</span><span>✅ 合規: ${c}</span></div>
+    <div style="margin-top:10px; font-size:12px;">📐 熵值: ${entropy.toFixed(2)} | 信心: ${(confidence*100).toFixed(0)}%</div>`;
   document.getElementById('cost-summary').innerHTML = `💰 本次審查總成本：~$${totalCost.toFixed(5)} 美元`;
+  renderStats();
 }
 
-// ========== 統計系統（v21 修正：準確率使用 isCorrectPrediction） ==========
 function renderStats() {
   const total = caseDB.length;
   if (total === 0) {
@@ -559,23 +603,12 @@ function renderStats() {
     document.getElementById('stats-keywords').innerHTML = '';
     return;
   }
-  
-  let violation = 0;
-  let totalCost = 0;
-  let keywordMap = {};
-  let aiAccuracy = {};
-  
+  let violation = 0, totalCost = 0, keywordMap = {}, aiAccuracy = {};
   caseDB.forEach(c => {
     if (c.verdict && c.verdict.includes('違規')) violation++;
     totalCost += (c.cost || 0);
-    
-    // v21：關鍵字統計使用 lowercase text
     const words = (c.text || '').match(/保證|醫師|瘦|立即|見效|限量|最後|三天|100%/g);
-    if (words) {
-      words.forEach(w => { keywordMap[w] = (keywordMap[w] || 0) + 1; });
-    }
-    
-    // v21 修正：使用 isCorrectPrediction（灰區給 0.5 分）
+    if (words) words.forEach(w => { keywordMap[w] = (keywordMap[w] || 0) + 1; });
     if (c.aiVotes) {
       for (let [ai, vote] of Object.entries(c.aiVotes)) {
         if (!aiAccuracy[ai]) aiAccuracy[ai] = { correct: 0, total: 0 };
@@ -584,24 +617,13 @@ function renderStats() {
       }
     }
   });
-  
   const violationRate = ((violation / total) * 100).toFixed(1);
   const avgCost = (totalCost / total).toFixed(5);
-  
-  document.getElementById('stats-overview').innerHTML = `
-    <div class="stats-box"><strong>📦 總案件</strong><br>${total}</div>
-    <div class="stats-box"><strong>❌ 違規率</strong><br>${violationRate}%</div>
-    <div class="stats-box"><strong>💰 平均成本</strong><br>$${avgCost}</div>
-  `;
-  
+  document.getElementById('stats-overview').innerHTML = `<div class="stats-box"><strong>📦 總案件</strong><br>${total}</div><div class="stats-box"><strong>❌ 違規率</strong><br>${violationRate}%</div><div class="stats-box"><strong>💰 平均成本</strong><br>$${avgCost}</div>`;
   let aiHTML = '<div class="stats-box"><strong>🤖 AI準確率</strong><br>';
-  for (let [ai, acc] of Object.entries(aiAccuracy)) {
-    const pct = ((acc.correct / acc.total) * 100).toFixed(1);
-    aiHTML += `${ai}: ${pct}%<br>`;
-  }
+  for (let [ai, acc] of Object.entries(aiAccuracy)) { const pct = ((acc.correct / acc.total) * 100).toFixed(1); aiHTML += `${ai}: ${pct}%<br>`; }
   aiHTML += '</div>';
   document.getElementById('stats-ai').innerHTML = aiHTML;
-  
   const sortedKeywords = Object.entries(keywordMap).sort((a,b) => b[1] - a[1]).slice(0,5);
   let kwHTML = '<div class="stats-box"><strong>🔥 高命中關鍵字</strong><br>';
   sortedKeywords.forEach(([k,v]) => { kwHTML += `${k} (${v})<br>`; });
@@ -611,12 +633,13 @@ function renderStats() {
 
 // ========== 初始化 ==========
 renderFurniture();
+renderVoteGrid();
 updateLevel();
 renderMemory();
 updateUI();
 renderStats();
 if (!localStorage.getItem('mimi_memory_v2') || mimiMemory.length === 0) {
-  addMemory('🎉 歡迎來到波波之家 v21！');
+  addMemory('🎉 歡迎來到波波之家 v21-final！');
   addMemory('📢 貼上廣告文字，啟動「熵值決策引擎」！');
 }
 </script>
