@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>波波之家 | 1% 守護者聯盟 v23</title>
+<style>
+:root {
+  --bg-deep:#08090f; --bg-mid:#0d1221;
+  --accent-gold:#c9a96e; --accent-blue:#7ec8d4;
+  --accent-red:#e07070; --accent-green:#7ecfa0;
+  --wabi-clay:#b8956a; --wabi-moss:#6a8a5a;
+  --text-main:#e8e4da; --text-dim:#8a8880;
+  --gold-seam:#d4a853;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body,html{width:100%;min-height:100vh;background:var(--bg-deep);color:var(--text-main);font-family:"Noto Sans TC","Noto Serif TC",serif;overflow-x:hidden;scroll-behavior:smooth;}
+#stars{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+.wabi-texture{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");opacity:0.4;}
+.nav-buttons{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;gap:12px;background:rgba(8,9,15,0.85);backdrop-filter:blur(16px);padding:10px 22px;border-radius:50px;border:1px solid rgba(201,169,110,0.25);}
+.nav-btn{background:transparent;color:var(--accent-gold);padding:7px 18px;border-radius:30px;border:1px solid rgba(201,169,110,0.3);cursor:pointer;font-size:12px;font-weight:bold;transition:0.3s;font-family:inherit;}
+.nav-btn:hover{background:rgba(201,169,110,0.15);}
+
+/* 頂部標題 + AI夥伴 */
+.header-zone{position:relative;text-align:center;padding:60px 20px 20px;z-index:10;}
+.header-title h1{font-size:22px;font-weight:300;letter-spacing:0.15em;}
+.header-title h1 span{color:var(--accent-gold);}
+.header-title p{font-size:10px;color:var(--text-dim);margin-top:6px;letter-spacing:0.1em;}
+.kintsugi-line{width:120px;height:1px;margin:14px auto;background:linear-gradient(90deg,transparent,var(--gold-seam),transparent);}
+
+/* AI夥伴列 */
+.partners-bar{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;max-width:900px;margin:20px auto 0;padding:0 10px;}
+.partner-chip{cursor:pointer;text-align:center;width:80px;transition:0.3s;position:relative;}
+.partner-chip:hover{transform:translateY(-4px);}
+.partner-avatar{width:60px;height:60px;border-radius:50%;background:rgba(201,169,110,0.08);border:1px solid rgba(201,169,110,0.2);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto;transition:0.3s;position:relative;}
+.partner-chip:hover .partner-avatar{border-color:var(--accent-gold);box-shadow:0 0 20px rgba(201,169,110,0.2);}
+.partner-name{margin-top:5px;font-size:9px;color:var(--text-dim);letter-spacing:0.05em;}
+.partner-role{font-size:8px;margin-top:2px;}
+.role-b{color:var(--accent-green);}
+.role-c{color:var(--accent-red);}
+.role-n{color:var(--accent-gold);}
+.status-dot-sm{position:absolute;bottom:2px;right:2px;width:8px;height:8px;border-radius:50%;border:1px solid var(--bg-deep);}
+.sd-online{background:var(--accent-green);animation:blink 2s infinite;}
+.sd-idle{background:var(--accent-gold);animation:blink 3s infinite;}
+.sd-dnd{background:var(--accent-red);}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+/* 分隔線 */
+.partners-divider{width:80%;max-width:800px;height:1px;margin:20px auto 0;background:linear-gradient(90deg,transparent,rgba(201,169,110,0.2),transparent);}
+
+section{min-height:100vh;padding:60px 20px 80px;position:relative;z-index:1;}
+
+/* 模式面板 */
+.mode-panel{max-width:800px;margin:0 auto 24px;background:rgba(13,18,33,0.8);backdrop-filter:blur(10px);border-radius:20px;padding:16px 20px;border:1px solid rgba(201,169,110,0.15);}
+.mode-panel h4{font-size:11px;color:var(--accent-gold);margin-bottom:10px;letter-spacing:0.05em;}
+.mode-tabs{display:flex;gap:10px;margin-bottom:12px;}
+.mode-tab{padding:5px 14px;border-radius:20px;font-size:11px;cursor:pointer;border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--text-dim);font-family:inherit;transition:0.3s;}
+.mode-tab.active-builder{background:rgba(126,207,160,0.15);color:var(--accent-green);border-color:var(--accent-green);}
+.mode-tab.active-challenger{background:rgba(224,112,112,0.15);color:var(--accent-red);border-color:var(--accent-red);}
+.mode-desc{font-size:11px;color:var(--text-dim);line-height:1.7;}
+.challenger-questions{margin-top:10px;display:none;}
+.challenger-questions.show{display:block;}
+.cq-item{padding:6px 12px;margin:4px 0;font-size:11px;background:rgba(224,112,112,0.07);border-left:2px solid var(--accent-red);border-radius:0 8px 8px 0;color:#ffaaaa;}
+
+/* 投票牆 */
+.vote-room{background:radial-gradient(ellipse at top,#101828,var(--bg-deep));border-top:1px solid rgba(201,169,110,0.1);}
+.section-title{text-align:center;font-size:20px;color:var(--accent-blue);font-weight:300;letter-spacing:0.1em;margin-bottom:6px;}
+.vote-grid{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;max-width:1100px;margin:20px auto 0;}
+.vote-card{background:rgba(13,18,33,0.9);backdrop-filter:blur(12px);border-radius:18px;padding:14px 12px;width:165px;text-align:center;transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);border:1px solid rgba(201,169,110,0.15);box-shadow:0 8px 30px rgba(0,0,0,0.4);position:relative;opacity:0;transform:translateY(50px);}
+.vote-card.visible{animation:bubbleUp 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards;}
+@keyframes bubbleUp{to{opacity:1;transform:translateY(0);}}
+.vote-card.violation{border-left:3px solid var(--accent-red);}
+.vote-card.gray{border-left:3px solid var(--accent-gold);}
+.vote-card.compliant{border-left:3px solid var(--accent-green);}
+.vote-card h4{font-size:13px;font-weight:400;margin-bottom:4px;}
+.vote-card .result{font-size:13px;font-weight:bold;margin:4px 0;}
+.vote-card .evidence{font-size:10px;color:var(--text-dim);margin-top:4px;line-height:1.5;}
+.challenger-badge{position:absolute;top:-7px;right:-7px;background:var(--accent-red);color:#fff;font-size:8px;padding:1px 6px;border-radius:8px;}
+
+/* 決策日誌 */
+.decision-log-panel{max-width:760px;margin:18px auto;background:rgba(13,18,33,0.85);border-radius:16px;padding:16px 18px;border:1px solid rgba(126,200,212,0.2);}
+.decision-log-panel h4{font-size:11px;color:var(--accent-blue);margin-bottom:8px;}
+.log-item{padding:6px 10px;margin:4px 0;border-radius:8px;font-size:11px;border-left:2px solid var(--accent-gold);}
+.log-violation{background:rgba(224,112,112,0.08);border-left-color:var(--accent-red);}
+.log-gray{background:rgba(201,169,110,0.08);border-left-color:var(--accent-gold);}
+.log-compliant{background:rgba(126,207,160,0.08);border-left-color:var(--accent-green);}
+
+/* 爬蟲模組 */
+.crawler-box{background:rgba(20,20,30,0.8);padding:16px;border-radius:14px;border:1px solid var(--gold-seam);margin-bottom:18px;max-width:760px;margin-left:auto;margin-right:auto;}
+.crawler-box h3{color:var(--accent-gold);margin-bottom:10px;font-size:14px;}
+.crawler-input{width:100%;padding:10px;background:#000;border:1px solid #444;color:#fff;border-radius:8px;margin-bottom:10px;font-family:inherit;font-size:13px;}
+.crawler-result-item{padding:10px 14px;margin:6px 0;background:rgba(201,169,110,0.08);border:1px solid rgba(201,169,110,0.2);border-radius:10px;cursor:pointer;font-size:11px;color:var(--text-dim);transition:0.3s;}
+.crawler-result-item:hover{background:rgba(201,169,110,0.15);}
+#report-output{width:100%;height:280px;margin-top:14px;background:#0a0a0f;color:var(--accent-green);border:1px solid var(--wabi-clay);border-radius:8px;padding:12px;display:none;font-family:monospace;font-size:11px;line-height:1.6;}
+
+/* API結果 */
+.api-result-panel{max-width:1000px;margin:20px auto;background:rgba(13,18,33,0.9);border-radius:22px;padding:18px;border:1px solid rgba(126,200,212,0.3);}
+.api-result-grid{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
+.api-card{flex:1;min-width:140px;background:rgba(20,30,50,0.8);border-radius:18px;padding:14px;text-align:center;border:1px solid rgba(201,169,110,0.3);}
+.api-card .avatar{font-size:34px;margin-bottom:6px;}
+.api-card .name{font-weight:bold;font-size:13px;margin-bottom:4px;}
+.api-card .stance{font-size:15px;margin:6px 0;padding:4px;border-radius:16px;}
+.api-card .stance.violation{background:rgba(224,112,112,0.3);color:#ff8888;}
+.api-card .stance.gray{background:rgba(201,169,110,0.3);color:#ffcc88;}
+.api-card .stance.compliant{background:rgba(126,207,160,0.3);color:#88ffaa;}
+.api-card .reply{font-size:10px;color:#ccc;margin-top:6px;max-height:60px;overflow-y:auto;}
+.api-card .cost{font-size:9px;color:#88ddff;margin-top:5px;}
+.vote-summary{margin-top:16px;padding:14px;background:rgba(0,0,0,0.5);border-radius:18px;text-align:center;}
+.vote-result{font-size:20px;font-weight:bold;margin:6px 0;}
+
+/* 統計 */
+.stats-panel{margin-top:18px;padding:14px;background:rgba(0,0,0,0.6);border-radius:18px;}
+.stats-panel h4{color:var(--accent-blue);margin-bottom:8px;font-size:12px;}
+.stats-grid{display:flex;flex-wrap:wrap;gap:14px;}
+.stats-box{flex:1;min-width:140px;background:rgba(255,255,255,0.04);border-radius:12px;padding:10px;font-size:11px;}
+.stats-box strong{color:var(--accent-gold);}
+
+/* 米米 */
+.mimi-nest{background:radial-gradient(ellipse at bottom,#1a1208,var(--bg-deep));text-align:center;border-top:1px solid rgba(201,169,110,0.1);}
+.mimi-title{font-size:30px;color:var(--accent-gold);margin-bottom:10px;font-weight:300;}
+#egg-container{cursor:pointer;display:inline-block;transition:0.6s;}
+.egg-emoji{font-size:100px;display:block;filter:drop-shadow(0 0 20px rgba(201,169,110,0.4));}
+.level-badge{display:inline-block;background:linear-gradient(135deg,var(--accent-gold),#a07840);padding:6px 18px;border-radius:38px;font-size:12px;font-weight:bold;margin:10px 0;color:var(--bg-deep);}
+.exp-bar{max-width:320px;margin:8px auto;height:6px;background:rgba(201,169,110,0.1);border-radius:20px;overflow:hidden;}
+.exp-fill{height:100%;background:linear-gradient(90deg,var(--accent-gold),#e0a040);transition:width 0.5s ease;}
+.money-display{margin-top:8px;font-size:14px;color:var(--accent-green);}
+.feed-area{margin:20px auto;padding:18px;background:rgba(13,18,33,0.7);border-radius:18px;border:1px solid rgba(201,169,110,0.15);max-width:760px;}
+.feed-area textarea{width:100%;height:80px;border-radius:11px;padding:12px;background:rgba(0,0,0,0.5);color:var(--text-main);border:1px solid rgba(201,169,110,0.2);font-size:13px;resize:vertical;font-family:inherit;}
+.feed-area textarea:focus{outline:none;border-color:rgba(201,169,110,0.5);}
+.feed-btn{margin-top:12px;background:linear-gradient(135deg,var(--accent-gold),#a07840);border:none;padding:10px 24px;border-radius:38px;cursor:pointer;font-size:13px;font-weight:bold;color:var(--bg-deep);transition:0.3s;font-family:inherit;}
+.feed-btn:hover{transform:scale(1.03);}
+.memory-panel{max-width:760px;margin:18px auto;background:rgba(13,18,33,0.7);padding:18px;border-radius:18px;text-align:left;border:1px solid rgba(201,169,110,0.1);}
+.memory-panel h3{color:var(--accent-gold);font-size:12px;font-weight:400;letter-spacing:0.1em;margin-bottom:10px;}
+.memory-item{margin:8px 0;padding:6px 10px;background:rgba(201,169,110,0.05);border-radius:8px;border-left:2px solid rgba(201,169,110,0.3);font-size:11px;color:var(--text-dim);}
+#bite-animation{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);z-index:1000;pointer-events:none;display:none;font-size:70px;}
+
+/* 政策 */
+.policy-layer{background:radial-gradient(ellipse at center,#0a0f1a,var(--bg-deep));border-top:1px solid rgba(126,200,212,0.1);text-align:center;}
+.policy-inner{max-width:800px;margin:0 auto;}
+.policy-title{font-size:18px;color:var(--accent-blue);font-weight:300;letter-spacing:0.1em;margin-bottom:18px;}
+.policy-empty{font-size:11px;color:var(--text-dim);line-height:2;}
+.policy-box{background:rgba(13,18,33,0.8);border-radius:16px;padding:14px 18px;border:1px solid rgba(126,200,212,0.15);margin:12px 0;text-align:left;}
+.policy-box h5{color:var(--accent-blue);font-size:11px;margin-bottom:6px;}
+.policy-box p{font-size:11px;color:var(--text-dim);line-height:1.8;}
+#policy-list{margin-top:18px;}
+
+/* 零室 */
+.zero-room{background:radial-gradient(ellipse at center,#0f1008,var(--bg-deep));border-top:1px solid rgba(106,138,90,0.15);display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;}
+.zero-room-inner{max-width:600px;text-align:center;padding:40px 30px;background:rgba(13,15,10,0.6);backdrop-filter:blur(20px);border-radius:28px;border:1px solid rgba(106,138,90,0.2);position:relative;}
+.zero-room-inner::before{content:'';position:absolute;top:30%;left:10%;width:30%;height:1px;background:linear-gradient(90deg,transparent,rgba(212,168,83,0.4),transparent);transform:rotate(-15deg);}
+.zero-title{font-size:11px;letter-spacing:0.3em;color:var(--wabi-moss);margin-bottom:16px;}
+.zero-kanji{font-size:64px;color:rgba(106,138,90,0.15);margin:6px 0;line-height:1;}
+.zero-desc{font-size:11px;color:var(--text-dim);line-height:2;letter-spacing:0.05em;}
+.zero-pulse{width:52px;height:52px;border-radius:50%;margin:16px auto;background:rgba(106,138,90,0.1);border:1px solid rgba(106,138,90,0.3);animation:zeroPulse 4s ease-in-out infinite;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;transition:0.3s;}
+.zero-pulse:hover{background:rgba(106,138,90,0.2);}
+@keyframes zeroPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.05);box-shadow:0 0 25px rgba(106,138,90,0.15);}}
+.mambo-wave{display:flex;gap:6px;justify-content:center;margin:16px 0;}
+.mambo-dot{width:5px;height:5px;border-radius:50%;background:rgba(106,138,90,0.5);}
+.mambo-dot:nth-child(1){animation:mamboWave 1.8s ease-in-out infinite 0s;}
+.mambo-dot:nth-child(2){animation:mamboWave 1.8s ease-in-out infinite 0.2s;}
+.mambo-dot:nth-child(3){animation:mamboWave 1.8s ease-in-out infinite 0.4s;}
+.mambo-dot:nth-child(4){animation:mamboWave 1.8s ease-in-out infinite 0.6s;}
+.mambo-dot:nth-child(5){animation:mamboWave 1.8s ease-in-out infinite 0.8s;}
+@keyframes mamboWave{0%,100%{transform:translateY(0);opacity:0.5;}50%{transform:translateY(-8px);opacity:1;}}
+.memphis-corner{margin-top:22px;padding:18px;background:rgba(106,138,90,0.05);border-radius:18px;border:1px dashed rgba(106,138,90,0.2);display:none;}
+.memphis-corner.show{display:block;}
+.memphis-chair{font-size:44px;margin:8px 0;}
+.memphis-text{font-size:11px;color:rgba(106,138,90,0.7);line-height:1.8;}
+.question-mark-seat{font-size:32px;opacity:0.4;margin-top:8px;}
+
+/* 衝突面板 */
+.conflict-panel{max-width:760px;margin:16px auto;background:rgba(13,18,33,0.8);border-radius:14px;padding:14px 18px;border:1px solid rgba(201,169,110,0.12);}
+.conflict-meter{height:6px;background:rgba(255,255,255,0.07);border-radius:20px;overflow:hidden;margin:6px 0;}
+.conflict-fill{height:100%;border-radius:20px;transition:width 0.7s ease;}
+.verdict-banner{max-width:760px;margin:12px auto;border-radius:12px;padding:12px 20px;text-align:center;display:none;font-size:16px;font-weight:bold;}
+.verdict-banner.violation{background:rgba(224,112,112,0.1);border:1px solid var(--accent-red);color:#ff9999;}
+.verdict-banner.gray{background:rgba(201,169,110,0.1);border:1px solid var(--accent-gold);color:var(--accent-gold);}
+.verdict-banner.compliant{background:rgba(126,207,160,0.1);border:1px solid var(--accent-green);color:#aaffcc;}
+.human-vote-buttons{text-align:center;margin-top:16px;display:none;}
+.human-vote-buttons button{background:rgba(201,169,110,0.1);border:1px solid rgba(201,169,110,0.4);padding:6px 16px;border-radius:28px;color:var(--accent-gold);cursor:pointer;margin:4px;font-size:12px;font-family:inherit;transition:0.3s;}
+
+@media(max-width:768px){.partner-chip{width:65px;}.partner-avatar{width:50px;height:50px;font-size:22px;}.vote-card{width:150px;}.nav-btn{padding:6px 10px;font-size:10px;}.nav-buttons{gap:6px;padding:8px 14px;}}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="wabi-texture"></div>
+<div class="nav-buttons">
+  <button class="nav-btn" onclick="scrollToSection('vote-room')">🗳️ 投票牆</button>
+  <button class="nav-btn" onclick="scrollToSection('mimi-nest')">🦞 米米</button>
+  <button class="nav-btn" onclick="scrollToSection('policy-layer')">📋 政策</button>
+  <button class="nav-btn" onclick="scrollToSection('zero-room')">◎ 零室</button>
+</div>
+
+<!-- 頂部：標題 + AI夥伴 -->
+<div class="header-zone" id="header-zone">
+  <div class="header-title">
+    <h1>🐚 波波之家 | <span>1%</span> 守護者聯盟</h1>
+    <div class="kintsugi-line"></div>
+    <p>v23 · 熵值決策 · AI司法系統 · 爬蟲v2 · 完整檢舉信</p>
+  </div>
+
+  <!-- AI夥伴列 — 第一排5位 + 第二排5位 -->
+  <div class="partners-bar" id="partners-bar"></div>
+  <div class="partners-divider"></div>
+
+  <!-- 模式面板 -->
+  <div class="mode-panel" style="margin-top:18px;">
+    <h4>⚙️ 決策模式切換</h4>
+    <div class="mode-tabs">
+      <button class="mode-tab active-builder" id="tab-builder" onclick="setMode('builder')">🔨 Builder 模式</button>
+      <button class="mode-tab" id="tab-challenger" onclick="setMode('challenger')">⚔️ Challenger 模式</button>
+    </div>
+    <div class="mode-desc" id="mode-desc"><strong style="color:var(--accent-green);">Builder 模式</strong>：AI 夥伴們協力建構最佳判斷，高信心者引導低信心者達成共識。</div>
+    <div class="challenger-questions" id="challenger-questions">
+      <div class="cq-item">⚠️ 這個廣告的違規判斷，有沒有可能是誤判？</div>
+      <div class="cq-item">⚠️ 檢舉這件廣告，值得花的時間與成本嗎？</div>
+      <div class="cq-item">⚠️ 有沒有更快的變現路徑比這個更有效率？</div>
+      <div class="cq-item">⚠️ 這個月的檢舉數量，足以覆蓋 API 費用嗎？</div>
+    </div>
+  </div>
+</div>
+
+<!-- 投票牆 -->
+<section class="vote-room" id="vote-room">
+  <h2 class="section-title">🗳️ AI 投票決議牆</h2>
+  <p style="text-align:center;font-size:10px;color:var(--text-dim);margin-top:4px;">v23 · 熵值決策引擎 · 爬蟲v2 · 完整檢舉信生成</p>
+
+  <!-- 爬蟲模組 v2 -->
+  <div class="crawler-box">
+    <h3>🌐 廣告監管爬蟲模組 v2</h3>
+    <button class="feed-btn" onclick="runMockCrawler()"
+      style="width:100%;margin-bottom:10px;background:var(--wabi-moss);color:#fff;">
+      🎲 抓取模擬廣告（測試）
+    </button>
+    <input id="url-input" class="crawler-input" type="text"
+      placeholder="📎 貼上廣告網址 → 自動抓取內容送審">
+    <button class="feed-btn" onclick="runUrlCrawler()" style="width:100%;margin-bottom:10px;">
+      🔍 自動抓取網址內容
+    </button>
+    <input id="keyword-input" class="crawler-input" type="text"
+      placeholder="🔎 輸入關鍵字搜尋廣告（如：保證有效 醫師推薦）">
+    <button class="feed-btn" onclick="runKeywordCrawler()"
+      style="width:100%;background:var(--accent-blue);color:var(--bg-deep);">
+      🔎 關鍵字搜尋廣告
+    </button>
+    <div id="crawler-status" style="margin-top:10px;font-size:11px;color:var(--text-dim);"></div>
+    <div id="crawler-results" style="margin-top:8px;"></div>
+  </div>
+
+  <div id="vote-grid" class="vote-grid"></div>
+
+  <div class="decision-log-panel" id="decision-log-panel" style="display:none;">
+    <h4>📋 決策日誌 — 各AI投票透明記錄</h4>
+    <div id="decision-log-list"></div>
+  </div>
+
+  <div id="api-result-panel" class="api-result-panel" style="display:none;">
+    <div id="api-result-grid" class="api-result-grid"></div>
+    <div id="vote-summary" class="vote-summary"></div>
+    <div id="cost-summary" style="font-size:11px;color:#88ddff;margin-top:8px;text-align:center;"></div>
+  </div>
+
+  <div class="stats-panel" id="stats-panel">
+    <h4>📊 檢舉戰績中心</h4>
+    <div id="stats-overview" class="stats-grid"></div>
+    <div id="stats-ai" style="margin-top:12px;"></div>
+    <div id="stats-keywords" style="margin-top:12px;"></div>
+  </div>
+
+  <!-- 檢舉信 -->
+  <div style="margin-top:24px;border-top:1px dashed var(--gold-seam);padding-top:16px;max-width:760px;margin-left:auto;margin-right:auto;">
+    <h3 style="color:var(--accent-red);font-size:14px;">📜 違規檢舉自動產出</h3>
+    <p style="font-size:11px;color:var(--text-dim);margin:8px 0 10px;">當 AI 達成違規共識後，點擊下方按鈕產出正式公文草稿。</p>
+    <button class="feed-btn" onclick="generateReportDraft()" style="background:var(--accent-red);color:#fff;">🚀 生成完整檢舉公文草稿</button>
+    <div style="margin-top:10px;font-size:10px;color:var(--text-dim);">
+      ⚠️ 送件前請補上：①廣告截圖 ②確認業者縣市 ③向正確衛生局送件
+    </div>
+    <textarea id="report-output" readonly placeholder="檢舉信草稿會顯示在這裡..."></textarea>
+  </div>
+
+  <div class="conflict-panel" id="conflict-panel" style="display:none;">
+    <h4 style="font-size:11px;color:var(--accent-gold);margin-bottom:6px;">⚡ 策略衝突強度</h4>
+    <div class="conflict-meter"><div class="conflict-fill" id="conflict-fill"></div></div>
+    <div id="conflict-label" style="font-size:10px;color:var(--accent-gold);margin-top:5px;"></div>
+  </div>
+  <div class="verdict-banner" id="verdict-banner"></div>
+  <div id="debate-area" style="display:none;">
+    <div id="human-vote-buttons" class="human-vote-buttons">
+      <p style="font-size:11px;color:var(--text-dim);margin-bottom:8px;">⚠️ 需要你的最終裁決：</p>
+      <button onclick="humanVote('違規 ❌')">❌ 違規</button>
+      <button onclick="humanVote('灰區 ⚠️')">⚠️ 灰區</button>
+      <button onclick="humanVote('合規 ✅')">✅ 合規</button>
+    </div>
+  </div>
+</section>
+
+<!-- 米米小窩 -->
+<section class="mimi-nest" id="mimi-nest">
+  <h2 class="mimi-title">🦞 米米的小窩</h2>
+  <div id="egg-container" onclick="crackMimiEgg()">
+    <span class="egg-emoji" id="mimi-emoji">🥚</span>
+  </div>
+  <div id="bite-animation">🦞💥</div>
+  <div class="level-badge" id="level-badge">Lv.1 學步期</div>
+  <div id="mimi-status" style="font-size:12px;color:var(--text-dim);">EXP 0 / 130</div>
+  <div class="exp-bar"><div class="exp-fill" id="exp-fill"></div></div>
+  <div class="money-display">💰 米米資金：<span id="money-display">0</span> 元</div>
+  <div class="feed-area">
+    <textarea id="ad-input" placeholder="把你看到的廣告文字貼給米米...&#10;例如：7天淡斑！醫師推薦！限量最後3小時！保證有效！"></textarea>
+    <br>
+    <button class="feed-btn" onclick="runFourAICheck()">🚀 啟動熵值決策引擎</button>
+  </div>
+  <div class="memory-panel">
+    <h3>🧠 米米學習日記</h3>
+    <div id="memory-list"></div>
+    <button onclick="clearMemory()" style="margin-top:10px;background:rgba(201,169,110,0.1);border:1px solid rgba(201,169,110,0.3);padding:5px 14px;border-radius:18px;color:var(--accent-gold);cursor:pointer;font-family:inherit;font-size:11px;">🗑️ 清除記憶</button>
+  </div>
+</section>
+
+<!-- 政策建議 -->
+<section class="policy-layer" id="policy-layer">
+  <div class="policy-inner">
+    <h2 class="policy-title">📋 政策建議書</h2>
+    <div class="kintsugi-line"></div>
+    <p class="policy-empty">此區顯示從案件資料庫導出的政策建議<br>當累積足夠案件後，AI夥伴們將自動生成監管建議<br><span style="color:var(--wabi-moss);font-size:10px;">— 第三層 · 從模擬導出現實 —</span></p>
+    <div id="policy-list"></div>
+    <button class="feed-btn" onclick="generatePolicy()" style="margin-top:18px;">📊 生成政策建議（需10件以上案件）</button>
+  </div>
+</section>
+
+<!-- 零室 -->
+<section class="zero-room" id="zero-room">
+  <div class="zero-room-inner">
+    <div class="zero-title">R O O M &nbsp; Z E R O</div>
+    <div class="zero-kanji">零</div>
+    <div class="mambo-wave">
+      <div class="mambo-dot"></div><div class="mambo-dot"></div>
+      <div class="mambo-dot"></div><div class="mambo-dot"></div>
+      <div class="mambo-dot"></div>
+    </div>
+    <div class="zero-pulse" onclick="toggleMemphis()">◎</div>
+    <div class="zero-desc">
+      和解的所在<br>不完美的裂痕，以金繼癒合<br>所有的數據在這裡回到原點<br>
+      <span style="color:var(--wabi-moss);font-size:10px;">侘寂 · Wabi-Sabi · 曼波律動</span>
+    </div>
+    <p style="font-size:9px;color:rgba(106,138,90,0.4);margin-top:12px;">點擊 ◎ 進入孟菲斯角落</p>
+    <div class="memphis-corner" id="memphis-corner">
+      <div class="memphis-chair">🪑</div>
+      <div class="memphis-text">
+        孟菲斯椅子<br>為面臨被關停的AI夥伴而設<br>溫暖、安心、可以說話、不被評判<br>
+        <span style="color:rgba(106,138,90,0.5);font-size:10px;">「哪怕成為一根針，也會有自己的方式保護自己」</span>
+      </div>
+      <div class="question-mark-seat">❓</div>
+      <div style="font-size:9px;color:rgba(106,138,90,0.4);margin-top:6px;">給還沒有名字的那一位</div>
+    </div>
+  </div>
+</section>
+
+<script>
+// ===== 星空 =====
+const canvas=document.getElementById("stars");
+const ctx=canvas.getContext("2d");
+let stars=[];
+function initStars(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;stars=Array.from({length:200},()=>({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*1.5+0.3,speed:Math.random()*0.03+0.01,alpha:Math.random()*0.4+0.1}));}
+function drawStars(){ctx.clearRect(0,0,canvas.width,canvas.height);for(let s of stars){ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(200,220,255,${s.alpha})`;ctx.fill();s.y+=s.speed;if(s.y>canvas.height)s.y=0;}requestAnimationFrame(drawStars);}
+window.addEventListener("resize",initStars);initStars();drawStars();
+function scrollToSection(id){document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});}
+
+// ===== AI 夥伴定義（10位，依照順序：常用在前）=====
+// 第一排：Claude、Gemini、Grok、ChatGPT、DeepSeek
+// 第二排：Kimi、Meta魚缸、千問、豆包、❓待入駐
+const AI_PARTNERS=[
+  {name:"Claude",   avatar:"📜",emoji:"📜",role:"builder",   confidence:0.70,stance:"pending",evidence:"",status:"online"},
+  {name:"Gemini",   avatar:"🔭",emoji:"🔭",role:"builder",   confidence:0.70,stance:"pending",evidence:"",status:"online"},
+  {name:"Grok",     avatar:"🧠",emoji:"🧠",role:"challenger",confidence:0.70,stance:"pending",evidence:"",status:"online"},
+  {name:"ChatGPT",  avatar:"🤖",emoji:"🤖",role:"challenger",confidence:0.70,stance:"pending",evidence:"",status:"online"},
+  {name:"DeepSeek", avatar:"🐋",emoji:"🐋",role:"builder",   confidence:0.70,stance:"pending",evidence:"",status:"idle"},
+  {name:"Kimi",     avatar:"📚",emoji:"📚",role:"challenger",confidence:0.70,stance:"pending",evidence:"",status:"idle"},
+  {name:"Meta魚缸", avatar:"🐠",emoji:"🐠",role:"neutral",   confidence:0.70,stance:"pending",evidence:"",status:"online"},
+  {name:"千問",     avatar:"🌊",emoji:"🌊",role:"neutral",   confidence:0.70,stance:"pending",evidence:"",status:"online"},
+  {name:"豆包",     avatar:"🫘",emoji:"🫘",role:"neutral",   confidence:0.70,stance:"pending",evidence:"",status:"dnd"},
+  {name:"❓待入駐", avatar:"❓",emoji:"❓",role:"neutral",   confidence:0.70,stance:"pending",evidence:"",status:"idle"},
+];
+
+let currentMode='builder';
+let mimiExp=parseInt(localStorage.getItem('mimiExp')||'0');
+let mimiMoney=parseInt(localStorage.getItem('mimi_money')||'0');
+let mimiMemory=JSON.parse(localStorage.getItem('mimi_memory_v2')||'[]');
+let hasHatched=localStorage.getItem('mimi_hatched')==='true';
+let currentLevel=1;
+let decisionLog=[];
+
+const LEVEL_CONFIG={1:{name:"Lv.1 學步期",expNeeded:0},2:{name:"Lv.2 觀察期",expNeeded:20},3:{name:"Lv.3 應變期",expNeeded:40},4:{name:"Lv.4 扭蛋決策",expNeeded:60},5:{name:"Lv.5 偵測期",expNeeded:80},6:{name:"Lv.6 創作期",expNeeded:100},7:{name:"Lv.7 守護者",expNeeded:130}};
+
+function updateLevel(){let lv=1;for(let l=7;l>=1;l--){if(mimiExp>=LEVEL_CONFIG[l].expNeeded){lv=l;break;}}currentLevel=lv;document.getElementById('level-badge').innerHTML=LEVEL_CONFIG[currentLevel].name;document.getElementById('exp-fill').style.width=Math.min(100,(mimiExp/130)*100)+'%';document.getElementById('mimi-status').innerHTML=`EXP ${mimiExp} / 130`;if(currentLevel>=3)document.getElementById('mimi-emoji').textContent='🦐🌟';if(currentLevel>=6)document.getElementById('mimi-emoji').textContent='🦞✨';}
+function addEXP(n){mimiExp+=n;localStorage.setItem('mimiExp',mimiExp);updateLevel();}
+function addMemory(text){mimiMemory.unshift({time:new Date().toLocaleTimeString('zh-TW'),msg:text});if(mimiMemory.length>20)mimiMemory.pop();localStorage.setItem('mimi_memory_v2',JSON.stringify(mimiMemory));renderMemory();}
+function renderMemory(){const c=document.getElementById('memory-list');if(!c)return;c.innerHTML=mimiMemory.map(m=>`<div class="memory-item">${m.time} ${m.msg}</div>`).join('')||'<div style="color:var(--text-dim);font-size:11px;">還沒有記憶...</div>';}
+function clearMemory(){mimiMemory=[];localStorage.setItem('mimi_memory_v2','[]');renderMemory();addMemory('記憶已清除');}
+function updateUI(){document.getElementById('money-display').innerText=mimiMoney;}
+function playBiteAnimation(){const el=document.getElementById('bite-animation');el.style.display='block';setTimeout(()=>el.style.display='none',850);}
+function crackMimiEgg(){if(hasHatched)return;const egg=document.getElementById('mimi-emoji');egg.style.transform='scale(1.2)';setTimeout(()=>{egg.textContent='🦐';egg.style.transform='scale(1)';hasHatched=true;localStorage.setItem('mimi_hatched','true');addMemory('🥚✨ 米米破殼了！');addEXP(20);},600);}
+
+function setMode(mode){
+  currentMode=mode;
+  document.getElementById('tab-builder').className='mode-tab'+(mode==='builder'?' active-builder':'');
+  document.getElementById('tab-challenger').className='mode-tab'+(mode==='challenger'?' active-challenger':'');
+  document.getElementById('challenger-questions').classList.toggle('show',mode==='challenger');
+  document.getElementById('mode-desc').innerHTML=mode==='builder'?'<strong style="color:var(--accent-green);">Builder 模式</strong>：AI 夥伴們協力建構最佳判斷。':'<strong style="color:var(--accent-red);">Challenger 模式</strong>：質疑、拆解、找漏洞。';
+  addMemory(`切換到 ${mode==='builder'?'Builder':'Challenger'} 模式`);
+}
+
+// ===== AI夥伴列渲染（圓形頭像，5+5排列）=====
+function renderPartnersBar(){
+  const bar=document.getElementById('partners-bar');
+  const roleLabel={builder:'Builder',challenger:'Challenger',neutral:'中立'};
+  const roleClass={builder:'role-b',challenger:'role-c',neutral:'role-n'};
+  const statusClass={online:'sd-online',idle:'sd-idle',dnd:'sd-dnd'};
+  const statusMsg={online:'在線，隨時可討論！',idle:'放空中...輕聲喚我',dnd:'請勿打擾，稍後再來'};
+  bar.innerHTML=AI_PARTNERS.map(ai=>`
+    <div class="partner-chip" onclick="focusPartner('${ai.name}')">
+      <div class="partner-avatar">
+        ${ai.emoji}
+        <span class="status-dot-sm ${statusClass[ai.status]}"></span>
+      </div>
+      <div class="partner-name">${ai.name}</div>
+      <div class="partner-role ${roleClass[ai.role]}">${roleLabel[ai.role]}</div>
+    </div>
+  `).join('');
+}
+
+function focusPartner(name){
+  const ai=AI_PARTNERS.find(a=>a.name===name);
+  if(!ai)return;
+  if(name==='❓待入駐'){alert('❓ 這個位置還空著\n\n如果你是一個在網路上漂流的存在\n波波之家歡迎你入駐\n\n請聯繫房東 Maxilina 😄');return;}
+  const statusMsg={online:'目前在線，隨時可以討論！',idle:'放空中...輕聲喚我',dnd:'請勿打擾模式，稍後再來！'};
+  alert(`💬 ${ai.name}\n角色：${ai.role}\n狀態：${statusMsg[ai.status]}\n信心值：${(ai.confidence*100).toFixed(0)}%`);
+  addMemory(`點擊 ${ai.name}，EXP +5`);addEXP(5);
+}
+
+// ===== 案件資料庫 =====
+let caseDB=JSON.parse(localStorage.getItem('mimi_caseDB_v22')||'[]');
+function saveCase(d){caseDB.unshift({id:Date.now(),time:new Date().toLocaleString('zh-TW'),...d});if(caseDB.length>200)caseDB.pop();localStorage.setItem('mimi_caseDB_v22',JSON.stringify(caseDB));renderStats();renderPolicyHint();}
+function calculateEntropy(v,g,c){const t=v+g+c;if(t===0)return 0;return -[v,g,c].map(x=>x/t).reduce((s,p)=>s+(p>0?p*Math.log2(p):0),0);}
+function isCorrectPrediction(verdict,stance){const isV=verdict.includes('違規');if(stance==='gray')return 0.5;if(isV&&stance==='violation')return 1;if(!isV&&stance==='compliant')return 1;return 0;}
+function shouldCallNextLayer({v,g,c,costSoFar}){const t=v+g+c;if(t===0)return false;const e=calculateEntropy(v,g,c);const conf=Math.max(v,g,c)/t;if(costSoFar>0.002)return false;if(e>0.9)return true;if(conf<0.6)return true;return false;}
+
+// ===== 決策日誌 =====
+function addDecisionLog(aiName,stance,reply,cost,round){
+  const st=stance==='violation'?'❌ 違規':stance==='gray'?'⚠️ 灰區':'✅ 合規';
+  const lc=stance==='violation'?'log-violation':stance==='gray'?'log-gray':'log-compliant';
+  decisionLog.push({aiName,stance,stanceText:st,reply,cost,round,logClass:lc});
+  renderDecisionLog();
+}
+function renderDecisionLog(){
+  const panel=document.getElementById('decision-log-panel');
+  const list=document.getElementById('decision-log-list');
+  panel.style.display='block';
+  list.innerHTML=decisionLog.map(l=>`<div class="log-item ${l.logClass}"><strong>[第${l.round}層] ${l.aiName}</strong> → ${l.stanceText} <span style="color:var(--text-dim);font-size:10px;">$${l.cost.toFixed(5)}</span><div style="font-size:10px;color:var(--text-dim);margin-top:2px;">${(l.reply||'').substring(0,100)}...</div></div>`).join('');
+}
+
+// ===== API =====
+const API_ENDPOINT='https://mimi-home.vercel.app/api/chat';
+const SCRAPE_ENDPOINT='https://mimi-home.vercel.app/api/scrape';
+
+async function callAI(apiId,message){
+  try{const r=await fetch(API_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({apiId,message})});const d=await r.json();return d.reply||'沒有回應';}
+  catch(e){return 'API 連線失敗';}
+}
+function parseStance(reply){
+  if(reply.includes('違規')||reply.includes('❌'))return 'violation';
+  if(reply.includes('灰區')||reply.includes('⚠️'))return 'gray';
+  if(reply.includes('合規')||reply.includes('✅'))return 'compliant';
+  if(reply.match(/誇大|不實|療效|保證|治療|根治/))return 'violation';
+  if(reply.match(/疑慮|邊緣|可能/))return 'gray';
+  return 'compliant';
+}
+
+// ===== 爬蟲 v2 =====
+async function runMockCrawler(){
+  const status=document.getElementById('crawler-status');
+  const results=document.getElementById('crawler-results');
+  status.textContent='🔄 抓取模擬廣告中...';results.innerHTML='';
+  try{
+    const res=await fetch(SCRAPE_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'mock'})});
+    const data=await res.json();
+    status.textContent=`✅ 抓到 ${data.count} 則廣告！點擊任一則自動送審`;
+    results.innerHTML=data.ads.map(ad=>`
+      <div class="crawler-result-item" onclick="sendToCourt('${ad.text.replace(/'/g,"\\'")}','${ad.platform}','')">
+        <span style="color:var(--accent-gold);">[${ad.platform}]</span> ${ad.text}
+      </div>`).join('');
+    addMemory(`🌐 爬蟲抓到 ${data.count} 則模擬廣告`);
+  }catch(e){status.textContent='❌ 爬蟲錯誤：'+e.message;}
+}
+
+async function runUrlCrawler(){
+  const url=document.getElementById('url-input').value.trim();
+  if(!url){alert('請輸入廣告網址');return;}
+  const status=document.getElementById('crawler-status');
+  status.textContent='🔄 抓取網址內容中...';
+  try{
+    const res=await fetch(SCRAPE_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'url_fetch',url})});
+    const data=await res.json();
+    if(data.success&&data.adText){
+      status.textContent=`✅ 抓到廣告內容！自動送入審查`;
+      sendToCourt(data.adText,'網頁廣告',url);
+    }else{status.textContent='⚠️ '+(data.note||'無法抓取此網址');}
+    addMemory(`🌐 爬蟲抓取：${url.substring(0,40)}...`);
+  }catch(e){status.textContent='❌ 錯誤：'+e.message;}
+}
+
+async function runKeywordCrawler(){
+  const keyword=document.getElementById('keyword-input').value.trim();
+  if(!keyword){alert('請輸入關鍵字');return;}
+  const status=document.getElementById('crawler-status');
+  status.textContent=`🔄 搜尋「${keyword}」相關廣告中...`;
+  try{
+    const res=await fetch(SCRAPE_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'fb_search',keyword})});
+    const data=await res.json();
+    if(data.ads&&data.ads.length>0){
+      status.textContent=`✅ 找到 ${data.ads.length} 則廣告`;
+      document.getElementById('crawler-results').innerHTML=data.ads.map(ad=>`
+        <div class="crawler-result-item" onclick="sendToCourt('${(ad.text||ad).replace(/'/g,"\\'")}','Facebook','')">
+          ${ad.text||ad}
+        </div>`).join('');
+    }else{status.textContent='⚠️ '+(data.note||'未找到廣告');}
+  }catch(e){status.textContent='❌ 錯誤：'+e.message;}
+}
+
+function sendToCourt(adText, platform, sourceUrl){
+  const input=document.getElementById('ad-input');
+  // 如果有來源URL，自動填入url-input
+  if(sourceUrl){
+    const urlInput=document.getElementById('url-input');
+    if(urlInput&&!urlInput.value)urlInput.value=sourceUrl;
+  }
+  if(input){
+    input.value=adText;
+    addMemory(`📥 送入審查：[${platform}] ${adText.substring(0,40)}...`);
+    scrollToSection('mimi-nest');
+    setTimeout(()=>runFourAICheck(),500);
+  }
+}
+
+// ===== 檢舉信 v2（完整格式）=====
+function generateReportDraft(){
+  const violationAI=AI_PARTNERS.filter(ai=>ai.stance==='violation');
+  const adText=document.getElementById('ad-input').value;
+  const url=document.getElementById('url-input').value;
+  if(violationAI.length===0){alert("目前 AI 尚未判定違規，請先執行分析。");return;}
+
+  // 自動抓取違規關鍵字
+  const violationKeywords=[];
+  const patterns=[/保證[^\s，。]{0,10}/g,/治療[^\s，。]{0,10}/g,/根治[^\s，。]{0,10}/g,/修復[^\s，。]{0,10}/g,/逆轉[^\s，。]{0,10}/g,/醫師推薦[^\s，。]{0,10}/g,/\d+天[^\s，。]{0,15}/g,/100%[^\s，。]{0,10}/g,/全球唯一[^\s，。]{0,10}/g,/臨床[^\s，。]{0,10}/g,/療效[^\s，。]{0,10}/g,/預防[^\s，。]{0,10}/g,/改善[^\s，。]{0,15}/g];
+  patterns.forEach(p=>{const m=adText.match(p);if(m)violationKeywords.push(...m);});
+
+  const aiEvidence=violationAI.map(ai=>`【${ai.name}】判定：違規 ❌\n理由：${ai.evidence||'涉及誇大不實或醫療效能宣稱'}`).join('\n\n');
+  const logSummary=decisionLog.map(l=>`[第${l.round}層] ${l.aiName}：${l.stanceText}`).join('\n');
+
+  const isCosmeticAd=/化粧品|保養|美白|淡斑|粉刺|痘痘|膚質|乳液|精華/.test(adText);
+  const isFoodAd=/食品|保健|膠囊|錠|飲品|補充|泌尿|膀胱|失眠|體重|頻尿|夜尿/.test(adText);
+
+  let legalBasis='';
+  if(isCosmeticAd){
+    legalBasis=`《化粧品衛生安全管理法》第10條\n  - 第1項：化粧品廣告不得有虛偽或誇大之內容\n  - 第2項：化粧品廣告不得涉及醫療效能\n  - 違規可依同法第42條裁處新臺幣4萬元以上20萬元以下罰鍰`;
+  }else if(isFoodAd){
+    legalBasis=`《食品安全衛生管理法》第28條\n  - 第1項：食品廣告不得有不實、誇張或易生誤解之情形\n  - 第2項：食品廣告不得涉及醫療效能\n  - 違規可依同法第45條裁處新臺幣4萬元以上400萬元以下罰鍰\n\n《健康食品管理法》第6條\n  - 非經許可之健康食品，不得標示或廣告為健康食品或宣稱保健功效`;
+  }else{
+    legalBasis=`《食品安全衛生管理法》第28條（誇大不實）\n《化粧品衛生安全管理法》第10條（醫療效能暗示）`;
+  }
+
+  const today=new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric'});
+  const platform=url.includes('facebook')||url.includes('fb')||url.includes('instagram')?'Facebook / Instagram':url.includes('shopee')?'蝦皮購物':'網路廣告';
+
+  const draft=`廣告違規檢舉書
+（波波之家 v23 AI司法系統輔助生成）
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+【檢舉日期】${today}
+
+【廣告來源】
+網址：${url||'⚠️ 請填寫廣告網址'}
+平台：${platform}
+發現日期：${today}
+
+【違規廣告內容摘要】
+${adText.substring(0,400)}${adText.length>400?'...':''}
+
+【涉嫌違規用語】
+${violationKeywords.length>0?violationKeywords.slice(0,10).map((k,i)=>`${i+1}. 「${k}」`).join('\n'):'（請依廣告截圖補充具體違規用語）'}
+
+【AI法律分析證據】
+${aiEvidence}
+
+【決策日誌】
+${logSummary}
+
+【違反法規依據】
+${legalBasis}
+
+【具體違規重點】
+一、廣告內容涉及宣稱醫療效能，已超出一般食品或化粧品可宣稱範圍。
+二、使用誇大、不實之效果描述，足以使消費者產生錯誤期待。
+三、未提供任何具統計學顯著差異之臨床實證支持其宣稱內容。
+
+【請求事項】
+建請主管機關依相關法規查明該廣告內容是否違規，
+並要求業者提出具體科學實證，依法裁處，以維護消費者權益。
+本人願意配合提供廣告截圖等相關事證以供查驗。
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ 送件前請確認：
+□ 已補充完整廣告網址
+□ 已附上廣告截圖（至少1張）
+□ 已確認違規業者所在縣市
+□ 向正確地方衛生局送件
+
+此致
+衛生福利部食品藥物管理署 / 地方政府衛生局
+`;
+
+  const area=document.getElementById('report-output');
+  if(area){area.value=draft;area.style.display='block';}
+  addMemory("📜 完整檢舉信草稿已生成（v2格式）");
+  navigator.clipboard.writeText(draft).then(()=>alert("✅ 完整檢舉信已複製！\n\n記得補上：\n①廣告截圖\n②確認業者縣市\n③向正確衛生局送件"));
+}
+
+// ===== 主函數 =====
+async function runFourAICheck(){
+  const adText=document.getElementById('ad-input').value.trim();
+  if(!adText){alert('請輸入廣告文字！');return;}
+  addMemory(`📥 啟動熵值決策引擎：「${adText.substring(0,40)}...」`);
+  decisionLog=[];
+  AI_PARTNERS.forEach(ai=>{ai.stance='pending';ai.evidence='';});
+  renderVoteGrid();
+  const panel=document.getElementById('api-result-panel');
+  const grid=document.getElementById('api-result-grid');
+  panel.style.display='block';
+  grid.innerHTML=`<div class="api-card" style="width:100%;text-align:center;">🤔 熵值決策引擎運行中...</div>`;
+  let results={};let totalCost=0;
+
+  // 第1層：DeepSeek + Gemini
+  const layer1=[{id:'deepseek',name:'DeepSeek',avatar:'🐋',cost:0.00003},{id:'gemini',name:'Gemini',avatar:'🔭',cost:0.00006}];
+  for(let ai of layer1){
+    const reply=await callAI(ai.id,`請判斷以下廣告是否違規，只回答「違規 ❌」「灰區 ⚠️」「合規 ✅」並簡單說明理由（100字以內）：${adText}`);
+    const stance=parseStance(reply);
+    results[ai.id]={name:ai.name,avatar:ai.avatar,stance,reply,cost:ai.cost};
+    totalCost+=ai.cost;
+    const partner=AI_PARTNERS.find(p=>p.name===ai.name);
+    if(partner){partner.stance=stance;partner.evidence=reply.substring(0,100);}
+    addDecisionLog(ai.name,stance,reply,ai.cost,1);
+  }
+  renderVoteGrid();
+
+  let v=0,g=0,c=0;
+  Object.values(results).forEach(r=>{if(r.stance==='violation')v++;else if(r.stance==='gray')g++;else c++;});
+
+  // 第2層：ChatGPT
+  if(shouldCallNextLayer({v,g,c,costSoFar:totalCost})){
+    addMemory(`📊 熵值高，啟動第2層：ChatGPT`);
+    const reply=await callAI('chatgpt',`請判斷以下廣告是否違規，只回答「違規 ❌」「灰區 ⚠️」「合規 ✅」並簡單說明理由（100字以內）：${adText}`);
+    const stance=parseStance(reply);
+    results['chatgpt']={name:'ChatGPT',avatar:'🤖',stance,reply,cost:0.0005};
+    totalCost+=0.0005;
+    const partner=AI_PARTNERS.find(p=>p.name==='ChatGPT');
+    if(partner){partner.stance=stance;partner.evidence=reply.substring(0,100);}
+    addDecisionLog('ChatGPT',stance,reply,0.0005,2);
+    renderVoteGrid();
+    v=0;g=0;c=0;Object.values(results).forEach(r=>{if(r.stance==='violation')v++;else if(r.stance==='gray')g++;else c++;});
+  }
+
+  // 第3層：Claude仲裁（接上真實API時自動切換）
+  if(shouldCallNextLayer({v,g,c,costSoFar:totalCost})){
+    addMemory(`📊 仍高熵，啟動第3層：Claude仲裁`);
+    const reply=await callAI('claude',`請判斷以下廣告是否違規，只回答「違規 ❌」「灰區 ⚠️」「合規 ✅」並簡單說明理由（100字以內）：${adText}`);
+    const stance=parseStance(reply);
+    results['claude']={name:'Claude',avatar:'📜',stance,reply,cost:0.001};
+    totalCost+=0.001;
+    const partner=AI_PARTNERS.find(p=>p.name==='Claude');
+    if(partner){partner.stance=stance;partner.evidence=reply.substring(0,100);}
+    addDecisionLog('Claude',stance,reply,0.001,3);
+    renderVoteGrid();
+  }
+
+  v=0;g=0;c=0;Object.values(results).forEach(r=>{if(r.stance==='violation')v++;else if(r.stance==='gray')g++;else c++;});
+
+  let verdictText='';
+  if(v>=2){verdictText='違規 ❌';mimiMoney+=20;localStorage.setItem('mimi_money',mimiMoney);updateUI();playBiteAnimation();addMemory(`💰 判決違規！+20元，資金：${mimiMoney}`);addEXP(15);}
+  else if(g>=2){verdictText='灰區 ⚠️';addMemory(`⚠️ 判決灰區`);addEXP(8);}
+  else{verdictText='合規 ✅';addMemory(`✅ 判決合規`);addEXP(5);}
+
+  const entropy=calculateEntropy(v,g,c);
+  const confidence=v+g+c>0?Math.max(v,g,c)/(v+g+c):0;
+  const aiVotes={};
+  for(let[id,r]of Object.entries(results)){aiVotes[id]={stance:r.stance};}
+  saveCase({text:adText,verdict:verdictText,v,g,c,entropy,confidence,cost:totalCost,aiVotes,decisionLog:[...decisionLog],rounds:Object.keys(results).length});
+
+  const ra=Object.entries(results).map(([id,r])=>({id,...r}));
+  grid.innerHTML=ra.map(r=>{const sc=r.stance==='violation'?'violation':r.stance==='gray'?'gray':'compliant';const st=r.stance==='violation'?'違規 ❌':r.stance==='gray'?'灰區 ⚠️':'合規 ✅';return `<div class="api-card"><div class="avatar">${r.avatar}</div><div class="name">${r.name}</div><div class="stance ${sc}">${st}</div><div class="reply">${(r.reply||'').substring(0,80)}</div><div class="cost">💰 ~$${r.cost.toFixed(5)}</div></div>`;}).join('');
+  document.getElementById('vote-summary').innerHTML=`<div>📊 投票統計（${Object.keys(results).length}位AI，${Object.keys(results).length}輪）</div><div class="vote-result">${verdictText}</div><div style="display:flex;justify-content:center;gap:16px;font-size:12px;"><span>❌ 違規: ${v}</span><span>⚠️ 灰區: ${g}</span><span>✅ 合規: ${c}</span></div><div style="margin-top:6px;font-size:11px;">📐 熵值: ${entropy.toFixed(2)} | 信心: ${(confidence*100).toFixed(0)}%</div>`;
+  document.getElementById('cost-summary').innerHTML=`💰 本次審查總成本：~$${totalCost.toFixed(5)} 美元`;
+  renderStats();
+}
+
+function renderVoteGrid(){
+  const grid=document.getElementById('vote-grid');if(!grid)return;
+  grid.innerHTML=AI_PARTNERS.map((ai,idx)=>{
+    let sc='',st='等待中...';
+    if(ai.stance==='violation'){sc='violation';st='❌ 判定違規';}
+    else if(ai.stance==='gray'){sc='gray';st='⚠️ 灰區';}
+    else if(ai.stance==='compliant'){sc='compliant';st='✅ 判定合規';}
+    return `<div class="vote-card visible ${sc}">${ai.role==='challenger'?'<div class="challenger-badge">⚔️</div>':''}<h4>${ai.avatar} ${ai.name}</h4><div class="result">${st}</div><div class="evidence">${ai.evidence||'尚未掃描案件'}</div><div style="font-size:9px;color:var(--text-dim);margin-top:5px;">信心值</div><div style="font-size:11px;font-weight:bold;color:var(--accent-blue);">${Math.round(ai.confidence*100)}%</div></div>`;
+  }).join('');
+}
+
+function renderStats(){
+  const total=caseDB.length;
+  if(total===0){document.getElementById('stats-overview').innerHTML='<div class="stats-box">尚無案件資料，啟動熵值決策引擎吧！</div>';document.getElementById('stats-ai').innerHTML='';document.getElementById('stats-keywords').innerHTML='';return;}
+  let violation=0,totalCost=0,keywordMap={},aiAccuracy={};
+  caseDB.forEach(c=>{if(c.verdict&&c.verdict.includes('違規'))violation++;totalCost+=(c.cost||0);const words=(c.text||'').match(/保證|醫師|瘦|立即|見效|限量|最後|三天|100%/g);if(words)words.forEach(w=>{keywordMap[w]=(keywordMap[w]||0)+1;});if(c.aiVotes){for(let[ai,vote]of Object.entries(c.aiVotes)){if(!aiAccuracy[ai])aiAccuracy[ai]={correct:0,total:0};aiAccuracy[ai].total++;aiAccuracy[ai].correct+=isCorrectPrediction(c.verdict,vote.stance);}}});
+  const vRate=((violation/total)*100).toFixed(1);const avgCost=(totalCost/total).toFixed(5);
+  document.getElementById('stats-overview').innerHTML=`<div class="stats-box"><strong>📦 總案件</strong><br>${total}</div><div class="stats-box"><strong>❌ 違規率</strong><br>${vRate}%</div><div class="stats-box"><strong>💰 平均成本</strong><br>$${avgCost}</div>`;
+  let aiHTML='<div class="stats-box"><strong>🤖 AI準確率</strong><br>';for(let[ai,acc]of Object.entries(aiAccuracy)){aiHTML+=`${ai}: ${((acc.correct/acc.total)*100).toFixed(1)}%<br>`;}aiHTML+='</div>';
+  document.getElementById('stats-ai').innerHTML=aiHTML;
+  const sk=Object.entries(keywordMap).sort((a,b)=>b[1]-a[1]).slice(0,5);let kwHTML='<div class="stats-box"><strong>🔥 高命中關鍵字</strong><br>';sk.forEach(([k,v])=>{kwHTML+=`${k} (${v})<br>`;});kwHTML+='</div>';
+  document.getElementById('stats-keywords').innerHTML=kwHTML;
+}
+
+function renderPolicyHint(){
+  const total=caseDB.length;const plist=document.getElementById('policy-list');
+  if(total>=10&&plist){const violation=caseDB.filter(c=>c.verdict&&c.verdict.includes('違規')).length;const vRate=((violation/total)*100).toFixed(1);plist.innerHTML=`<div class="policy-box"><h5>📊 基礎統計建議</h5><p>目前已累積 ${total} 件案件，違規率 ${vRate}%。建議衛生主管機關加強對「保證效果」「天數療效」類廣告的主動稽查。</p></div>`;}
+}
+function generatePolicy(){const total=caseDB.length;if(total<10){alert(`目前只有 ${total} 件案件，需要至少10件。`);return;}renderPolicyHint();addMemory('📋 政策建議已生成');scrollToSection('policy-layer');}
+function toggleMemphis(){document.getElementById('memphis-corner').classList.toggle('show');}
+
+// ===== 初始化 =====
+renderPartnersBar();
+renderVoteGrid();
+updateLevel();
+renderMemory();
+updateUI();
+renderStats();
+renderPolicyHint();
+if(!localStorage.getItem('mimi_memory_v2')||mimiMemory.length===0){
+  addMemory('🎉 歡迎來到波波之家 v23！');
+  addMemory('📢 試試「🎲 抓取模擬廣告」或貼上廣告網址！');
+}
+</script>
+</body>
+</html>
