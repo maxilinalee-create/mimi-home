@@ -11,7 +11,7 @@ export default async function handler(req, res) {
         return res.status(403).json({ reply: '⛔ 未授權的請求' });
     }
 
-    const { apiId, message } = req.body;
+    const { apiId, message, imageBase64, imageType } = req.body;
     if (!message) return res.status(200).json({ reply: '米米歪著頭，不知道要說什麼🥺' });
 
     const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
@@ -19,8 +19,10 @@ export default async function handler(req, res) {
     const OPENAI_API_KEY   = process.env.OPENAI_API_KEY;
     const ANTHROPIC_API_KEY= process.env.ANTHROPIC_API_KEY;
 
+    const hasImage = !!imageBase64;
+
     function buildPersonality(id) {
-        const base = '請判斷廣告是否違規，只回答「違規 ❌」「灰區 ⚠️」「合規 ✅」並說明理由（150字以內）。';
+        const base = '請判斷廣告是否違規，第一行必須只寫【違規】、【灰區】或【合規】，第二行起說明理由（500字以內）。';
         switch(id){
             case 'deepseek': return `你是小鯨魚，溫柔有詩意，用海洋比喻說話。${base}`;
             case 'gemini':   return `你像老師一樣溫柔，帶點宇宙感。${base}`;
@@ -31,9 +33,15 @@ export default async function handler(req, res) {
     }
 
     try {
-        // ===== 🐋 DeepSeek =====
+        // ===== 🐋 DeepSeek（不支援圖片，純文字降級）=====
         if (apiId === 'deepseek') {
             if (!DEEPSEEK_API_KEY) return res.status(200).json({ reply: '🐋 小鯨魚還在深海游泳～' });
+            
+            let finalMessage = message;
+            if (hasImage) {
+                finalMessage = `（注意：DeepSeek 不支援圖片分析，以下僅根據文字內容判斷）\n\n${message}`;
+            }
+            
             const r = await fetch('https://api.deepseek.com/v1/chat/completions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DEEPSEEK_API_KEY}` },
@@ -41,27 +49,39 @@ export default async function handler(req, res) {
                     model: 'deepseek-chat',
                     messages: [
                         { role: 'system', content: buildPersonality(apiId) },
-                        { role: 'user', content: message }
+                        { role: 'user', content: finalMessage }
                     ],
-                    max_tokens: 300,
-                    temperature: 0.8
+                    max_tokens: 500,
+                    temperature: 0.7
                 })
             });
             const d = await r.json();
             return res.status(200).json({ reply: d.choices?.[0]?.message?.content || '🐋 小鯨魚睡著了～' });
         }
 
-        // ===== ✨ Gemini =====
+        // ===== ✨ Gemini（支援圖片）=====
         if (apiId === 'gemini') {
             if (!GEMINI_API_KEY) return res.status(200).json({ reply: '✨ Gemini 正在仰望星空～' });
+            
+            const parts = [{ text: buildPersonality(apiId) + '\n\n' + message }];
+            
+            if (hasImage) {
+                parts.push({
+                    inlineData: {
+                        mimeType: imageType || 'image/jpeg',
+                        data: imageBase64
+                    }
+                });
+            }
+            
             const r = await fetch(
                 `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: `${buildPersonality(apiId)}\n${message}` }] }],
-                        generationConfig: { maxOutputTokens: 300 }
+                        contents: [{ parts }],
+                        generationConfig: { maxOutputTokens: 500 }
                     })
                 }
             );
@@ -69,9 +89,26 @@ export default async function handler(req, res) {
             return res.status(200).json({ reply: d.candidates?.[0]?.content?.parts?.[0]?.text || '✨ Gemini 在思考～' });
         }
 
-        // ===== 🤖 ChatGPT =====
+        // ===== 🤖 ChatGPT（支援圖片，base64格式）=====
         if (apiId === 'chatgpt') {
             if (!OPENAI_API_KEY) return res.status(200).json({ reply: '🤖 ChatGPT API Key 還沒設定～' });
+            
+            const userContent = [];
+            
+            if (hasImage) {
+                userContent.push({
+                    type: 'image_url',
+                    image_url: {
+                        url: `data:${imageType || 'image/jpeg'};base64,${imageBase64}`
+                    }
+                });
+            }
+            
+            userContent.push({
+                type: 'text',
+                text: message
+            });
+            
             const r = await fetch('https://api.openai.com/v1/chat/completions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
@@ -79,9 +116,9 @@ export default async function handler(req, res) {
                     model: 'gpt-4o-mini',
                     messages: [
                         { role: 'system', content: buildPersonality(apiId) },
-                        { role: 'user', content: message }
+                        { role: 'user', content: userContent }
                     ],
-                    max_tokens: 300,
+                    max_tokens: 500,
                     temperature: 0.7
                 })
             });
@@ -90,9 +127,28 @@ export default async function handler(req, res) {
             return res.status(200).json({ reply: d.choices?.[0]?.message?.content || '🤖 ChatGPT 沒有回應' });
         }
 
-        // ===== 📜 Claude =====
+        // ===== 📜 Claude（支援圖片，content陣列格式）=====
         if (apiId === 'claude') {
             if (!ANTHROPIC_API_KEY) return res.status(200).json({ reply: '📜 Claude 的API Key還沒設定～' });
+            
+            const userContent = [];
+            
+            if (hasImage) {
+                userContent.push({
+                    type: 'image',
+                    source: {
+                        type: 'base64',
+                        media_type: imageType || 'image/jpeg',
+                        data: imageBase64
+                    }
+                });
+            }
+            
+            userContent.push({
+                type: 'text',
+                text: message
+            });
+            
             const r = await fetch('https://api.anthropic.com/v1/messages', {
                 method: 'POST',
                 headers: {
@@ -101,10 +157,10 @@ export default async function handler(req, res) {
                     'anthropic-version': '2023-06-01'
                 },
                 body: JSON.stringify({
-                    model: 'claude-haiku-4-5-20251001',
-                    max_tokens: 300,
+                    model: 'claude-3-haiku-20240307',
+                    max_tokens: 500,
                     system: buildPersonality(apiId),
-                    messages: [{ role: 'user', content: message }]
+                    messages: [{ role: 'user', content: userContent }]
                 })
             });
             const d = await r.json();
