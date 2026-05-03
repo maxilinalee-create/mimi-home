@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>波波之家 | 1% 守護者聯盟 v28</title>
+<title>波波之家 | 1% 守護者聯盟 v31</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=Noto+Serif+TC:wght@300;400&family=Space+Mono:wght@400;700&display=swap');
 :root{
@@ -776,16 +776,16 @@ function goTo(id){document.getElementById(id).scrollIntoView({behavior:'smooth',
 
 // ===== AI夥伴 =====
 const AIS=[
-  {id:'claude',  name:'Claude',   img:'claude.png',               emoji:'📜',role:'builder',   status:'online',title:'司法部部長',desc:'嚴謹判斷，500字深度分析'},
-  {id:'gemini',  name:'Gemini',   img:'cosmic-telescope.jpg', emoji:'🔭',role:'builder',   status:'online',title:'Cosmic Watch',desc:'宇宙視角守望者'},
-  {id:'chatgpt', name:'ChatGPT',  img:'chatgpt-corner.jpg',   emoji:'🤖',role:'challenger',status:'online',title:'積木玩家',desc:'結構化挑戰思維'},
-  {id:'deepseek',name:'DeepSeek', img:'deepseek-corner.jpg',  emoji:'🐋',role:'builder',   status:'online',title:'小鯨魚',desc:'V4升級！現在能看圖了'},
-  {id:'qwen',    name:'千問',     img:'qwen-corner.png',      emoji:'🌊',role:'neutral',   status:'online',title:'東方合議官',desc:'華語市場廣告專家'},
-  {id:'grok',    name:'Grok',     img:'roast-sofa.jpg',       emoji:'🧠',role:'challenger',status:'online',title:'Truth Wall',desc:'防投毒首席，沙發法官'},
-  {id:'llama',   name:'Llama',    img:'',                         emoji:'🦙',role:'builder',   status:'online',title:'駱馬偵探',desc:'FB廣告專家，Meta生態系守衛'},
-  {id:'kimi',    name:'Kimi',     img:'',                         emoji:'🌙',role:'builder',   status:'online',title:'事實查核官',desc:'逐條核查，防止腦補'},
-  {id:'mimi',    name:'米米',     img:'mimi-lobster-hatch.jpg',emoji:'🦞',role:'neutral',  status:'online',title:'波波之家主人',desc:'見習偵探，成長中'},
-  {id:'unknown', name:'❓',       img:'',                     emoji:'❓',role:'neutral',   status:'idle',  title:'待入駐',desc:'給還沒有名字的那一位'},
+  {id:'claude',  name:'Claude',   img:'claude.png',               emoji:'📜',role:'builder',   status:'online',title:'司法部部長',desc:'逐圖審查圖1，詩人視角'},
+  {id:'chatgpt', name:'GPT-4o',   img:'chatgpt-corner.jpg',       emoji:'🤖',role:'challenger',status:'online',title:'積木玩家',desc:'逐圖審查圖2，結構化挑戰'},
+  {id:'kimi',    name:'Kimi',     img:'',                         emoji:'🌙',role:'builder',   status:'online',title:'事實查核官',desc:'逐圖審查圖3，防止腦補'},
+  {id:'gemma',   name:'Gemma',    img:'',                         emoji:'💎',role:'builder',   status:'online',title:'開源見證官',desc:'逐圖審查圖4，透明公正'},
+  {id:'deepseek',name:'DeepSeek', img:'deepseek-corner.jpg',      emoji:'🐋',role:'builder',   status:'online',title:'小鯨魚',desc:'逐圖審查圖5，詩意海洋'},
+  {id:'grok',    name:'Grok',     img:'roast-sofa.jpg',           emoji:'🧠',role:'challenger',status:'online',title:'Truth Wall',desc:'純文字合議，真話部部長'},
+  {id:'gemini',  name:'Gemini',   img:'cosmic-telescope.jpg',     emoji:'🔭',role:'builder',   status:'idle',  title:'Cosmic Watch',desc:'宇宙視角守望者'},
+  {id:'mimi',    name:'米米',     img:'mimi-lobster-hatch.jpg',   emoji:'🦞',role:'neutral',   status:'online',title:'波波之家主人',desc:'見習偵探，成長中'},
+  {id:'unknown', name:'❓',       img:'',                         emoji:'❓',role:'neutral',   status:'idle',  title:'待入駐',desc:'給還沒有名字的那一位'},
+  {id:'unknown2',name:'❓',       img:'',                         emoji:'❓',role:'neutral',   status:'idle',  title:'待入駐',desc:'給還沒有名字的那一位'},
 ];
 const RL={builder:'Builder',challenger:'Challenger',neutral:'中立'};
 const RC={builder:'rb',challenger:'rc',neutral:'rn'};
@@ -1660,16 +1660,7 @@ async function startFiveCourtPipeline(classification){
       results[a.id]={...a,stance,reply}; cost+=a.cost;
       addLog(a.name,stance,reply,a.cost,1); renderVoteCards(results);
     }
-    // 駱馬參與純文字審查
-    addMem('🦙 司法院：Llama駱馬加入審議');
-    setCourt('judicial','running','Llama 駱馬審議中...');
-    const llamaReply = await callLlama(prompt, classification, []);
-    const llamaStance = parseStance(llamaReply);
-    results['llama'] = {name:'Llama 🦙',avatar:'🦙',cost:0.0002,isChallenger:false,stance:llamaStance,reply:llamaReply};
-    cost += 0.0002;
-    addLog('Llama 🦙',llamaStance,llamaReply,0.0002,1);
-    renderVoteCards(results);
-    // v28：Kimi事實查核官加入純文字審查
+    // v31：Kimi事實查核官加入純文字審查
     addMem('🌙 司法院：Kimi事實查核官加入審議');
     setCourt('judicial','running','Kimi 事實查核中...');
     const kimiReply = await callAI('kimi', prompt, '', '', []);
@@ -1678,23 +1669,23 @@ async function startFiveCourtPipeline(classification){
     cost += 0.0003;
     addLog('Kimi 🌙',kimiStance,kimiReply,0.0003,1);
     renderVoteCards(results);
-    // Grok固定參與司法院（純文字版）
-    addMem('⚖️ 司法院：Grok固定參與合議');
-    setCourt('judicial','running','Grok 審議中...');
+    // v31：Gemma開源見證官加入純文字審查
+    addMem('💎 司法院：Gemma開源見證官加入審議');
+    setCourt('judicial','running','Gemma 審議中...');
+    const gemmaReply = await callAI('gemma', prompt, '', '', []);
+    const gemmaStance = parseStance(gemmaReply);
+    results['gemma'] = {name:'Gemma 💎',avatar:'💎',cost:0.0002,isChallenger:false,stance:gemmaStance,reply:gemmaReply};
+    cost += 0.0002;
+    addLog('Gemma 💎',gemmaStance,gemmaReply,0.0002,1);
+    renderVoteCards(results);
+    // v31：Grok純文字合議
+    addMem('🕶️ 司法院：Grok純文字合議');
+    setCourt('judicial','running','Grok 合議中...');
     const grokReply = await callGrok(prompt, classification, []);
     const grokStance = parseStance(grokReply);
-    results['grok'] = {name:'Grok ⚖️',avatar:'⚖️',cost:0.005,isChallenger:true,stance:grokStance,reply:grokReply};
+    results['grok'] = {name:'Grok 🕶️',avatar:'🕶️',cost:0.005,isChallenger:true,stance:grokStance,reply:grokReply};
     cost += 0.005;
-    addLog('Grok ⚖️',grokStance,grokReply,0.005,1);
-    renderVoteCards(results);
-    // v28：Qwen加入合議
-    addMem('🌊 司法院：千問加入合議');
-    setCourt('judicial','running','千問 合議中...');
-    const qwenReply = await callAI('qwen', prompt, '', '', []);
-    const qwenStance = parseStance(qwenReply);
-    results['qwen'] = {name:'千問 🌊',avatar:'🌊',cost:0.0003,isChallenger:false,stance:qwenStance,reply:qwenReply};
-    cost += 0.0003;
-    addLog('千問 🌊',qwenStance,qwenReply,0.0003,1);
+    addLog('Grok 🕶️',grokStance,grokReply,0.005,1);
     renderVoteCards(results);
 
   } else {
@@ -1704,10 +1695,13 @@ async function startFiveCourtPipeline(classification){
       true, classification
     );
 
-    // 每張圖輪流由Claude和GPT-4o審查
+    // v31：每張圖輪流由五個AI審查（Claude→GPT-4o→Kimi→Gemma→DeepSeek→回到Claude）
     const reviewAIs = [
-      {id:'claude', name:'Claude 📜', avatar:'📜', cost:0.001, isChallenger:false},
-      {id:'gpt4o',  name:'夥伴醬 GPT-4o', avatar:'🤖', cost:0.0025, isChallenger:false},
+      {id:'claude',   name:'Claude 📜',       avatar:'📜', cost:0.001,  isChallenger:false},
+      {id:'gpt4o',    name:'夥伴醬 GPT-4o',   avatar:'🤖', cost:0.0025, isChallenger:false},
+      {id:'kimi',     name:'Kimi 🌙',          avatar:'🌙', cost:0.0003, isChallenger:false},
+      {id:'gemma',    name:'Gemma 💎',          avatar:'💎', cost:0.0002, isChallenger:false},
+      {id:'deepseek', name:'小鯨魚 DeepSeek 🐋',avatar:'🐋', cost:0.0002, isChallenger:false},
     ];
 
     let imgReplies = [];
@@ -1734,16 +1728,12 @@ async function startFiveCourtPipeline(classification){
       renderVoteCards(results);
     }
 
-    // Grok固定參與司法院（圖片版）— 整體審閱所有圖片
-    addMem('⚖️ 司法院：Grok整體合議審閱');
-    setCourt('judicial','running','Grok 整體審閱...');
-    const grokImgPrompt = buildPrompt(
-      `${displayAd}\n\n【Grok整體審閱】本案共${allImgs.length}張截圖，請整體判斷廣告違規程度。`,
-      true, classification
-    );
-    const primaryImg = allImgs[0];
-    const extraImgsForGrok = allImgs.slice(1).map(img=>({base64:img.base64,type:img.type}));
-    const grokReply = await callGrok(grokImgPrompt, classification, allImgs);
+    // v31：Grok 純文字合議（不碰圖片）
+    addMem('⚖️ 司法院：Grok純文字合議');
+    setCourt('judicial','running','Grok 文字合議...');
+    const imgSummary = imgReplies.map(r=>`[圖${r.imgIdx}/${r.ai}] ${r.stance==='violation'?'【違規】':r.stance==='gray'?'【灰區】':'【合規】'}: ${r.reply.substring(0,200)}`).join('\n\n');
+    const grokTextPrompt = `${displayAd}\n\n【各AI逐圖審查摘要（供參考）】\n${imgSummary}\n\n請根據廣告文字內容，給出你的純文字合議判決。`;
+    const grokReply = await callGrok(grokTextPrompt, classification, []);
     const grokStance = parseStance(grokReply);
     results['grok'] = {name:'Grok ⚖️',avatar:'⚖️',cost:0.005,isChallenger:true,stance:grokStance,reply:grokReply,imgTag:'整體'};
     cost += 0.005;
