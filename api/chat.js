@@ -244,7 +244,7 @@ export default async function handler(req, res) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DEEPSEEK_API_KEY}` },
         body: JSON.stringify({
-          model: 'deepseek-v4-flash',  // v31：V4支援看圖，走 deepseek 原生 API
+          model: 'deepseek-v4-pro',  // v32：升級到 V4 Pro
           messages: [
             { role: 'system', content: buildPersonality('deepseek', classification) },
             { role: 'user', content: allImgs.length > 0 ? userContent : msg }
@@ -340,7 +340,7 @@ export default async function handler(req, res) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROK_API_KEY}` },
         body: JSON.stringify({
-          model: 'grok-3',  // 純文字，不送圖片
+          model: 'grok-4.3',  // v32：升級到 Grok 4.3
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: String(contextMsg) }  // 純文字
@@ -442,21 +442,24 @@ export default async function handler(req, res) {
       return res.status(200).json({ reply });
     }
 
-    // ===== V31 GOVERNANCE MODE =====
+    // ===== V32 GOVERNANCE MODE =====
     const issue = classifyIssue(message, hasImage);
     const allImgs = getAllImages();
 
-    // 司法院：多AI並行審查（Claude + GPT-4o + Kimi）
-    const reviewResults = await Promise.all([
-      safeCall(() => callClaude(message), 30000, '⚠️ Claude 超時').then(r => ({ model: 'claude', result: r })),
-      safeCall(() => callGPT4o(message), 30000, '⚠️ GPT-4o 超時').then(r => ({ model: 'gpt4o', result: r })),
-      safeCall(() => callKimi(message), 30000, '⚠️ Kimi 超時').then(r => ({ model: 'kimi', result: r })),
-    ]);
+    // 司法院：GPT-4o 主審
+    const gpt4oResult = await safeCall(() => callGPT4o(message), 35000, '⚠️ GPT-4o 超時');
+    const reviewResults = [{ model: 'gpt4o', result: gpt4oResult }];
 
-    // Grok 純文字合議（不送圖片）
-    const textOnlyContext = message.replace(/\[圖片\]/g, '').trim() || message;
-    const grokReply = await callGrok(textOnlyContext);
+    // 純文字合議：Grok 4.3 + DeepSeek V4 Pro 讀 GPT-4o 摘要後各自判決
+    const gpt4oSummary = `【GPT-4o 逐圖審查摘要】\n${gpt4oResult.substring(0, 1500)}\n\n請根據以上摘要及廣告文字，給出你的獨立合議判決。`;
+    const textCtx = message + '\n\n' + gpt4oSummary;
+
+    const [grokReply, deepseekReply] = await Promise.all([
+      safeCall(() => callGrok(textCtx), 35000, '⚠️ Grok 超時'),
+      safeCall(() => callDeepSeek(textCtx), 35000, '⚠️ DeepSeek 超時'),
+    ]);
     reviewResults.push({ model: 'grok', result: grokReply });
+    reviewResults.push({ model: 'deepseek', result: deepseekReply });
 
     const stances = reviewResults.map(r => parseStance(r.result));
     const finalStance = stances.filter(s => s === 'violation').length >= Math.ceil(stances.length / 2)
