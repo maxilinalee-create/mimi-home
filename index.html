@@ -1250,59 +1250,26 @@ const SCRAPE='https://mimi-home.vercel.app/api/scrape';
 const SECRET='bobohouse2024';
 let decisionLog=[];
 
-// ===== v28：Step 0.5 標章確認 =====
-let licenseSelected = undefined; // true=有字號, false=無字號, null=不確定
+// ===== v30：Step 0.5 改為AI自動查字號（不再需要使用者手動選）=====
+let licenseSelected = null;  // v30：預設null，讓AI自行判斷
 let licenseNumber = '';
-let licenseConfirmed = false;
-let pendingClassification = null; // 等待標章確認的分類結果
+let licenseConfirmed = true; // v30：不需等使用者確認，直接繼續
+let pendingClassification = null;
 
-function selectLicense(val){
-  licenseSelected = val;
-  // 更新按鈕樣式
-  document.querySelectorAll('.lbtn').forEach(b => b.style.opacity = '0.4');
-  const btns = document.querySelectorAll('.lbtn');
-  if(val === true) btns[0].style.opacity = '1';
-  else if(val === false) btns[1].style.opacity = '1';
-  else btns[2].style.opacity = '1';
-  // 有字號才顯示輸入框
-  const inputWrap = document.getElementById('license-input');
-  const confirmBtn = document.getElementById('license-confirm');
-  if(val === true){
-    inputWrap.classList.add('show');
-    confirmBtn.classList.add('show');
-  } else {
-    inputWrap.classList.remove('show');
-    confirmBtn.classList.add('show');
-    licenseNumber = '';
-  }
-}
-
-function confirmLicense(){
-  if(licenseSelected === undefined){
-    alert('請先選擇是否有政府核准字號！');
-    return;
-  }
-  if(licenseSelected === true){
-    licenseNumber = document.getElementById('license-number').value.trim();
-  }
-  licenseConfirmed = true;
-  document.getElementById('license-box').classList.remove('show');
-  addMem(`⚖️ Step 0.5：${licenseSelected===true?'有字號（'+licenseNumber+'）':licenseSelected===false?'無字號':'不確定'}`);
-  // 繼續進入五院
-  if(pendingClassification){
-    startFiveCourtPipeline(pendingClassification);
-    pendingClassification = null;
-  }
-}
+// v30：保留函數但不顯示UI，讓AI夥伴自行從圖片/文字找字號
+function selectLicense(val){ licenseSelected = val; }
+function confirmLicense(){ licenseConfirmed = true; }
 
 function showLicenseBox(classification){
-  // 只有 food_drug 類型才需要確認標章
+  // v30：不再顯示手動選擇UI
+  // AI會從廣告圖片和文字中自動偵測是否有政府核准字號
   if(classification?.type === 'food_drug'){
-    pendingClassification = classification;
-    document.getElementById('license-box').classList.add('show');
-    return true; // 需要等待標章確認
+    addMem('🔍 Step 0.5：AI自動偵測字號（不需手動確認）');
+    licenseSelected = null; // null = 讓AI自己判斷
+    licenseConfirmed = true;
+    return false; // 直接繼續，不等使用者
   }
-  return false; // 不需要，直接進五院
+  return false;
 }
 
 
@@ -1346,16 +1313,24 @@ async function callAI(id,msg,b64='',mtype='',extraImgs=[]){
     const body={apiId:id,message:msg};
     if(b64){body.imageBase64=b64;body.imageType=mtype;}
     if(extraImgs.length>0){body.extraImages=extraImgs;}
-    // v28：傳入標章資訊
+    // v30：AI自動查字號，不再依賴使用者手動選擇
     if(licenseSelected !== undefined){
       body.hasLicense = licenseSelected;
       body.licenseNumber = licenseNumber || '';
     }
+    // v30：30秒timeout保護，防止卡死
+    const ctrl = new AbortController();
+    const tid = setTimeout(()=>ctrl.abort(), 30000);
     const r=await fetch(CHAT,{method:'POST',
       headers:{'Content-Type':'application/json','x-boba-secret':SECRET},
-      body:JSON.stringify(body)});
+      body:JSON.stringify(body),
+      signal:ctrl.signal});
+    clearTimeout(tid);
     const d=await r.json();return d.reply||'無回應';
-  }catch(e){return 'API連線失敗';}
+  }catch(e){
+    if(e.name==='AbortError') return `⚠️ ${id} 回應超時，已自動跳過`;
+    return `⚠️ ${id} 連線失敗`;
+  }
 }
 
 // ===== v26：callGrok 獨立函式（含Grok自訂鐵則prompt）=====
@@ -1668,7 +1643,10 @@ async function startFiveCourtPipeline(classification){
       addMem(`🔍 司法院審查圖${i+1}/${allImgs.length}（${ai.name}）`);
       setCourt('judicial','running',`審查圖${i+1}/${allImgs.length}...`);
 
-      const reply = await callAI(ai.id, perImgPrompt(i), img.base64, img.type, []);
+      let reply = `⚠️ ${ai.name} 圖${i+1} 審查超時`;
+      try {
+        reply = await callAI(ai.id, perImgPrompt(i), img.base64, img.type, []);
+      } catch(e) { console.error(`圖${i+1}審查失敗`,e); }
       const stance = parseStance(reply);
       const resultKey = `${ai.id}_img${i+1}`;
 
