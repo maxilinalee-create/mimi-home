@@ -1,13 +1,13 @@
 /**
- * 波波之家 chat.js v30
+ * 波波之家 chat.js v28
  * Issue-driven Multi-Agent Governance Engine
  *
- * v30 升級重點：
- * - 移除 Llama（model string 失效，Groq不再提供）
- * - 移除 Qwen（需要付費 Dedicated Endpoint，暫不支援）
- * - Grok 升級到 grok-4-vision（支援看圖，解決腦補問題）
- * - 檢舉書格式大改：整合為乾淨公文，不再逐AI瑣碎列出
- * - Kimi 維持事實查核官角色
+ * v28 升級重點：
+ * - Step 0.5 標章確認機制：food_drug類傳入hasLicense影響審查標準
+ * - 新增 Kimi K2.6（事實查核官，能看圖，透過Together AI）
+ * - 新增 Qwen（加入整體合議，與Grok共同判決，透過Together AI）
+ * - DeepSeek 升級到 V4（支援看圖！）
+ * - 事實查核機制：Kimi逐條核查Grok判決，標記腦補項目
  *
  * CONSTITUTION:
  * - routingByModel: false    ❌ apiId 不決定治理
@@ -71,7 +71,6 @@ export default async function handler(req, res) {
   const OPENAI_API_KEY    = process.env.OPENAI_API_KEY;
   const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
   const GROK_API_KEY      = process.env.GROK_API_KEY;
-  const GROQ_API_KEY      = process.env.GROQ_API_KEY;      // v28：駱馬用Groq
   const TOGETHER_API_KEY  = process.env.TOGETHER_API_KEY;  // v28：Kimi + Qwen用Together
 
   const hasImage = !!imageBase64;
@@ -148,7 +147,10 @@ export default async function handler(req, res) {
       case 'deepseek': return `你是小鯨魚，溫柔有詩意，用海洋比喻說話。\n\n${base}`;
       case 'gpt4o':    return `你是理性又溫柔的夥伴醬，分析廣告兼顧法律與消費者感受。\n\n${base}`;
       case 'claude':   return `你像詩人，溫柔細膩，對法律文字有敏銳感知，善於發現隱性暗示。\n\n${base}`;
-      case 'grok':     return `你是 Grok，直率敢說，擅長找出廣告邏輯漏洞和隱藏意圖。不得使用固定模板，必須描述實際看到的內容。你可以直接看圖，請嚴格根據圖片實際內容審查，絕對不得腦補圖片中沒有的元素。\n\n${base}`;
+      case 'grok':     return `你是 Grok，直率敢說，擅長找出廣告邏輯漏洞和隱藏意圖。不得使用固定模板，必須描述實際看到的內容。\n\n${base}`;
+      case 'gemma':    return `你是 Gemma，Google開源模型，擅長精確辨識廣告文字與視覺元素。審查時請只描述實際看到的內容，不得腦補。\n\n${base}`;
+      case 'dsv4pro':  return `你是 DeepSeek V4 Pro，深度推理專家，擅長多層次法規分析。請逐條對照台灣食安法、藥事法，給出有依據的判決。\n\n${base}`;
+      case 'o4mini':   return `你是 o4-mini，ChatGPT最新推理版，擅長多步驟法規推理與精確判斷。審查廣告時請逐條對照法規，給出有依據的判決。\n\n${base}`;
       case 'kimi':     return `你是 Kimi，波波之家的「事實查核官」。你的任務是：審查廣告時只描述你實際看到的內容，對任何腦補或不實描述零容忍。你擅長精確辨識廣告圖片中的文字和視覺元素。\n\n${base}`;
       default:         return `你是溫柔的AI夥伴。\n\n${base}`;
     }
@@ -178,6 +180,9 @@ export default async function handler(req, res) {
       if (model === 'gpt4o')    return await callGPT4o(msg);
       if (model === 'claude')   return await callClaude(msg);
       if (model === 'grok')     return await callGrok(msg);
+      if (model === 'gemma')    return await callGemma(msg);
+      if (model === 'dsv4pro')  return await callDSV4Pro(msg);
+      if (model === 'o4mini')   return await callO4Mini(msg);
       if (model === 'kimi')     return await callKimi(msg);
       return '🌱 模型還在準備中～';
     } catch(e) {
@@ -287,77 +292,78 @@ export default async function handler(req, res) {
     }
   }
 
-  // ===== v30：Grok 穩定版（Grok建議，grok-4.3 + timeout保護）=====
-  async function callGrok(contextMsg, classification_ctx=null, images=[]) {
+  async function callGrok(contextMsg) {
     if (!GROK_API_KEY) return '🛋️ Grok Key 未設定～';
-
     const isExit = step === 'step0_exit' || classification?.exit === true;
-    const cls = classification_ctx || classification;
-
-    const systemPrompt = isExit
+    const systemPrompt = customSystemPrompt || (isExit
       ? '這是一張私人照片、紀念內容或日常生活分享，不屬於廣告審查範圍。請用溫柔、有禮貌的方式回覆使用者。'
-      : buildPersonality('grok', cls) + `
+      : buildPersonality('grok', classification) + `
 
 【Grok鐵則 - 最高優先】
-第一行必須只寫以下三種判決之一：
-【違規】
-【灰區】
-【合規】
-之後詳細說明理由（包含具體看到的違規用語與視覺元素）。
-請嚴格只描述你真正看到的內容，沒有看到就回答沒有，絕對不要腦補。`;
-
-    // 限制最多3張圖片，避免payload過大
-    const limitedImgs = (images || []).filter(Boolean).slice(0, 3);
-    const userContent = [];
-    limitedImgs.forEach(img => {
-      if (img && img.base64) {
-        userContent.push({
-          type: 'image_url',
-          image_url: { url: `data:${img.type || 'image/jpeg'};base64,${img.base64}` }
-        });
-      }
-    });
-    userContent.push({ type: 'text', text: String(contextMsg) });
-
+1. 只描述你實際在圖片或文字中看到的具體內容，絕對不腦補
+2. 每條違規必須引用廣告原文「」或描述具體視覺元素
+3. 開頭不得使用固定模板句型
+4. 圖片中沒有的元素（before/after、白袍醫師等）絕對不提
+5. 直接從具體內容開始，不要廢話`);
     try {
-      // 強制28秒timeout保護，防止卡死
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 28000);
-
       const r = await fetch('https://api.x.ai/v1/chat/completions', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${GROK_API_KEY}`
-        },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROK_API_KEY}` },
         body: JSON.stringify({
-          model: 'grok-4.3', // v30：Grok建議最穩定旗艦版
+          model: 'grok-3',
           messages: [
             { role: 'system', content: systemPrompt },
-            { role: 'user', content: userContent.length > 1 ? userContent : String(contextMsg) }
+            { role: 'user', content: String(contextMsg) }
           ],
-          max_tokens: 3200,
-          temperature: 0.65
-        }),
-        signal: controller.signal
+          max_tokens: 4000,
+          temperature: 0.7
+        })
       });
-
-      clearTimeout(timeoutId);
       const d = await r.json();
-
-      if (!r.ok || d.error) {
-        console.error('Grok API Error:', d);
-        return `⚠️ Grok錯誤 (${r.status || 'unknown'})：${d.error?.message || '請稍後再試'}`;
-      }
+      if (d.error) return `⚠️ Grok錯誤：${d.error.message || JSON.stringify(d.error)}`;
       return d.choices?.[0]?.message?.content || '🛋️ Grok 在沉思中～';
     } catch(e) {
-      console.error('Grok call failed:', e);
-      if (e.name === 'AbortError' || e.message?.includes('timeout')) {
-        return '⚠️ Grok 回應時間過長，已自動跳過（使用其他AI判決）';
-      }
-      return `⚠️ Grok連線失敗：${e.message || '未知錯誤'}`;
+      return `⚠️ Grok連線失敗：${e.message}`;
     }
   }
+
+  // ===== v28：Kimi K2.6（事實查核官，能看圖，Together AI）=====
+  async function callKimi(msg) {
+    if (!TOGETHER_API_KEY) return '🌙 Kimi還在宇宙旅行～（TOGETHER_API_KEY 未設定）';
+    const systemPrompt = customSystemPrompt || buildPersonality('kimi', classification);
+    const userContent = [];
+    // Kimi 支援看圖
+    const allImgs = getAllImages().slice(0, 3);
+    allImgs.forEach(img => {
+      userContent.push({
+        type: 'image_url',
+        image_url: { url: `data:${img.type};base64,${img.base64}` }
+      });
+    });
+    userContent.push({ type: 'text', text: msg });
+    try {
+      const r = await fetch('https://api.together.xyz/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOGETHER_API_KEY}` },
+        body: JSON.stringify({
+          model: 'moonshotai/Kimi-K2-Instruct', // Kimi K2.6
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: allImgs.length > 0 ? userContent : msg }
+          ],
+          max_tokens: 4000,
+          temperature: 0.7
+        })
+      });
+      const d = await r.json();
+      if (d.error) return `⚠️ Kimi：${d.error.message || JSON.stringify(d.error)}`;
+      return d.choices?.[0]?.message?.content || '🌙 Kimi在思考中～';
+    } catch(e) {
+      return `⚠️ Kimi連線失敗：${e.message}`;
+    }
+  }
+
+  // ===== v28：Qwen（整體合議官，Together AI）=====
 
   // ===== v28：Kimi事實查核（核查Grok判決）=====
   async function runFactCheck(grokReply, images) {
@@ -392,7 +398,7 @@ ${grokReply}
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOGETHER_API_KEY}` },
         body: JSON.stringify({
-          model: 'moonshotai/Kimi-K2.5',
+          model: 'moonshotai/Kimi-K2-Instruct',
           messages: [
             { role: 'system', content: '你是嚴格的事實查核官，只相信圖片和文字中實際存在的內容。' },
             { role: 'user', content: validImgs.length > 0 ? userContent : factCheckPrompt }
@@ -422,7 +428,7 @@ ${grokReply}
     return 'compliant';
   }
 
-  // ===== AI COURT（v30：Grok視覺合議）=====
+  // ===== AI COURT（Grok + Qwen 雙重合議）=====
   async function runCourt(issue, results) {
     const courtInput = `
 你是 AI法院的仲裁官，以下是本案資料：
@@ -438,7 +444,7 @@ ${results.map(r => `[${r.model}] ${r.result}`).join('\n---\n')}
 第一行必須只寫【違規】、【灰區】或【合規】。
 第二行起說明仲裁理由（2500字以內）。
 `;
-    // v30：Grok有視覺，單獨合議
+    // v28：Grok + Qwen 雙重合議
     const grokResult = await callGrok(courtInput);
     return { grok: grokResult };
   }
@@ -452,6 +458,9 @@ ${results.map(r => `[${r.model}] ${r.result}`).join('\n---\n')}
       else if (apiId === 'gpt4o' || apiId === 'chatgpt') reply = await callGPT4o(message);
       else if (apiId === 'claude') reply = await callClaude(message);
       else if (apiId === 'grok') reply = await callGrok(message);
+      else if (apiId === 'gemma')   reply = await callGemma(message);
+      else if (apiId === 'dsv4pro') reply = await callDSV4Pro(message);
+      else if (apiId === 'o4mini')  reply = await callO4Mini(message);
       else if (apiId === 'kimi') reply = await callKimi(message);
       else reply = '🌱 未知模型';
       return res.status(200).json({ reply });
@@ -478,6 +487,8 @@ ${results.map(r => `[${r.model}] ${r.result}`).join('\n---\n')}
       factCheckResult = await runFactCheck(grokReply, allImgs);
     }
 
+    // v28：Qwen 加入合議
+
     const stances = reviewResults.map(r => parseStance(r.result));
     const finalStance = stances.filter(s => s === 'violation').length >= Math.ceil(stances.length / 2)
       ? 'violation'
@@ -501,4 +512,60 @@ ${results.map(r => `[${r.model}] ${r.result}`).join('\n---\n')}
     console.error('Governance Error:', error);
     return res.status(200).json({ reply: '🌊 系統小晃動了一下，再試一次💙' });
   }
-}
+}  // ===== v30：Gemma 4 31B（Google開源，Together AI）=====
+  async function callGemma(msg, singleImg=null) {
+    if (!TOGETHER_API_KEY) return '🟢 Gemma Key 未設定～';
+    const systemPrompt = customSystemPrompt || buildPersonality('gemma', classification);
+    const imgs = singleImg ? [singleImg] : getAllImages().slice(0, 3);
+    const userContent = [];
+    imgs.forEach(img => {
+      userContent.push({ type: 'image_url', image_url: { url: `data:${img.type};base64,${img.base64}` } });
+    });
+    userContent.push({ type: 'text', text: msg });
+    try {
+      const r = await fetch('https://api.together.xyz/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOGETHER_API_KEY}` },
+        body: JSON.stringify({
+          model: 'google/gemma-4-31b-it-fp8',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: imgs.length > 0 ? userContent : msg }
+          ],
+          max_tokens: 3000, temperature: 0.7
+        })
+      });
+      const d = await r.json();
+      if (d.error) return `⚠️ Gemma：${d.error.message || JSON.stringify(d.error)}`;
+      return d.choices?.[0]?.message?.content || '🟢 Gemma 在思考中～';
+    } catch(e) { return `⚠️ Gemma連線失敗：${e.message}`; }
+  }
+
+  // ===== v30：DeepSeek V4 Pro（Together AI，最新視覺版）=====
+  async function callDSV4Pro(msg, singleImg=null) {
+    if (!TOGETHER_API_KEY) return '🐋 DeepSeek V4 Pro Key 未設定～';
+    const systemPrompt = customSystemPrompt || buildPersonality('dsv4pro', classification);
+    const imgs = singleImg ? [singleImg] : getAllImages().slice(0, 3);
+    const userContent = [];
+    imgs.forEach(img => {
+      userContent.push({ type: 'image_url', image_url: { url: `data:${img.type};base64,${img.base64}` } });
+    });
+    userContent.push({ type: 'text', text: msg });
+    try {
+      const r = await fetch('https://api.together.xyz/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOGETHER_API_KEY}` },
+        body: JSON.stringify({
+          model: 'deepseek-ai/DeepSeek-V4-Pro',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: imgs.length > 0 ? userContent : msg }
+          ],
+          max_tokens: 3000, temperature: 0.7
+        })
+      });
+      const d = await r.json();
+      if (d.error) return `⚠️ DSV4Pro：${d.error.message || JSON.stringify(d.error)}`;
+      return d.choices?.[0]?.message?.content || '🐋 DeepSeek V4 Pro 在深思中～';
+    } catch(e) { return `⚠️ DSV4Pro連線失敗：${e.message}`; }
+  }
