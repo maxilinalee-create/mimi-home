@@ -227,9 +227,9 @@ export default async function handler(req, res) {
     }
   }
 
-  // ===== DeepSeek V4 Pro（支援看圖，Together AI）=====
+  // ===== v31：DeepSeek V4（走 api.deepseek.com，支援看圖）=====
   async function callDeepSeek(msg) {
-    if (!TOGETHER_API_KEY) return '🐋 小鯨魚還在深海游泳～（TOGETHER_API_KEY 未設定）';
+    if (!DEEPSEEK_API_KEY) return '🐋 小鯨魚還在深海游泳～（DEEPSEEK_API_KEY 未設定）';
     const userContent = [];
     const allImgs = getAllImages().slice(0, 3);
     allImgs.forEach(img => {
@@ -240,11 +240,11 @@ export default async function handler(req, res) {
     });
     userContent.push({ type: 'text', text: msg });
     return safeCall(async () => {
-      const r = await fetch('https://api.together.xyz/v1/chat/completions', {
+      const r = await fetch('https://api.deepseek.com/v1/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOGETHER_API_KEY}` },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DEEPSEEK_API_KEY}` },
         body: JSON.stringify({
-          model: 'deepseek-ai/DeepSeek-V3',  // v31：Together AI上的DeepSeek V4 Pro
+          model: 'deepseek-v4-flash',  // v31：V4支援看圖，走 deepseek 原生 API
           messages: [
             { role: 'system', content: buildPersonality('deepseek', classification) },
             { role: 'user', content: allImgs.length > 0 ? userContent : msg }
@@ -373,7 +373,7 @@ export default async function handler(req, res) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOGETHER_API_KEY}` },
         body: JSON.stringify({
-          model: 'moonshotai/Kimi-K2-Instruct',
+          model: 'moonshotai/Kimi-K2.5',
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: allImgs.length > 0 ? userContent : msg }
@@ -388,28 +388,20 @@ export default async function handler(req, res) {
     }, 30000, '⚠️ Kimi 超時');
   }
 
-  // ===== v31：Gemma 4 31B（開源公正見證官，Together AI）=====
+  // ===== v31：Gemma 2 27B（開源公正見證官，Together AI，純文字）=====
   async function callGemma(msg) {
     if (!TOGETHER_API_KEY) return '💎 Gemma還在學習中～（TOGETHER_API_KEY 未設定）';
     const systemPrompt = customSystemPrompt || buildPersonality('gemma', classification);
-    const userContent = [];
-    const allImgs = getAllImages().slice(0, 3);
-    allImgs.forEach(img => {
-      userContent.push({
-        type: 'image_url',
-        image_url: { url: `data:${img.type};base64,${img.base64}` }
-      });
-    });
-    userContent.push({ type: 'text', text: msg });
+    // Gemma 不支援圖片，純文字
     return safeCall(async () => {
       const r = await fetch('https://api.together.xyz/v1/chat/completions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOGETHER_API_KEY}` },
         body: JSON.stringify({
-          model: 'google/gemma-3-27b-it',  // Gemma 4 31B via Together AI
+          model: 'google/gemma-2-27b-it',  // v31：Together AI 確認可用，純文字
           messages: [
             { role: 'system', content: systemPrompt },
-            { role: 'user', content: allImgs.length > 0 ? userContent : msg }
+            { role: 'user', content: msg }
           ],
           max_tokens: 4000,
           temperature: 0.7
