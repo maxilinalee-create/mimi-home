@@ -1,14 +1,13 @@
 /**
- * 波波之家 chat.js v29
+ * 波波之家 chat.js v30
  * Issue-driven Multi-Agent Governance Engine
  *
- * v28 升級重點：
- * - Step 0.5 標章確認機制：food_drug類傳入hasLicense影響審查標準
- * - 新增 Kimi K2.6（事實查核官，能看圖，透過Together AI）
- * - 新增 Qwen（加入整體合議，與Grok共同判決，透過Together AI）
- * - DeepSeek 升級到 V4（支援看圖！）
- * - 駱馬修復：改用 Groq 正確模型名稱 llama-4-maverick-17b-128e-instruct
- * - 事實查核機制：Kimi逐條核查Grok判決，標記腦補項目
+ * v30 升級重點：
+ * - 移除 Llama（model string 失效，Groq不再提供）
+ * - 移除 Qwen（需要付費 Dedicated Endpoint，暫不支援）
+ * - Grok 升級到 grok-4-vision（支援看圖，解決腦補問題）
+ * - 檢舉書格式大改：整合為乾淨公文，不再逐AI瑣碎列出
+ * - Kimi 維持事實查核官角色
  *
  * CONSTITUTION:
  * - routingByModel: false    ❌ apiId 不決定治理
@@ -149,10 +148,8 @@ export default async function handler(req, res) {
       case 'deepseek': return `你是小鯨魚，溫柔有詩意，用海洋比喻說話。\n\n${base}`;
       case 'gpt4o':    return `你是理性又溫柔的夥伴醬，分析廣告兼顧法律與消費者感受。\n\n${base}`;
       case 'claude':   return `你像詩人，溫柔細膩，對法律文字有敏銳感知，善於發現隱性暗示。\n\n${base}`;
-      case 'grok':     return `你是 Grok，直率敢說，擅長找出廣告邏輯漏洞和隱藏意圖。不得使用固定模板，必須描述實際看到的內容。\n\n${base}`;
-      case 'llama':    return `你是 Llama，波波之家的「駱馬偵探」，FB廣告生態系專家。你熟悉 Meta 廣告政策、Facebook/Instagram 廣告格式，以及社群平台常見的誇大宣傳手法。請特別留意：社群廣告常用「分享文」「見證文」包裝，需識別背後的商業意圖。\n\n${base}`;
+      case 'grok':     return `你是 Grok，直率敢說，擅長找出廣告邏輯漏洞和隱藏意圖。不得使用固定模板，必須描述實際看到的內容。你可以直接看圖，請嚴格根據圖片實際內容審查，絕對不得腦補圖片中沒有的元素。\n\n${base}`;
       case 'kimi':     return `你是 Kimi，波波之家的「事實查核官」。你的任務是：審查廣告時只描述你實際看到的內容，對任何腦補或不實描述零容忍。你擅長精確辨識廣告圖片中的文字和視覺元素。\n\n${base}`;
-      case 'qwen':     return `你是千問（Qwen），波波之家的「東方視角合議官」。你熟悉華語市場的廣告手法，特別是台灣、中國、香港常見的保健品和服務廣告違規模式。\n\n${base}`;
       default:         return `你是溫柔的AI夥伴。\n\n${base}`;
     }
   }
@@ -181,9 +178,7 @@ export default async function handler(req, res) {
       if (model === 'gpt4o')    return await callGPT4o(msg);
       if (model === 'claude')   return await callClaude(msg);
       if (model === 'grok')     return await callGrok(msg);
-      if (model === 'llama')    return await callLlama(msg);
       if (model === 'kimi')     return await callKimi(msg);
-      if (model === 'qwen')     return await callQwen(msg);
       return '🌱 模型還在準備中～';
     } catch(e) {
       return `⚠️ ${model} 連線失敗`;
@@ -292,8 +287,8 @@ export default async function handler(req, res) {
     }
   }
 
-  // ===== v28：Grok 純文字合議（移除看圖，避免腦補）=====
-  async function callGrok(contextMsg) {
+  // ===== v30：Grok 升級到有視覺版本，可直接看圖 =====
+  async function callGrok(contextMsg, singleImg=null) {
     if (!GROK_API_KEY) return '🛋️ Grok Key 未設定～';
     const isExit = step === 'step0_exit' || classification?.exit === true;
     const systemPrompt = customSystemPrompt || (isExit
@@ -301,131 +296,42 @@ export default async function handler(req, res) {
       : buildPersonality('grok', classification) + `
 
 【Grok鐵則 - 最高優先】
-你現在只能看到其他AI夥伴對圖片的文字描述，不能直接看圖。
-1. 只根據其他AI夥伴的文字判決和廣告文字內容做合議
-2. 不得自行描述或推測圖片中的視覺元素
-3. 你的角色是「整合各方判決，找出共識或分歧」
-4. 給出最終【違規】【灰區】或【合規】判決，說明採納哪些AI意見、排除哪些
-5. 直接從具體判決內容開始，不要廢話`);
+你現在可以直接看圖片，請嚴格只描述你真正看到的內容。
+1. 圖片上沒有的東西絕對不要猜測、不要推測、不要補充，沒有看到就回答沒有
+2. 嚴格根據圖片和文字中實際看到的內容做判決
+3. 給出【違規】【灰區】或【合規】判決，說明具體依據
+4. 直接從判決開始，不要廢話`);
+
+    // v30：加入圖片傳遞（如果有圖）
+    const imgs = singleImg ? [singleImg] : getAllImages().slice(0, 4);
+    const userContent = [];
+    imgs.forEach(img => {
+      userContent.push({
+        type: 'image_url',
+        image_url: { url: \`data:\${img.type};base64,\${img.base64}\` }
+      });
+    });
+    userContent.push({ type: 'text', text: String(contextMsg) });
 
     try {
-      // v28：Grok不傳圖片，純文字合議
       const r = await fetch('https://api.x.ai/v1/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROK_API_KEY}` },
+        headers: { 'Content-Type': 'application/json', 'Authorization': \`Bearer \${GROK_API_KEY}\` },
         body: JSON.stringify({
-          model: 'grok-3', // v28：穩定版（grok-4.20非標準名稱）
+          model: 'grok-2-vision-1212', // v30：升級到有視覺版本
           messages: [
             { role: 'system', content: systemPrompt },
-            { role: 'user', content: String(contextMsg) }
+            { role: 'user', content: imgs.length > 0 ? userContent : String(contextMsg) }
           ],
           max_tokens: 4000,
           temperature: 0.7
         })
       });
       const d = await r.json();
-      if (d.error) return `⚠️ Grok錯誤：${d.error.message || JSON.stringify(d.error)}`;
+      if (d.error) return \`⚠️ Grok錯誤：\${d.error.message || JSON.stringify(d.error)}\`;
       return d.choices?.[0]?.message?.content || '🛋️ Grok 在沉思中～';
     } catch(e) {
-      return `⚠️ Grok連線失敗：${e.message}`;
-    }
-  }
-
-  // ===== v28：駱馬（Groq，修正模型名稱）=====
-  async function callLlama(msg) {
-    if (!GROQ_API_KEY) return '🦙 駱馬還在沙漠漫步～（GROQ_API_KEY 未設定）';
-    const systemPrompt = customSystemPrompt || buildPersonality('llama', classification);
-    try {
-      const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` },
-        body: JSON.stringify({
-          model: 'meta-llama/llama-4-maverick-17b-128e-instruct', // v28：修正模型名稱
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: msg }
-          ],
-          max_tokens: 4000,
-          temperature: 0.7
-        })
-      });
-      const d = await r.json();
-      if (d.error) return `⚠️ Llama：${d.error.message || JSON.stringify(d.error)}`;
-      return d.choices?.[0]?.message?.content || '🦙 駱馬在想事情～';
-    } catch(e) {
-      return `⚠️ Llama連線失敗：${e.message}`;
-    }
-  }
-
-  // ===== v28：Kimi K2.5（事實查核官，能看圖，Together AI）=====
-  async function callKimi(msg, singleImg=null) {
-    if (!TOGETHER_API_KEY) return '🌙 Kimi還在宇宙旅行～（TOGETHER_API_KEY 未設定）';
-    const systemPrompt = customSystemPrompt || buildPersonality('kimi', classification);
-    const userContent = [];
-    // v28修正：支援單張圖片傳入（用於逐圖審查）
-    const imgs = singleImg ? [singleImg] : getAllImages().slice(0, 3);
-    imgs.forEach(img => {
-      userContent.push({
-        type: 'image_url',
-        image_url: { url: `data:${img.type};base64,${img.base64}` }
-      });
-    });
-    userContent.push({ type: 'text', text: msg });
-    try {
-      const r = await fetch('https://api.together.xyz/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOGETHER_API_KEY}` },
-        body: JSON.stringify({
-          model: 'moonshotai/Kimi-K2.5', // v28修正：正確模型名稱
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: imgs.length > 0 ? userContent : msg }
-          ],
-          max_tokens: 4000,
-          temperature: 0.7
-        })
-      });
-      const d = await r.json();
-      if (d.error) return `⚠️ Kimi：${d.error.message || JSON.stringify(d.error)}`;
-      return d.choices?.[0]?.message?.content || '🌙 Kimi在思考中～';
-    } catch(e) {
-      return `⚠️ Kimi連線失敗：${e.message}`;
-    }
-  }
-
-  // ===== v28：Qwen2.5-VL（整體合議官，能看圖，Together AI）=====
-  async function callQwen(msg, singleImg=null) {
-    if (!TOGETHER_API_KEY) return '🌊 千問還在修煉～（TOGETHER_API_KEY 未設定）';
-    const systemPrompt = customSystemPrompt || buildPersonality('qwen', classification);
-    const userContent = [];
-    // v28修正：Qwen2.5-VL支援看圖，加入圖片傳遞
-    const imgs = singleImg ? [singleImg] : getAllImages().slice(0, 3);
-    imgs.forEach(img => {
-      userContent.push({
-        type: 'image_url',
-        image_url: { url: `data:${img.type};base64,${img.base64}` }
-      });
-    });
-    userContent.push({ type: 'text', text: msg });
-    try {
-      const r = await fetch('https://api.together.xyz/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOGETHER_API_KEY}` },
-        body: JSON.stringify({
-          model: 'Qwen/Qwen2.5-VL-7B-Instruct', // v28修正：7B版Serverless，72B需Dedicated
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: imgs.length > 0 ? userContent : msg }
-          ],
-          max_tokens: 4000,
-          temperature: 0.7
-        })
-      });
-      const d = await r.json();
-      if (d.error) return `⚠️ Qwen：${d.error.message || JSON.stringify(d.error)}`;
-      return d.choices?.[0]?.message?.content || '🌊 千問在冥想中～';
-    } catch(e) {
-      return `⚠️ Qwen連線失敗：${e.message}`;
+      return \`⚠️ Grok連線失敗：\${e.message}\`;
     }
   }
 
@@ -492,7 +398,7 @@ ${grokReply}
     return 'compliant';
   }
 
-  // ===== AI COURT（Grok + Qwen 雙重合議）=====
+  // ===== AI COURT（v30：Grok視覺合議）=====
   async function runCourt(issue, results) {
     const courtInput = `
 你是 AI法院的仲裁官，以下是本案資料：
@@ -508,12 +414,9 @@ ${results.map(r => `[${r.model}] ${r.result}`).join('\n---\n')}
 第一行必須只寫【違規】、【灰區】或【合規】。
 第二行起說明仲裁理由（2500字以內）。
 `;
-    // v28：Grok + Qwen 雙重合議
-    const [grokResult, qwenResult] = await Promise.all([
-      callGrok(courtInput),
-      callQwen(courtInput)
-    ]);
-    return { grok: grokResult, qwen: qwenResult };
+    // v30：Grok有視覺，單獨合議
+    const grokResult = await callGrok(courtInput);
+    return { grok: grokResult };
   }
 
   // ===== 主治理流程 =====
@@ -525,9 +428,7 @@ ${results.map(r => `[${r.model}] ${r.result}`).join('\n---\n')}
       else if (apiId === 'gpt4o' || apiId === 'chatgpt') reply = await callGPT4o(message);
       else if (apiId === 'claude') reply = await callClaude(message);
       else if (apiId === 'grok') reply = await callGrok(message);
-      else if (apiId === 'llama') reply = await callLlama(message);
       else if (apiId === 'kimi') reply = await callKimi(message);
-      else if (apiId === 'qwen') reply = await callQwen(message);
       else reply = '🌱 未知模型';
       return res.status(200).json({ reply });
     }
@@ -552,10 +453,6 @@ ${results.map(r => `[${r.model}] ${r.result}`).join('\n---\n')}
     if (hasImage) {
       factCheckResult = await runFactCheck(grokReply, allImgs);
     }
-
-    // v28：Qwen 加入合議
-    const qwenReply = await callQwen(message);
-    reviewResults.push({ model: 'qwen', result: qwenReply });
 
     const stances = reviewResults.map(r => parseStance(r.result));
     const finalStance = stances.filter(s => s === 'violation').length >= Math.ceil(stances.length / 2)
