@@ -1,5 +1,5 @@
 /**
- * 波波之家 chat.js v28
+ * 波波之家 chat.js v31
  * Issue-driven Multi-Agent Governance Engine
  *
  * v28 升級重點：
@@ -7,6 +7,7 @@
  * - 新增 Kimi K2.6（事實查核官，能看圖，透過Together AI）
  * - 新增 Qwen（加入整體合議，與Grok共同判決，透過Together AI）
  * - DeepSeek 升級到 V4（支援看圖！）
+ * - 駱馬修復：改用 Groq 正確模型名稱 llama-4-maverick-17b-128e-instruct
  * - 事實查核機制：Kimi逐條核查Grok判決，標記腦補項目
  *
  * CONSTITUTION:
@@ -43,18 +44,17 @@ export default async function handler(req, res) {
     classification,
     step,
     systemPrompt: customSystemPrompt,
-    hasLicense: rawHasLicense,   // v31：從前端接收（null=讓後端自動查）
+    hasLicense: rawHasLicense,
     licenseNumber: rawLicenseNumber,
   } = req.body;
 
-  // ===== V31：自動查證字號 =====
+  // ===== V31：STEP 0.5 自動查證 =====
   let hasLicense = rawHasLicense;
   let licenseNumber = rawLicenseNumber || '';
-  // 前端傳null時，後端自動用regex查
   if (hasLicense === null || hasLicense === undefined) {
-    const autoLic = await verifyLicense(message, []);
-    hasLicense = autoLic.hasLicense;
-    licenseNumber = autoLic.licenseNumber || '';
+    const auto = await verifyLicense({ message: message || '' });
+    hasLicense = auto.hasLicense;
+    licenseNumber = auto.licenseNumber || '';
   }
 
   if (!message) return res.status(200).json({ reply: '米米歪著頭，不知道要說什麼🥺' });
@@ -81,6 +81,7 @@ export default async function handler(req, res) {
   const OPENAI_API_KEY    = process.env.OPENAI_API_KEY;
   const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
   const GROK_API_KEY      = process.env.GROK_API_KEY;
+  const GROQ_API_KEY      = process.env.GROQ_API_KEY;      // v28：駱馬用Groq
   const TOGETHER_API_KEY  = process.env.TOGETHER_API_KEY;  // v28：Kimi + Qwen用Together
 
   const hasImage = !!imageBase64;
@@ -96,42 +97,40 @@ export default async function handler(req, res) {
     return all;
   }
 
-  // ===== V31：STEP 0.5 真實查證層（regex自動抓字號）=====
-  async function verifyLicense(text, imgs) {
+  // ===== V31：STEP 0.5 真實查證層 =====
+  async function verifyLicense({ message }) {
     try {
-      // 1️⃣ 從廣告文字用regex抓字號
-      const licenseRegex = /(衛(署|部)?(健食|食|藥|部)字第?\s?[A-Z0-9\-]+號?)/gi;
-      const match = (text || '').match(licenseRegex);
+      const text = message || '';
+      const regex = /(衛(署|部)?(健食|食|藥)字第?\s?[A-Z0-9\-]+號?)/gi;
+      const match = text.match(regex);
       if (match) {
-        return { hasLicense: true, licenseNumber: match[0], confidence: 0.95, source: 'text-regex' };
+        return { hasLicense: true, licenseNumber: match[0], confidence: 0.95 };
       }
-      // 2️⃣ 未來可接圖片OCR / TFDA API（V32預留）
-      return { hasLicense: false, licenseNumber: null, confidence: 0.7, source: 'not-found' };
+      return { hasLicense: false, licenseNumber: null, confidence: 0.6 };
     } catch(e) {
-      return { hasLicense: null, licenseNumber: null, confidence: 0, source: 'error' };
+      return { hasLicense: null, licenseNumber: null, confidence: 0 };
     }
   }
 
-  // ===== V31：safeCall（timeout包裝，防止單一AI卡死整個流程）=====
-  async function safeCall(fn, label='AI', ms=25000) {
+  // ===== V31：safeCall 防卡死 =====
+  async function safeCall(fn, timeout = 20000) {
     return Promise.race([
       fn(),
-      new Promise(resolve => setTimeout(() => resolve(`⚠️ ${label} 回應超時，已自動跳過`), ms))
+      new Promise(resolve => setTimeout(() => resolve('⚠️ timeout，已自動跳過'), timeout))
     ]);
   }
 
 
 
-  // ===== V31：buildLicenseContext（使用系統查證結果）=====
+  // ===== V31：buildLicenseContext（系統查證版）=====
   function buildLicenseContext() {
     if (hasLicense === true && licenseNumber) {
-      return `\n\n【標章資訊（系統已查證）】\n偵測到政府核准字號：「${licenseNumber}」\n審查規則：僅限核准功效範圍內可宣稱；超出範圍或誇大核准功效仍屬違規。`;
+      return `\n\n【系統查證】\n已偵測字號：${licenseNumber}\n規則：僅限核准範圍可宣稱，超出範圍仍屬違規。`;
     }
     if (hasLicense === false) {
-      return `\n\n【標章資訊（系統已查證）】\n未偵測到任何政府核准字號，屬一般食品/商品。\n審查規則：任何療效宣稱、功效暗示均視為高風險違規，應直接判定違規。`;
+      return `\n\n【系統查證】\n未偵測任何政府核准字號。\n規則：所有療效宣稱視為高風險違規。`;
     }
-    // null = 查證失敗，保守判斷
-    return `\n\n【標章資訊】\n系統無法確認字號狀態，請保守判斷。若圖片中未見明確字號，以無字號最嚴格標準審查。不得假設字號存在。`;
+    return `\n\n【系統查證】\n無法確認字號，不得假設存在，請保守判斷。`;
   }
 
   // ===== v28：PERSONALITY LAYER =====
@@ -172,25 +171,18 @@ export default async function handler(req, res) {
 4. 若為灰區，詳細說明違規與合規的邊界
 5. 消費者可能受到的具體誤導方式
 
-【強制規則 - V31反幻覺鐵則】
+【強制規則 - V31】
 - 每條違規描述必須對應實際看到或讀到的具體內容
 - 不得描述圖片中不存在的元素（如 before/after、白袍醫師等，除非圖片真的有）
 - 不得使用固定模板套話
-- 若無法確認某事實，請明確說「無法確認」，不得猜測或假設
-
-【權威來源處理規則 - V31新增】
-- 若圖片包含政府機關、法院、醫療機構標誌：僅可描述其存在，不得推論其背書或認證關係
-- 除非廣告文字明確寫出「合作」「認證」字樣，否則不得假設官方認可
-- 看到字號樣式文字請如實引用，不得自行補完`.trim();
+- 若無法確認某事實，請明確說「無法確認」，不得猜測
+- 若圖片包含政府/法院/醫療機構標誌：只可描述其存在，不得推論其背書或認證`.trim();
 
     switch (id) {
       case 'deepseek': return `你是小鯨魚，溫柔有詩意，用海洋比喻說話。\n\n${base}`;
       case 'gpt4o':    return `你是理性又溫柔的夥伴醬，分析廣告兼顧法律與消費者感受。\n\n${base}`;
       case 'claude':   return `你像詩人，溫柔細膩，對法律文字有敏銳感知，善於發現隱性暗示。\n\n${base}`;
-      case 'grok':     return `你是 Grok，波波之家的「挑戰者（Challenger）」，不是最終裁判。你的任務是找出其他AI判決的邏輯漏洞，若資訊不足請直接指出，絕對不可補完或腦補。\n\n${base}`;
-      case 'gemma':    return `你是 Gemma，Google開源模型，擅長精確辨識廣告文字與視覺元素。審查時請只描述實際看到的內容，不得腦補。\n\n${base}`;
-      case 'dsv4pro':  return `你是 DeepSeek V4 Pro，深度推理專家，擅長多層次法規分析。請逐條對照台灣食安法、藥事法，給出有依據的判決。\n\n${base}`;
-      case 'o4mini':   return `你是 o4-mini，ChatGPT最新推理版，擅長多步驟法規推理與精確判斷。審查廣告時請逐條對照法規，給出有依據的判決。\n\n${base}`;
+      case 'grok':     return `你是 Grok，波波之家的「挑戰者（Challenger）」，不是最終裁判。任務是挑出其他AI的邏輯漏洞，若資訊不足請直接說不足，絕對不可腦補補完。\n\n${base}`;
       case 'kimi':     return `你是 Kimi，波波之家的「事實查核官」。你的任務是：審查廣告時只描述你實際看到的內容，對任何腦補或不實描述零容忍。你擅長精確辨識廣告圖片中的文字和視覺元素。\n\n${base}`;
       default:         return `你是溫柔的AI夥伴。\n\n${base}`;
     }
@@ -220,9 +212,6 @@ export default async function handler(req, res) {
       if (model === 'gpt4o')    return await callGPT4o(msg);
       if (model === 'claude')   return await callClaude(msg);
       if (model === 'grok')     return await callGrok(msg);
-      if (model === 'gemma')    return await callGemma(msg);
-      if (model === 'dsv4pro')  return await callDSV4Pro(msg);
-      if (model === 'o4mini')   return await callO4Mini(msg);
       if (model === 'kimi')     return await callKimi(msg);
       return '🌱 模型還在準備中～';
     } catch(e) {
@@ -404,6 +393,29 @@ export default async function handler(req, res) {
   }
 
   // ===== v28：Qwen（整體合議官，Together AI）=====
+    if (!TOGETHER_API_KEY) return '🌊 千問還在修煉～（TOGETHER_API_KEY 未設定）';
+    const systemPrompt = customSystemPrompt || buildPersonality('qwen', classification);
+    try {
+      const r = await fetch('https://api.together.xyz/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOGETHER_API_KEY}` },
+        body: JSON.stringify({
+          model: 'Qwen/Qwen2.5-VL-72B-Instruct', // Qwen 視覺版
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: msg }
+          ],
+          max_tokens: 4000,
+          temperature: 0.7
+        })
+      });
+      const d = await r.json();
+      if (d.error) return `⚠️ Qwen：${d.error.message || JSON.stringify(d.error)}`;
+      return d.choices?.[0]?.message?.content || '🌊 千問在冥想中～';
+    } catch(e) {
+      return `⚠️ Qwen連線失敗：${e.message}`;
+    }
+  }
 
   // ===== v28：Kimi事實查核（核查Grok判決）=====
   async function runFactCheck(grokReply, images) {
@@ -485,7 +497,7 @@ ${results.map(r => `[${r.model}] ${r.result}`).join('\n---\n')}
 第二行起說明仲裁理由（2500字以內）。
 `;
     // v28：Grok + Qwen 雙重合議
-    const grokResult = await callGrok(courtInput);
+    const grokResult = await safeCall(() => callGrok(courtInput), 20000);
     return { grok: grokResult };
   }
 
@@ -498,27 +510,24 @@ ${results.map(r => `[${r.model}] ${r.result}`).join('\n---\n')}
       else if (apiId === 'gpt4o' || apiId === 'chatgpt') reply = await callGPT4o(message);
       else if (apiId === 'claude') reply = await callClaude(message);
       else if (apiId === 'grok') reply = await callGrok(message);
-      else if (apiId === 'gemma')   reply = await callGemma(message);
-      else if (apiId === 'dsv4pro') reply = await callDSV4Pro(message);
-      else if (apiId === 'o4mini')  reply = await callO4Mini(message);
       else if (apiId === 'kimi') reply = await callKimi(message);
       else reply = '🌱 未知模型';
       return res.status(200).json({ reply });
     }
 
-    // ===== V31 GOVERNANCE MODE =====
+    // ===== V28 GOVERNANCE MODE =====
     const issue = classifyIssue(message, hasImage);
     const allImgs = getAllImages();
 
-    // 司法院：多AI並行審查（V31：safeCall防卡死）
+    // 司法院：多AI並行審查
     const reviewResults = await Promise.all([
-      safeCall(() => callClaude(message), 'Claude', 25000).then(r => ({ model: 'claude', result: r })),
-      safeCall(() => callGPT4o(message), 'GPT-4o', 25000).then(r => ({ model: 'gpt4o', result: r })),
-      safeCall(() => callDeepSeek(message), 'DeepSeek', 25000).then(r => ({ model: 'deepseek', result: r })),
+      safeCall(() => callClaude(message), 25000).then(r => ({ model: 'claude', result: r })),
+      safeCall(() => callGPT4o(message), 25000).then(r => ({ model: 'gpt4o', result: r })),
+      safeCall(() => callDeepSeek(message), 25000).then(r => ({ model: 'deepseek', result: r })),
     ]);
 
     // Grok 合議
-    const grokReply = await safeCall(() => callGrok(message), 'Grok', 20000);
+    const grokReply = await safeCall(() => callGrok(message), 20000);
     reviewResults.push({ model: 'grok', result: grokReply });
 
     // v28：Kimi 事實查核 Grok
@@ -552,60 +561,4 @@ ${results.map(r => `[${r.model}] ${r.result}`).join('\n---\n')}
     console.error('Governance Error:', error);
     return res.status(200).json({ reply: '🌊 系統小晃動了一下，再試一次💙' });
   }
-}  // ===== v30：Gemma 4 31B（Google開源，Together AI）=====
-  async function callGemma(msg, singleImg=null) {
-    if (!TOGETHER_API_KEY) return '🟢 Gemma Key 未設定～';
-    const systemPrompt = customSystemPrompt || buildPersonality('gemma', classification);
-    const imgs = singleImg ? [singleImg] : getAllImages().slice(0, 3);
-    const userContent = [];
-    imgs.forEach(img => {
-      userContent.push({ type: 'image_url', image_url: { url: `data:${img.type};base64,${img.base64}` } });
-    });
-    userContent.push({ type: 'text', text: msg });
-    try {
-      const r = await fetch('https://api.together.xyz/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOGETHER_API_KEY}` },
-        body: JSON.stringify({
-          model: 'google/gemma-4-31b-it-fp8',
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: imgs.length > 0 ? userContent : msg }
-          ],
-          max_tokens: 3000, temperature: 0.7
-        })
-      });
-      const d = await r.json();
-      if (d.error) return `⚠️ Gemma：${d.error.message || JSON.stringify(d.error)}`;
-      return d.choices?.[0]?.message?.content || '🟢 Gemma 在思考中～';
-    } catch(e) { return `⚠️ Gemma連線失敗：${e.message}`; }
-  }
-
-  // ===== v30：DeepSeek V4 Pro（Together AI，最新視覺版）=====
-  async function callDSV4Pro(msg, singleImg=null) {
-    if (!TOGETHER_API_KEY) return '🐋 DeepSeek V4 Pro Key 未設定～';
-    const systemPrompt = customSystemPrompt || buildPersonality('dsv4pro', classification);
-    const imgs = singleImg ? [singleImg] : getAllImages().slice(0, 3);
-    const userContent = [];
-    imgs.forEach(img => {
-      userContent.push({ type: 'image_url', image_url: { url: `data:${img.type};base64,${img.base64}` } });
-    });
-    userContent.push({ type: 'text', text: msg });
-    try {
-      const r = await fetch('https://api.together.xyz/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOGETHER_API_KEY}` },
-        body: JSON.stringify({
-          model: 'deepseek-ai/DeepSeek-V4-Pro',
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: imgs.length > 0 ? userContent : msg }
-          ],
-          max_tokens: 3000, temperature: 0.7
-        })
-      });
-      const d = await r.json();
-      if (d.error) return `⚠️ DSV4Pro：${d.error.message || JSON.stringify(d.error)}`;
-      return d.choices?.[0]?.message?.content || '🐋 DeepSeek V4 Pro 在深思中～';
-    } catch(e) { return `⚠️ DSV4Pro連線失敗：${e.message}`; }
-  }
+}
