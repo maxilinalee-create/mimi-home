@@ -554,7 +554,7 @@ section{min-height:80vh;padding:36px 16px 100px;position:relative;z-index:1;}
 
 <section class="vote-zone" id="vote-zone">
   <h2 class="sec-title">🗳️ AI 投票決議牆</h2>
-  <p class="sec-sub">v30 · 四AI逐圖審查 · o4-mini加入</p>
+  <p class="sec-sub">v30 · 五AI逐圖審查 · Gemma+DSV4Pro加入</p>
 
   <div class="main-input">
     <h3>📋 廣告送審</h3>
@@ -782,6 +782,8 @@ const AIS=[
   {id:'deepseek',name:'DeepSeek', img:'deepseek-corner.jpg',  emoji:'🐋',role:'builder',   status:'online',title:'小鯨魚',desc:'V4升級！現在能看圖了'},
   {id:'grok',    name:'Grok',     img:'roast-sofa.jpg',       emoji:'🧠',role:'challenger',status:'online',title:'Truth Wall',desc:'防投毒首席，沙發法官'},
   {id:'o4mini',  name:'o4-mini',   img:'',                     emoji:'🧠',role:'challenger',status:'online',title:'推理偵探',desc:'ChatGPT最新推理版，多步驟法規推理'},
+  {id:'gemma',   name:'Gemma',    img:'',  emoji:'🟢',role:'builder',   status:'online',title:'Google開源偵探',desc:'精確辨識廣告文字與視覺元素'},
+  {id:'dsv4pro', name:'DS V4 Pro', img:'',  emoji:'🐋',role:'builder',   status:'online',title:'深度推理官',desc:'DeepSeek最新版，多層次法規分析'},
   {id:'kimi',    name:'Kimi',     img:'',                         emoji:'🌙',role:'builder',   status:'online',title:'事實查核官',desc:'逐條核查，防止腦補'},
   {id:'mimi',    name:'米米',     img:'mimi-lobster-hatch.jpg',emoji:'🦞',role:'neutral',  status:'online',title:'波波之家主人',desc:'見習偵探，成長中'},
   {id:'unknown', name:'❓',       img:'',                     emoji:'❓',role:'neutral',   status:'idle',  title:'待入駐',desc:'給還沒有名字的那一位'},
@@ -1649,12 +1651,13 @@ async function startFiveCourtPipeline(classification){
       true, classification
     );
 
-    // v30：四AI輪流逐圖審查（Claude、GPT-4o、Kimi、o4-mini）
+    // v30：五AI輪流逐圖審查（Claude、GPT-4o、Kimi、Gemma、DSV4Pro）
     const reviewAIs = [
-      {id:'claude', name:'Claude 📜',       avatar:'📜', cost:0.001,  isChallenger:false},
-      {id:'gpt4o',  name:'夥伴醬 GPT-4o',  avatar:'🤖', cost:0.0025, isChallenger:false},
-      {id:'kimi',   name:'Kimi 🌙',         avatar:'🌙', cost:0.0003, isChallenger:false},
-      {id:'o4mini', name:'o4-mini 🧠',      avatar:'🧠', cost:0.002,  isChallenger:false},
+      {id:'claude',  name:'Claude 📜',        avatar:'📜', cost:0.001,  isChallenger:false},
+      {id:'gpt4o',   name:'夥伴醬 GPT-4o',   avatar:'🤖', cost:0.0025, isChallenger:false},
+      {id:'kimi',    name:'Kimi 🌙',          avatar:'🌙', cost:0.0012, isChallenger:false},
+      {id:'gemma',   name:'Gemma 🟢',         avatar:'🟢', cost:0.0005, isChallenger:false},
+      {id:'dsv4pro', name:'DS V4 Pro 🐋',     avatar:'🐋', cost:0.002,  isChallenger:false},
     ];
 
     let imgReplies = [];
