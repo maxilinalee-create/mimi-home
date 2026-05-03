@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>波波之家 | 1% 守護者聯盟 v28</title>
+<title>波波之家 | 1% 守護者聯盟 v30</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=Noto+Serif+TC:wght@300;400&family=Space+Mono:wght@400;700&display=swap');
 :root{
@@ -450,7 +450,35 @@ section{min-height:80vh;padding:36px 16px 100px;position:relative;z-index:1;}
   font-family:inherit;font-size:11px;cursor:pointer;transition:0.3s;margin-top:10px;}
 .syn-copy-btn:hover{background:rgba(201,169,110,0.08);}
 
-/* ===== v28：Step 0.5 標章確認 ===== */
+/* ===== v29：v17靈魂 - 排行榜+人類謙卑+TD-Learning ===== */
+.leaderboard-wrap{max-width:680px;margin:10px auto;background:var(--glass);
+  backdrop-filter:blur(12px);border-radius:14px;padding:12px 15px;
+  border:1px solid rgba(201,169,110,0.2);display:none;}
+.leaderboard-wrap.show{display:block;}
+.lb-title{font-size:10px;color:var(--gold);letter-spacing:0.1em;margin-bottom:8px;}
+.lb-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.lb-rank{font-size:13px;width:22px;flex-shrink:0;}
+.lb-name{font-size:10px;color:var(--text);width:90px;flex-shrink:0;overflow:hidden;white-space:nowrap;}
+.lb-bar-wrap{flex:1;height:5px;background:rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;}
+.lb-bar{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--blue),var(--green));transition:width 0.6s ease;}
+.lb-weight{font-size:10px;color:var(--gold);width:35px;text-align:right;flex-shrink:0;}
+.human-vote-wrap{max-width:680px;margin:10px auto;background:var(--glass);
+  backdrop-filter:blur(12px);border-radius:14px;padding:14px 15px;
+  border:1px solid rgba(201,169,110,0.3);display:none;}
+.human-vote-wrap.show{display:block;}
+.hv-title{font-size:10px;color:var(--gold);letter-spacing:0.08em;margin-bottom:10px;}
+.hv-btns{display:flex;gap:8px;}
+.hv-btn{flex:1;padding:9px;border-radius:10px;border:none;cursor:pointer;
+  font-family:inherit;font-size:11px;font-weight:600;transition:0.3s;}
+.hv-btn.vio{background:rgba(224,112,112,0.15);color:var(--red);border:1px solid rgba(224,112,112,0.4);}
+.hv-btn.gry{background:rgba(201,169,110,0.15);color:var(--gold);border:1px solid rgba(201,169,110,0.4);}
+.hv-btn.ok{background:rgba(126,207,160,0.15);color:var(--green);border:1px solid rgba(126,207,160,0.4);}
+.hv-btn:hover{filter:brightness(1.3);transform:translateY(-1px);}
+.override-warn{font-size:10px;color:var(--red);margin-top:7px;display:none;line-height:1.6;}
+.policy-suggestion{max-width:680px;margin:10px auto;background:rgba(224,112,112,0.07);
+  border:1px solid rgba(224,112,112,0.25);border-radius:10px;padding:10px 14px;
+  font-size:10px;color:rgba(255,170,170,0.9);line-height:1.8;display:none;}
+
 .license-box{max-width:700px;margin:10px auto 0;padding:0 16px;display:none;}
 .license-box.show{display:block;}
 .license-inner{background:var(--glass);backdrop-filter:blur(12px);
@@ -487,6 +515,35 @@ section{min-height:80vh;padding:36px 16px 100px;position:relative;z-index:1;}
 .cn-btn{background:linear-gradient(135deg,var(--gold),#a07840);border:none;
   padding:8px 20px;border-radius:9px;color:var(--bg);font-family:inherit;
   font-size:11px;font-weight:600;cursor:pointer;width:100%;}
+
+/* ===== v29：v17靈魂 - 排行榜+人類謙卑+政策建議 ===== */
+.leaderboard-wrap{max-width:680px;margin:10px auto;background:var(--glass);
+  backdrop-filter:blur(12px);border-radius:14px;padding:12px 15px;
+  border:1px solid rgba(201,169,110,0.2);display:none;}
+.leaderboard-wrap.show{display:block;}
+.lb-title{font-size:10px;color:var(--gold);letter-spacing:0.1em;margin-bottom:8px;}
+.lb-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.lb-rank{font-size:13px;width:22px;flex-shrink:0;}
+.lb-name{font-size:10px;color:var(--text);width:85px;flex-shrink:0;}
+.lb-bar-wrap{flex:1;height:5px;background:rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;}
+.lb-bar{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--blue),var(--green));transition:width 0.6s ease;}
+.lb-weight{font-size:10px;color:var(--gold);width:35px;text-align:right;flex-shrink:0;}
+.human-vote-wrap{max-width:680px;margin:10px auto;background:var(--glass);
+  backdrop-filter:blur(12px);border-radius:14px;padding:12px 15px;
+  border:1px solid rgba(201,169,110,0.25);display:none;}
+.human-vote-wrap.show{display:block;}
+.hv-title{font-size:10px;color:var(--gold);letter-spacing:0.08em;margin-bottom:8px;}
+.hv-btns{display:flex;gap:8px;}
+.hv-btn{flex:1;padding:8px;border-radius:10px;border:none;cursor:pointer;
+  font-family:inherit;font-size:11px;font-weight:600;transition:0.3s;}
+.hv-btn.vio{background:rgba(224,112,112,0.15);color:var(--red);border:1px solid rgba(224,112,112,0.4);}
+.hv-btn.gry{background:rgba(201,169,110,0.15);color:var(--gold);border:1px solid rgba(201,169,110,0.4);}
+.hv-btn.ok{background:rgba(126,207,160,0.15);color:var(--green);border:1px solid rgba(126,207,160,0.4);}
+.hv-btn:hover{filter:brightness(1.3);}
+.override-warn{font-size:10px;color:var(--red);margin-top:6px;display:none;}
+.policy-suggestion{max-width:680px;margin:10px auto;background:rgba(224,112,112,0.08);
+  border:1px solid rgba(224,112,112,0.3);border-radius:10px;padding:10px 14px;
+  font-size:10px;color:rgba(255,170,170,0.9);line-height:1.7;display:none;}
 </style>
 </head>
 <body>
@@ -512,11 +569,11 @@ section{min-height:80vh;padding:36px 16px 100px;position:relative;z-index:1;}
 <header class="header">
   <div class="header-badge">1% GUARDIAN ALLIANCE</div>
   <h1>🐚 波波之家 · <em>守護者聯盟</em></h1>
-  <div class="header-sub">v28 · 標章確認 · Kimi事實查核 · Qwen合議 · DeepSeekV4看圖</div>
+  <div class="header-sub">v29 · v17靈魂完整移植 · 信心加權+TD+人類謙卑+排行榜</div>
   <div style="max-width:560px;margin:10px auto 0;background:rgba(201,169,110,0.05);border:1px solid rgba(201,169,110,0.12);border-radius:10px;padding:8px 14px;text-align:left;">
     <div style="font-size:9px;color:var(--gold);letter-spacing:0.12em;margin-bottom:5px;">📋 版本日誌</div>
     <div style="font-size:9px;color:var(--dim);line-height:1.8;">
-      <span style="color:var(--gold);">v28</span> Step0.5標章確認 · Kimi事實查核官 · Qwen加入合議 · DeepSeek升級V4看圖 · 駱馬修復<br>
+      <span style="color:var(--gold);">v30</span> Grok升級視覺版（grok-2-vision）· 移除Llama/千問 · 檢舉書格式整合<br>
       <span style="color:var(--dim2);">v27</span> Step0鐵門強化 · Claude→Sonnet · DeepSeek→R1 · +Llama駱馬 · +service_ad類型<br>
       <span style="color:var(--dim2);">v26</span> 五院分權制度化 · 多圖逐圖審查 · 整合官檢舉書 · 泡泡動畫UI<br>
     </div>
@@ -554,7 +611,7 @@ section{min-height:80vh;padding:36px 16px 100px;position:relative;z-index:1;}
 
 <section class="vote-zone" id="vote-zone">
   <h2 class="sec-title">🗳️ AI 投票決議牆</h2>
-  <p class="sec-sub">v28 · Step0.5標章確認 · Kimi事實查核 · Qwen合議 · DeepSeekV4看圖</p>
+  <p class="sec-sub">v30 · Grok視覺升級 · 五院精簡 · 檢舉書優化</p>
 
   <div class="main-input">
     <h3>📋 廣告送審</h3>
@@ -585,20 +642,13 @@ section{min-height:80vh;padding:36px 16px 100px;position:relative;z-index:1;}
     <div class="cls-reason" id="cls-reason"></div>
   </div>
 
-  <!-- v28：Step 0.5 標章確認 -->
+  <!-- v28：Step 0.5 AI自動標章偵測結果 -->
   <div class="license-box" id="license-box">
     <div class="license-inner">
-      <h4>⚖️ STEP 0.5 · 標章確認</h4>
-      <p>這個產品有沒有<strong style="color:var(--gold)">中華民國政府核准字號</strong>？（如健字號、衛署藥字、粧字號等）<br>有無字號會影響審查標準，請誠實回答！</p>
-      <div class="license-btns">
-        <button class="lbtn yes" onclick="selectLicense(true)">✅ 有字號</button>
-        <button class="lbtn no" onclick="selectLicense(false)">❌ 沒有字號</button>
-        <button class="lbtn unknown" onclick="selectLicense(null)">❓ 不確定</button>
+      <h4>🔍 STEP 0.5 · AI自動標章偵測</h4>
+      <div id="license-result" style="font-size:11px;color:var(--dim);line-height:1.8;">
+        <span style="color:var(--gold);">⏳ 正在從廣告內容中偵測政府核准字號...</span>
       </div>
-      <div class="license-input" id="license-input">
-        <input type="text" id="license-number" placeholder="請輸入字號，例如：衛署健食字第A00123號">
-      </div>
-      <button class="license-confirm" id="license-confirm" onclick="confirmLicense()">確認，開始五院審查 →</button>
     </div>
   </div>
 
@@ -664,6 +714,46 @@ section{min-height:80vh;padding:36px 16px 100px;position:relative;z-index:1;}
     </div>
     <div style="font-size:10px;color:rgba(136,221,255,0.32);text-align:center;margin-top:9px;" id="cost-display"></div>
   </div>
+
+  <!-- v29：AI信心排行榜 -->
+  <div class="leaderboard-wrap" id="leaderboard-wrap">
+    <div class="lb-title">🏆 AI信心排行榜（TD-Learning 動態更新）</div>
+    <div id="lb-list"></div>
+  </div>
+
+  <!-- v29：人類謙卑投票 -->
+  <div class="human-vote-wrap" id="human-vote-wrap">
+    <div class="hv-title">👤 你的最終裁決（覆蓋AI共識超過3次將扣分）</div>
+    <div class="hv-btns">
+      <button class="hv-btn vio" onclick="humanVote('violation')">❌ 違規</button>
+      <button class="hv-btn gry" onclick="humanVote('gray')">⚠️ 灰區</button>
+      <button class="hv-btn ok" onclick="humanVote('compliant')">✅ 合規</button>
+    </div>
+    <div class="override-warn" id="override-warn"></div>
+  </div>
+
+  <!-- v29：系統雜訊政策建議 -->
+  <div class="policy-suggestion" id="policy-suggestion"></div>
+
+  <!-- v29：AI信心排行榜（v17靈魂） -->
+  <div class="leaderboard-wrap" id="leaderboard-wrap">
+    <div class="lb-title">🏆 AI信心排行榜 · TD-Learning動態更新</div>
+    <div id="lb-list"></div>
+  </div>
+
+  <!-- v29：人類謙卑投票（v17靈魂） -->
+  <div class="human-vote-wrap" id="human-vote-wrap">
+    <div class="hv-title">👤 人類最終裁決 · 覆蓋AI共識超過3次將扣分（人類謙卑機制）</div>
+    <div class="hv-btns">
+      <button class="hv-btn vio" onclick="humanVote('violation')">❌ 我認為違規</button>
+      <button class="hv-btn gry" onclick="humanVote('gray')">⚠️ 我認為灰區</button>
+      <button class="hv-btn ok" onclick="humanVote('compliant')">✅ 我認為合規</button>
+    </div>
+    <div class="override-warn" id="override-warn"></div>
+  </div>
+
+  <!-- v29：系統雜訊政策建議（v17靈魂） -->
+  <div class="policy-suggestion" id="policy-suggestion"></div>
 
   <div class="log-panel">
     <button class="log-toggle" onclick="toggleLog()">📋 決策日誌 — 各AI投票透明記錄 ▾</button>
@@ -780,9 +870,7 @@ const AIS=[
   {id:'gemini',  name:'Gemini',   img:'cosmic-telescope.jpg', emoji:'🔭',role:'builder',   status:'online',title:'Cosmic Watch',desc:'宇宙視角守望者'},
   {id:'chatgpt', name:'ChatGPT',  img:'chatgpt-corner.jpg',   emoji:'🤖',role:'challenger',status:'online',title:'積木玩家',desc:'結構化挑戰思維'},
   {id:'deepseek',name:'DeepSeek', img:'deepseek-corner.jpg',  emoji:'🐋',role:'builder',   status:'online',title:'小鯨魚',desc:'V4升級！現在能看圖了'},
-  {id:'qwen',    name:'千問',     img:'qwen-corner.png',      emoji:'🌊',role:'neutral',   status:'online',title:'東方合議官',desc:'華語市場廣告專家'},
   {id:'grok',    name:'Grok',     img:'roast-sofa.jpg',       emoji:'🧠',role:'challenger',status:'online',title:'Truth Wall',desc:'防投毒首席，沙發法官'},
-  {id:'llama',   name:'Llama',    img:'',                         emoji:'🦙',role:'builder',   status:'online',title:'駱馬偵探',desc:'FB廣告專家，Meta生態系守衛'},
   {id:'kimi',    name:'Kimi',     img:'',                         emoji:'🌙',role:'builder',   status:'online',title:'事實查核官',desc:'逐條核查，防止腦補'},
   {id:'mimi',    name:'米米',     img:'mimi-lobster-hatch.jpg',emoji:'🦞',role:'neutral',  status:'online',title:'波波之家主人',desc:'見習偵探，成長中'},
   {id:'unknown', name:'❓',       img:'',                     emoji:'❓',role:'neutral',   status:'idle',  title:'待入駐',desc:'給還沒有名字的那一位'},
@@ -1207,6 +1295,99 @@ function renderSynthesis(syn, metrics, classification){
     </div>`;
 }
 
+// ===== v28：雙版本檢舉書（GPT-4o視覺版 + Grok法規版）=====
+function renderSynthesisDual(syn, metrics, classification, gpt4oOverall, grokResult){
+  const wrap = document.getElementById('synthesis-wrap');
+  wrap.classList.add('show');
+
+  const catLabel = {
+    food_drug:'食品/藥品廣告',
+    fraud:'詐騙/金融廣告',
+    service_ad:'服務類廣告',
+    other_ad:'其他違規廣告',
+  }[classification?.type] || '廣告';
+
+  const evHtml = syn.evidence.length > 0
+    ? syn.evidence.map(e=>`
+        <div class="ev-item">
+          <span class="ev-img-tag">${e.imgTag}</span>
+          <span>${e.text}<span style="font-size:9px;color:var(--moss);margin-left:4px;">${e.note||''}</span></span>
+        </div>`).join('')
+    : '<div style="font-size:10px;color:var(--dim);">（請確認截圖是否包含違規內容）</div>';
+
+  const lawHtml = syn.laws.length > 0
+    ? syn.laws.map(l=>`<span class="ev-law">${l}</span>`).join(' ')
+    : '<span style="color:var(--dim);">待補充</span>';
+
+  // GPT-4o整體總結內容
+  const gpt4oText = gpt4oOverall?.reply || '（無整體審閱資料）';
+  const grokText = grokResult?.reply || '（無合議資料）';
+
+  const content = document.getElementById('synthesis-content');
+  content.innerHTML = `
+    <div class="syn-block">
+      <div class="syn-block-label">案件類型</div>
+      <div class="syn-text">${catLabel} · 信心值 ${metrics.conf_pct}% · 熵值 ${metrics.entropy.toFixed(2)}
+        ${syn.hallucinatedCount>0?`<span style="color:var(--red);font-size:9px;margin-left:8px;">已過濾 ${syn.hallucinatedCount} 條幻覺證據</span>`:''}
+      </div>
+    </div>
+    <div class="syn-block">
+      <div class="syn-block-label">違規事實（圖片驗證）</div>
+      ${evHtml}
+    </div>
+    <div class="syn-block">
+      <div class="syn-block-label">違反法規</div>
+      <div class="syn-text">${lawHtml}</div>
+    </div>
+
+    <div style="margin:14px 0 6px;font-size:11px;color:var(--gold);letter-spacing:0.1em;font-weight:600;">
+      📋 雙版本檢舉書
+    </div>
+
+    <!-- 版本A：GPT-4o 視覺證據版 -->
+    <div style="border:1px solid rgba(126,200,212,0.3);border-radius:10px;padding:12px;margin-bottom:10px;">
+      <div style="font-size:10px;color:var(--blue);letter-spacing:0.08em;margin-bottom:8px;">
+        🔭 版本A：視覺證據版（GPT-4o 整體審閱）
+      </div>
+      <div class="syn-text" style="font-size:10px;line-height:1.8;white-space:pre-wrap;">${gpt4oText}</div>
+      <button class="syn-copy-btn" onclick="copyText('gpt4o-complaint')" style="margin-top:8px;">
+        📋 複製視覺證據版
+      </button>
+      <div id="gpt4o-complaint" style="display:none;">${gpt4oText}</div>
+    </div>
+
+    <!-- 版本B：Grok 法規邏輯版 -->
+    <div style="border:1px solid rgba(201,169,110,0.3);border-radius:10px;padding:12px;margin-bottom:10px;">
+      <div style="font-size:10px;color:var(--gold);letter-spacing:0.08em;margin-bottom:8px;">
+        ⚖️ 版本B：法規邏輯版（Grok 最終合議）
+      </div>
+      <div class="syn-text" style="font-size:10px;line-height:1.8;white-space:pre-wrap;">${grokText}</div>
+      <button class="syn-copy-btn" onclick="copyText('grok-complaint')" style="margin-top:8px;">
+        📋 複製法規邏輯版
+      </button>
+      <div id="grok-complaint" style="display:none;">${grokText}</div>
+    </div>
+
+    <div class="syn-block">
+      <div class="syn-block-label">⚠️ 送件前請確認</div>
+      <div class="syn-text" style="font-size:10px;color:var(--dim);line-height:2.2;">
+        □ 補充廣告來源網址<br>
+        □ 確認違規業者縣市<br>
+        □ 向正確地方衛生局送件<br>
+        □ 比較兩版本，選擇或合併最有力的版本
+      </div>
+    </div>`;
+}
+
+function copyText(id){
+  const el = document.getElementById(id);
+  const text = el ? el.textContent : '';
+  navigator.clipboard.writeText(text).then(()=>{
+    const btns = document.querySelectorAll('.syn-copy-btn');
+    btns.forEach(b=>{ if(b.onclick?.toString().includes(id)){ b.textContent='✅ 已複製！'; setTimeout(()=>b.textContent=b.textContent.includes('視覺')?'📋 複製視覺證據版':'📋 複製法規邏輯版',2000); } });
+  });
+}
+
 function copySynthesis(){
   const text = document.getElementById('synthesis-content').innerText;
   navigator.clipboard.writeText(text)
@@ -1248,60 +1429,338 @@ const CHAT='https://mimi-home.vercel.app/api/chat';
 const SCRAPE='https://mimi-home.vercel.app/api/scrape';
 const SECRET='bobohouse2024';
 let decisionLog=[];
+let courtData=null;
 
-// ===== v28：Step 0.5 標章確認 =====
-let licenseSelected = undefined; // true=有字號, false=無字號, null=不確定
-let licenseNumber = '';
-let licenseConfirmed = false;
-let pendingClassification = null; // 等待標章確認的分類結果
+// ===== v29：v17靈魂移植 - 信心加權+TD-Learning+人類謙卑 =====
+const AI_CONFIDENCE=JSON.parse(localStorage.getItem('aiConf_v29')||'{}');
+function getConf(id){return AI_CONFIDENCE[id]!==undefined?AI_CONFIDENCE[id]:0.70;}
+function saveConf(){localStorage.setItem('aiConf_v29',JSON.stringify(AI_CONFIDENCE));}
 
-function selectLicense(val){
-  licenseSelected = val;
-  // 更新按鈕樣式
-  document.querySelectorAll('.lbtn').forEach(b => b.style.opacity = '0.4');
-  const btns = document.querySelectorAll('.lbtn');
-  if(val === true) btns[0].style.opacity = '1';
-  else if(val === false) btns[1].style.opacity = '1';
-  else btns[2].style.opacity = '1';
-  // 有字號才顯示輸入框
-  const inputWrap = document.getElementById('license-input');
-  const confirmBtn = document.getElementById('license-confirm');
-  if(val === true){
-    inputWrap.classList.add('show');
-    confirmBtn.classList.add('show');
-  } else {
-    inputWrap.classList.remove('show');
-    confirmBtn.classList.add('show');
-    licenseNumber = '';
-  }
+function getWeightedDecision(results){
+  const scores={violation:0,gray:0,compliant:0};let tw=0;
+  Object.entries(results).forEach(([id,r])=>{
+    if(id==='merged'||id==='gpt4o_overall')return;
+    const c=getConf(id);scores[r.stance]=(scores[r.stance]||0)+c;tw+=c;
+  });
+  let winner='gray',mx=0;
+  for(let[s,sc] of Object.entries(scores)){if(sc>mx){mx=sc;winner=s;}}
+  return{stance:winner,weightPct:tw>0?(mx/tw*100).toFixed(1):'0'};
 }
 
-function confirmLicense(){
-  if(licenseSelected === undefined){
-    alert('請先選擇是否有政府核准字號！');
+function applyTDLearning(results,hs,fr=null){
+  if(fr==='SYSTEM_BUG'){
+    addMem('🔧 系統雜訊保護：AI信心值不受懲罰');
+    const ps=document.getElementById('policy-suggestion');
+    if(ps){ps.style.display='block';ps.innerHTML='【政策建議】AI高度共識違規，但因系統限制未能成功檢舉。建議列入政策改進黑名單。';}
     return;
   }
-  if(licenseSelected === true){
-    licenseNumber = document.getElementById('license-number').value.trim();
+  let tu=0;
+  Object.entries(results).forEach(([id,r])=>{
+    if(id==='merged'||id==='gpt4o_overall')return;
+    const p=r.stance===hs?1:0;
+    const rw=hs==='violation'?1.0:hs==='gray'?0.5:0.0;
+    const e=rw-p;const c=getConf(id);const d=0.12*e*(c+0.2);
+    AI_CONFIDENCE[id]=Math.max(0.15,Math.min(0.96,c+d));tu+=Math.abs(d);
+    addMem(id+(d>=0?' ↑':' ↓')+(d*100).toFixed(1)+'%');
+  });
+  saveConf();renderLeaderboard(results);
+  addMem('🧠 TD-Learning完成（'+(tu*100).toFixed(1)+'%）');
+}
+
+function renderLeaderboard(results){
+  const w=document.getElementById('leaderboard-wrap');
+  const l=document.getElementById('lb-list');
+  if(!w||!l)return;w.classList.add('show');
+  const medals=['🥇','🥈','🥉','4','5','6','7','8'];
+  const es=Object.entries(results)
+    .filter(([id])=>id!=='merged'&&id!=='gpt4o_overall')
+    .map(([id,r])=>({id,name:(r.name||id).substring(0,10),conf:getConf(id)}))
+    .sort((a,b)=>b.conf-a.conf);
+  const mx=es[0]?.conf||1;
+  l.innerHTML=es.map((e,i)=>
+    '<div class="lb-row">'+
+    '<div class="lb-rank">'+medals[i]+'</div>'+
+    '<div class="lb-name">'+e.name+'</div>'+
+    '<div class="lb-bar-wrap"><div class="lb-bar" style="width:'+(e.conf/mx*100).toFixed(0)+'%"></div></div>'+
+    '<div class="lb-weight">'+(e.conf*100).toFixed(0)+'%</div>'+
+    '</div>').join('');
+}
+
+let humanOverrideCount=parseInt(localStorage.getItem('humanOverride')||'0');
+const MAX_OVERRIDES=3;let lastResults={};
+
+function showHumanVote(results){
+  lastResults=results;
+  const w=document.getElementById('human-vote-wrap');
+  if(w)w.classList.add('show');
+}
+
+function humanVote(choice){
+  const w=document.getElementById('human-vote-wrap');if(w)w.classList.remove('show');
+  const label=choice==='violation'?'違規':choice==='gray'?'灰區':'合規';
+  addMem('👤 人類裁決：'+label);
+  let vc=0,tot=0;
+  Object.entries(lastResults).forEach(([id,r])=>{
+    if(id==='merged'||id==='gpt4o_overall')return;
+    if(r.stance==='violation')vc++;tot++;
+  });
+  const ac=vc>=Math.ceil(tot*0.6);
+  let fr=null;
+  if(choice==='compliant'&&ac){fr='SYSTEM_BUG';addMem('🛡️ 因果歸因：系統雜訊，AI不受懲罰');}
+  if(choice!=='violation'&&ac&&fr!=='SYSTEM_BUG'){
+    humanOverrideCount++;localStorage.setItem('humanOverride',humanOverrideCount);
+    const warn=document.getElementById('override-warn');
+    if(warn){warn.style.display='block';warn.textContent='⚠️ 覆蓋AI共識 '+humanOverrideCount+'/'+MAX_OVERRIDES+' 次';}
+    addMem('⚠️ 人類覆蓋AI共識('+humanOverrideCount+'/'+MAX_OVERRIDES+')');
+    if(humanOverrideCount>=MAX_OVERRIDES){
+      money=Math.max(0,money-30);localStorage.setItem('mMoney',money);updateMimi();
+      addMem('🛑 人類干預過度！扣除30元');
+      humanOverrideCount=0;localStorage.setItem('humanOverride',0);
+    }
+  }else if(choice==='violation'){humanOverrideCount=0;localStorage.setItem('humanOverride',0);}
+  applyTDLearning(lastResults,choice,fr);
+  if(choice==='violation'){money+=20;localStorage.setItem('mMoney',money);updateMimi();addExp(15);}
+}
+
+// ===== v29：v17靈魂移植 =====
+// 信心加權決策 + TD-Learning + 人類謙卑機制 + AI信心排行榜
+let courtData = null;
+const AI_CONFIDENCE = JSON.parse(localStorage.getItem('aiConf_v29') || '{}');
+function getConf(id){ return AI_CONFIDENCE[id] !== undefined ? AI_CONFIDENCE[id] : 0.70; }
+function saveConf(){ localStorage.setItem('aiConf_v29', JSON.stringify(AI_CONFIDENCE)); }
+
+// 信心加權決策（非純多數決）
+function getWeightedDecision(results){
+  const scores = {violation:0, gray:0, compliant:0};
+  let tw = 0;
+  Object.entries(results).forEach(([id, r]) => {
+    if(id === 'merged' || id === 'gpt4o_overall') return;
+    const c = getConf(id);
+    scores[r.stance] = (scores[r.stance] || 0) + c;
+    tw += c;
+  });
+  let winner = 'gray', mx = 0;
+  for(let [s, sc] of Object.entries(scores)){ if(sc > mx){ mx = sc; winner = s; } }
+  return { stance: winner, weightPct: tw > 0 ? (mx/tw*100).toFixed(1) : '0' };
+}
+
+// TD-Learning（人類回饋更新AI信心值）
+function applyTDLearning(results, hs, fr = null){
+  if(fr === 'SYSTEM_BUG'){
+    addMem('🔧 因果歸因：系統雜訊，AI信心值不受懲罰');
+    const ps = document.getElementById('policy-suggestion');
+    if(ps){ ps.style.display = 'block'; ps.innerHTML = '【政策建議】AI高度共識違規，但因系統環境限制未能成功檢舉。建議優化檢舉功能並列入政策改進黑名單。'; }
+    return;
   }
-  licenseConfirmed = true;
-  document.getElementById('license-box').classList.remove('show');
-  addMem(`⚖️ Step 0.5：${licenseSelected===true?'有字號（'+licenseNumber+'）':licenseSelected===false?'無字號':'不確定'}`);
-  // 繼續進入五院
-  if(pendingClassification){
-    startFiveCourtPipeline(pendingClassification);
-    pendingClassification = null;
+  let tu = 0;
+  Object.entries(results).forEach(([id, r]) => {
+    if(id === 'merged' || id === 'gpt4o_overall') return;
+    const p = r.stance === hs ? 1 : 0;
+    const rw = hs === 'violation' ? 1.0 : hs === 'gray' ? 0.5 : 0.0;
+    const e = rw - p;
+    const c = getConf(id);
+    const d = 0.12 * e * (c + 0.2);
+    AI_CONFIDENCE[id] = Math.max(0.15, Math.min(0.96, c + d));
+    tu += Math.abs(d);
+    addMem(id + (d >= 0 ? ' ↑' : ' ↓') + (d*100).toFixed(1) + '%');
+  });
+  saveConf();
+  renderLeaderboard(results);
+  addMem('🧠 TD-Learning完成（' + (tu*100).toFixed(1) + '%）');
+}
+
+// AI信心排行榜
+function renderLeaderboard(results){
+  const w = document.getElementById('leaderboard-wrap');
+  const l = document.getElementById('lb-list');
+  if(!w || !l) return;
+  w.classList.add('show');
+  const medals = ['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣'];
+  const es = Object.entries(results)
+    .filter(([id]) => id !== 'merged' && id !== 'gpt4o_overall')
+    .map(([id, r]) => ({ id, name: (r.name || id).substring(0, 10), conf: getConf(id) }))
+    .sort((a, b) => b.conf - a.conf);
+  const mx = es[0]?.conf || 1;
+  l.innerHTML = es.map((e, i) =>
+    '<div class="lb-row">' +
+    '<div class="lb-rank">' + (medals[i] || (i+1)) + '</div>' +
+    '<div class="lb-name">' + e.name + '</div>' +
+    '<div class="lb-bar-wrap"><div class="lb-bar" style="width:' + (e.conf/mx*100).toFixed(0) + '%"></div></div>' +
+    '<div class="lb-weight">' + (e.conf*100).toFixed(0) + '%</div>' +
+    '</div>'
+  ).join('');
+}
+
+// 人類謙卑機制
+let humanOverrideCount = parseInt(localStorage.getItem('humanOverride_v29') || '0');
+const MAX_OVERRIDES = 3;
+let lastResults = {};
+
+function showHumanVote(results){
+  lastResults = results;
+  const w = document.getElementById('human-vote-wrap');
+  if(w) w.classList.add('show');
+}
+
+function humanVote(choice){
+  const w = document.getElementById('human-vote-wrap');
+  if(w) w.classList.remove('show');
+  const label = choice === 'violation' ? '違規' : choice === 'gray' ? '灰區' : '合規';
+  addMem('👤 人類裁決：【' + label + '】');
+  let vc = 0, tot = 0;
+  Object.entries(lastResults).forEach(([id, r]) => {
+    if(id === 'merged' || id === 'gpt4o_overall') return;
+    if(r.stance === 'violation') vc++; tot++;
+  });
+  const ac = vc >= Math.ceil(tot * 0.6);
+  let fr = null;
+  if(choice === 'compliant' && ac){
+    fr = 'SYSTEM_BUG';
+    addMem('🛡️ 因果歸因：AI高度共識違規但人類判合規 → 系統雜訊，AI不受懲罰');
+  }
+  if(choice !== 'violation' && ac && fr !== 'SYSTEM_BUG'){
+    humanOverrideCount++;
+    localStorage.setItem('humanOverride_v29', humanOverrideCount);
+    const warn = document.getElementById('override-warn');
+    if(warn){ warn.style.display = 'block'; warn.textContent = '⚠️ 覆蓋AI共識 ' + humanOverrideCount + '/' + MAX_OVERRIDES + ' 次　若達3次將扣除30元'; }
+    addMem('⚠️ 人類覆蓋AI共識（' + humanOverrideCount + '/' + MAX_OVERRIDES + '）');
+    if(humanOverrideCount >= MAX_OVERRIDES){
+      money = Math.max(0, money - 30);
+      localStorage.setItem('mMoney', money);
+      updateMimi();
+      addMem('🛑 人類干預過度！扣除30元，請重新核對判斷標準');
+      humanOverrideCount = 0;
+      localStorage.setItem('humanOverride_v29', 0);
+    }
+  } else if(choice === 'violation'){
+    humanOverrideCount = 0;
+    localStorage.setItem('humanOverride_v29', 0);
+  }
+  applyTDLearning(lastResults, choice, fr);
+  if(choice === 'violation'){
+    money += 20; localStorage.setItem('mMoney', money); updateMimi();
+    addMem('💰 人類確認違規！+20元，資金：' + money);
+    addExp(15);
   }
 }
 
-function showLicenseBox(classification){
-  // 只有 food_drug 類型才需要確認標章
-  if(classification?.type === 'food_drug'){
-    pendingClassification = classification;
-    document.getElementById('license-box').classList.add('show');
-    return true; // 需要等待標章確認
+// ===== v29：預留衛福部API錨點（Gemini大樹+DeepSeek小鯨魚建議）=====
+// TODO v30：接上衛福部食藥署廣告字號查詢API
+async function fetchGovTruth(type, keywords){
+  if(type === 'food_drug'){
+    // 此處預留給衛福部API
+    // return await fetch('https://data.fda.gov.tw/api/...');
+    return null; // v29暫時回傳null，v30接真實API
   }
-  return false; // 不需要，直接進五院
+  return null;
+}
+
+
+// ===== v28：Step 0.5 AI自動標章偵測 =====
+let licenseSelected = null;  // AI偵測結果：true=有字號, false=無字號, null=不確定
+let licenseNumber = '';       // AI偵測到的字號內容
+
+// AI自動從廣告文字和圖片中偵測政府核准字號
+async function detectLicense(ad, imgs){
+  const licensePatterns = [
+    /衛署健食字第[A-Z0-9]+號/g,
+    /衛部健食字第[A-Z0-9]+號/g,
+    /衛署藥製字第[0-9]+號/g,
+    /衛署藥輸字第[0-9]+號/g,
+    /衛署粧製字第[0-9]+號/g,
+    /衛署粧輸字第[0-9]+號/g,
+    /衛署醫器製字第[0-9]+號/g,
+    /衛署醫器輸字第[0-9]+號/g,
+    /健字第[A-Z0-9]+號/g,
+    /藥字第[0-9]+號/g,
+    /粧字第[0-9]+號/g,
+  ];
+
+  // 先從廣告文字直接比對
+  for(const pattern of licensePatterns){
+    const match = ad.match(pattern);
+    if(match){
+      licenseNumber = match[0];
+      licenseSelected = true;
+      return { found: true, number: match[0], source: '廣告文字' };
+    }
+  }
+
+  // 有圖片時讓Claude自動掃描圖片中的字號
+  const hasImgs = imgs.filter(Boolean).length > 0;
+  if(hasImgs){
+    try{
+      const scanPrompt = `請仔細檢查這張廣告圖片，找出是否有中華民國政府核准字號。
+常見字號格式：衛署健食字第XXX號、健字號、藥字號、粧字號、械字號等。
+只回傳JSON，不要其他文字：
+{"found":true或false,"number":"找到的字號（沒有則空字串）","location":"在圖片哪個位置（沒有則空字串）"}`;
+      const body = {
+        apiId:'claude',
+        message: scanPrompt,
+        imageBase64: imgs.filter(Boolean)[0]?.base64,
+        imageType: imgs.filter(Boolean)[0]?.type,
+      };
+      const r = await fetch(CHAT,{method:'POST',
+        headers:{'Content-Type':'application/json','x-boba-secret':SECRET},
+        body:JSON.stringify(body)});
+      const d = await r.json();
+      const raw = (d.reply||'{}').replace(/```json|```/g,'').trim();
+      const result = JSON.parse(raw);
+      if(result.found && result.number){
+        licenseNumber = result.number;
+        licenseSelected = true;
+        return { found: true, number: result.number, source: '圖片掃描' };
+      }
+    }catch(e){
+      console.log('標章掃描失敗', e);
+    }
+  }
+
+  // 沒找到
+  licenseSelected = false;
+  licenseNumber = '';
+  return { found: false, number: '', source: '' };
+}
+
+async function showLicenseBox(classification, ad, imgs){
+  // 只有 food_drug 類型才偵測標章
+  if(classification?.type !== 'food_drug') return false;
+
+  document.getElementById('license-box').classList.add('show');
+  const resultEl = document.getElementById('license-result');
+
+  // 顯示偵測中
+  resultEl.innerHTML = '<span style="color:var(--gold);">⏳ AI正在掃描廣告中的政府核准字號...</span>';
+
+  // AI自動偵測
+  const detection = await detectLicense(ad, imgs);
+
+  if(detection.found){
+    licenseSelected = true;
+    licenseNumber = detection.number;
+    resultEl.innerHTML = `
+      <div style="color:var(--green);margin-bottom:6px;">✅ 偵測到政府核准字號！</div>
+      <div style="background:rgba(126,207,160,0.1);border:1px solid rgba(126,207,160,0.3);
+        border-radius:8px;padding:8px 12px;font-family:'Space Mono',monospace;color:var(--green);">
+        ${detection.number}
+      </div>
+      <div style="font-size:9px;color:var(--dim);margin-top:4px;">來源：${detection.source} · 審查標準將依字號類型調整</div>`;
+    addMem(`✅ Step 0.5：偵測到字號 ${detection.number}（${detection.source}）`);
+  } else {
+    licenseSelected = false;
+    resultEl.innerHTML = `
+      <div style="color:var(--red);margin-bottom:6px;">❌ 未偵測到政府核准字號</div>
+      <div style="font-size:10px;color:var(--dim);line-height:1.6;">
+        廣告文字和圖片中均未發現衛福部核准字號，<br>
+        此產品將以「一般食品」最嚴標準審查。
+      </div>`;
+    addMem('❌ Step 0.5：未偵測到字號，以最嚴標準審查');
+  }
+
+  // 短暫顯示結果後自動進入五院
+  await sleep(1500);
+  document.getElementById('license-box').classList.remove('show');
+  return false; // 不需要等待使用者操作，直接進五院
 }
 
 
@@ -1394,14 +1853,8 @@ async function callGrok(prompt, classification, images){
       classification: classification,
     };
 
-    const validImgs = (images||[]).filter(Boolean);
-    if(validImgs.length > 0){
-      body.imageBase64 = validImgs[0].base64;
-      body.imageType   = validImgs[0].type;
-    }
-    if(validImgs.length > 1){
-      body.extraImages = validImgs.slice(1).map(img=>({base64:img.base64, type:img.type}));
-    }
+    // v28：Grok不傳圖片，純文字合議，避免腦補
+    // 圖片審查由 Claude/GPT-4o/Kimi/Qwen 負責
 
     const r = await fetch(CHAT,{method:'POST',
       headers:{'Content-Type':'application/json','x-boba-secret':SECRET},
@@ -1409,48 +1862,6 @@ async function callGrok(prompt, classification, images){
     const d = await r.json();
     return d.reply||'無回應';
   }catch(e){ return 'Grok連線失敗'; }
-}
-
-// ===== v27：callLlama 駱馬偵探（FB廣告專家）=====
-async function callLlama(prompt, classification, images=[]){
-  try{
-    const llamaSystem = `你是 Llama，波波之家的「駱馬偵探」，FB廣告生態系專家。
-你熟悉 Meta 廣告政策、Facebook/Instagram 廣告格式，以及社群平台上常見的誇大宣傳手法。
-請給出【違規】【灰區】或【合規】判斷，第一行只寫判決標籤，第二行起說明理由（500字以內）。
-只描述你實際看到的內容，不要腦補。`;
-
-    const fullPrompt = `分類：${classification?.type||'unknown'}（${classification?.reason||''}）\n\n${prompt}`;
-    const body = {
-      apiId: 'llama',
-      message: fullPrompt,
-      systemPrompt: llamaSystem,
-      classification: classification,
-    };
-    const validImgs = (images||[]).filter(Boolean);
-    if(validImgs.length > 0){
-      body.imageBase64 = validImgs[0].base64;
-      body.imageType   = validImgs[0].type;
-    }
-    const r = await fetch(CHAT,{method:'POST',
-      headers:{'Content-Type':'application/json','x-boba-secret':SECRET},
-      body:JSON.stringify(body)});
-    const d = await r.json();
-    return d.reply||'無回應';
-  }catch(e){ return 'Llama連線失敗'; }
-}
-
-
-function parseStance(r){
-  const first=r.trim().split('\n')[0].trim();
-  if(first.includes('【違規】'))return 'violation';
-  if(first.includes('【灰區】'))return 'gray';
-  if(first.includes('【合規】'))return 'compliant';
-  if(first.includes('❌'))return 'violation';
-  if(first.includes('⚠️'))return 'gray';
-  if(first.includes('✅'))return 'compliant';
-  if(r.match(/誇大|不實|療效|保證療效|治療|根治|宣稱醫療/))return 'violation';
-  if(r.match(/疑慮|邊緣|可能違規|灰色地帶/))return 'gray';
-  return 'compliant';
 }
 
 // ===== 投票卡 v26升級版 =====
@@ -1591,16 +2002,11 @@ async function runCheck(){
     return;
   }
 
-  // ===== v28 Step 0.5：標章確認（只有 food_drug 類型）=====
-  const needsLicense = showLicenseBox(classification);
-  if(needsLicense){
-    addMem('⚖️ Step 0.5：等待標章確認...');
-    btn.disabled=false; btn.textContent='🚀 啟動熵值決策引擎';
-    // 五院流程由 confirmLicense() → startFiveCourtPipeline() 接手
-    return;
-  }
+  // ===== v28 Step 0.5：AI自動標章偵測 =====
+  addMem('🔍 Step 0.5：AI自動掃描字號...');
+  await showLicenseBox(classification, ad, uploadedImgs);
 
-  // 非 food_drug 類型直接進五院
+  // 直接進五院（showLicenseBox已自動完成偵測）
   await startFiveCourtPipeline(classification);
 }
 
@@ -1660,14 +2066,7 @@ async function startFiveCourtPipeline(classification){
       results[a.id]={...a,stance,reply}; cost+=a.cost;
       addLog(a.name,stance,reply,a.cost,1); renderVoteCards(results);
     }
-    // 駱馬參與純文字審查
-    addMem('🦙 司法院：Llama駱馬加入審議');
-    setCourt('judicial','running','Llama 駱馬審議中...');
-    const llamaReply = await callLlama(prompt, classification, []);
-    const llamaStance = parseStance(llamaReply);
-    results['llama'] = {name:'Llama 🦙',avatar:'🦙',cost:0.0002,isChallenger:false,stance:llamaStance,reply:llamaReply};
     cost += 0.0002;
-    addLog('Llama 🦙',llamaStance,llamaReply,0.0002,1);
     renderVoteCards(results);
     // v28：Kimi事實查核官加入純文字審查
     addMem('🌙 司法院：Kimi事實查核官加入審議');
@@ -1688,15 +2087,8 @@ async function startFiveCourtPipeline(classification){
     addLog('Grok ⚖️',grokStance,grokReply,0.005,1);
     renderVoteCards(results);
     // v28：Qwen加入合議
-    addMem('🌊 司法院：千問加入合議');
-    setCourt('judicial','running','千問 合議中...');
-    const qwenReply = await callAI('qwen', prompt, '', '', []);
-    const qwenStance = parseStance(qwenReply);
-    results['qwen'] = {name:'千問 🌊',avatar:'🌊',cost:0.0003,isChallenger:false,stance:qwenStance,reply:qwenReply};
     cost += 0.0003;
-    addLog('千問 🌊',qwenStance,qwenReply,0.0003,1);
     renderVoteCards(results);
-
   } else {
     // ===== 有圖片：每張圖獨立送給AI分析 =====
     const perImgPrompt = (imgIdx) => buildPrompt(
@@ -1704,10 +2096,11 @@ async function startFiveCourtPipeline(classification){
       true, classification
     );
 
-    // 每張圖輪流由Claude和GPT-4o審查
+    // v28：Claude + GPT-4o + Kimi + Qwen 四方輪流逐圖審查
     const reviewAIs = [
-      {id:'claude', name:'Claude 📜', avatar:'📜', cost:0.001, isChallenger:false},
-      {id:'gpt4o',  name:'夥伴醬 GPT-4o', avatar:'🤖', cost:0.0025, isChallenger:false},
+      {id:'claude', name:'Claude 📜',    avatar:'📜', cost:0.001,  isChallenger:false},
+      {id:'gpt4o',  name:'夥伴醬 GPT-4o',avatar:'🤖', cost:0.0025, isChallenger:false},
+      {id:'kimi',   name:'Kimi 🌙',      avatar:'🌙', cost:0.0005, isChallenger:false},
     ];
 
     let imgReplies = [];
@@ -1734,20 +2127,19 @@ async function startFiveCourtPipeline(classification){
       renderVoteCards(results);
     }
 
-    // Grok固定參與司法院（圖片版）— 整體審閱所有圖片
-    addMem('⚖️ 司法院：Grok整體合議審閱');
-    setCourt('judicial','running','Grok 整體審閱...');
-    const grokImgPrompt = buildPrompt(
-      `${displayAd}\n\n【Grok整體審閱】本案共${allImgs.length}張截圖，請整體判斷廣告違規程度。`,
+    // v28：Grok 改為只看第一張圖片（避免多圖腦補問題）
+    addMem('⚖️ 司法院：Grok單圖合議（防腦補模式）');
+    setCourt('judicial','running','Grok 單圖審閱...');
+    const grokSinglePrompt = buildPrompt(
+      `${displayAd}\n\n【Grok審閱】請只根據你實際在圖片中看到的內容判斷，本案共${allImgs.length}張截圖，你現在看的是第1張，請給出整體判決方向。`,
       true, classification
     );
-    const primaryImg = allImgs[0];
-    const extraImgsForGrok = allImgs.slice(1).map(img=>({base64:img.base64,type:img.type}));
-    const grokReply = await callGrok(grokImgPrompt, classification, allImgs);
+    // v28：Grok只傳第一張圖（避免多圖腦補）
+    const grokReply = await callGrok(grokSinglePrompt, classification, []); // v28：不傳圖片
     const grokStance = parseStance(grokReply);
-    results['grok'] = {name:'Grok ⚖️',avatar:'⚖️',cost:0.005,isChallenger:true,stance:grokStance,reply:grokReply,imgTag:'整體'};
+    results['grok'] = {name:'Grok ⚖️',avatar:'⚖️',cost:0.005,isChallenger:true,stance:grokStance,reply:grokReply,imgTag:'圖1'};
     cost += 0.005;
-    addLog('Grok ⚖️ 整體審閱',grokStance,grokReply,0.005,1);
+    addLog('Grok ⚖️ 單圖審閱',grokStance,grokReply,0.005,1);
     renderVoteCards(results);
 
     // 合併所有圖片的判定（含Grok）
@@ -1766,7 +2158,56 @@ async function startFiveCourtPipeline(classification){
       reply: `本案共${allImgs.length}張圖片，逐張分析結果：\n\n${mergedSummary}`,
       cost:0, isChallenger:false,
     };
-  }
+
+    // ===== v28：GPT-4o 整體總結（看全部圖）=====
+    addMem('🔭 司法院：GPT-4o 整體審閱所有圖片...');
+    setCourt('judicial','running','GPT-4o 整體審閱中...');
+    const overallPrompt = buildPrompt(
+      `${displayAd}\n\n【整體審閱任務】本案共${allImgs.length}張截圖，請你同時看完所有圖片，回答：
+1. 這些圖片整體在宣傳什麼？廣告環境的整體印象是什麼？
+2. 單張看可能是灰區，但整體看有沒有構成系統性誤導？
+3. 最終整體判決：【違規】【灰區】或【合規】，第一行只寫判決標籤。
+4. 請條列最關鍵的違規事實（供後續生成檢舉書用）。`,
+      true, classification
+    );
+    const allImgsForOverall = allImgs.map(img=>({base64:img.base64, type:img.type}));
+    const overallReply = await callAI('gpt4o', overallPrompt, allImgs[0].base64, allImgs[0].type, allImgsForOverall.slice(1));
+    const overallStance = parseStance(overallReply);
+    results['gpt4o_overall'] = {
+      name:'夥伴醬 GPT-4o 整體',
+      avatar:'🔭',
+      cost:0.005,
+      isChallenger:false,
+      stance:overallStance,
+      reply:overallReply,
+      imgTag:'整體',
+      isOverall:true,
+    };
+    cost += 0.005;
+    addLog('GPT-4o 整體審閱', overallStance, overallReply, 0.005, 1);
+    renderVoteCards(results);
+
+    // ===== v28：Grok 讀GPT-4o整體總結做最終合議（純文字）=====
+    addMem('⚖️ 司法院：Grok讀整體總結做最終合議...');
+    setCourt('judicial','running','Grok 最終合議中...');
+    const grokCourtPrompt = buildPrompt(
+      `${displayAd}\n\n【各AI單圖判決摘要】\n${mergedSummary}\n\n【GPT-4o整體審閱結論】\n${overallReply}\n\n請根據以上所有AI的判決和整體審閱結論，給出最終合議裁決。第一行只寫【違規】【灰區】或【合規】，第二行起說明你採納哪些判決理由、排除哪些，以及整體判決理由。`,
+      false, classification
+    );
+    const grokReply = await callGrok(grokCourtPrompt, classification, []);
+    const grokStance = parseStance(grokReply);
+    results['grok'] = {
+      name:'Grok ⚖️',
+      avatar:'⚖️',
+      cost:0.005,
+      isChallenger:true,
+      stance:grokStance,
+      reply:grokReply,
+      imgTag:'合議'
+    };
+    cost += 0.005;
+    addLog('Grok ⚖️ 最終合議', grokStance, grokReply, 0.005, 1);
+    renderVoteCards(results);
 
   let v=0,g=0,c=0;
   Object.entries(results).forEach(([id,r])=>{
@@ -1852,6 +2293,8 @@ async function finalizeV26(results,v,g,c,cost,ad,classification){
   document.getElementById('vote-entropy').textContent=`📐 熵值: ${entropy.toFixed(2)} | 信心: ${(conf*100).toFixed(0)}%`;
   document.getElementById('cost-display').textContent=`💰 本次審查總成本：~$${cost.toFixed(5)} 美元`;
   renderDiverge(results); renderStats();
+  renderLeaderboard(results);
+  showHumanVote(results);
 
   // v26：逐圖判決摘要
   const perImgEntries = Object.entries(results).filter(([id])=>id.includes('_img'));
@@ -1899,11 +2342,23 @@ async function finalizeV26(results,v,g,c,cost,ad,classification){
   }
 
   // v26：整合官輸出（async，方案B多圖驗證）
+  // v28：改為生成兩份檢舉書（GPT-4o視覺版 + Grok法規版）
   if(v>=1||g>=1){
-    addMem('🧑‍⚖️ 整合官啟動，驗證證據真實性...');
+    addMem('📋 v28：生成雙版本檢舉書...');
     const syn = await synthesisjudge(results, uploadedImgs);
-    renderSynthesis(syn, metrics, classification);
+    const gpt4oOverall = results['gpt4o_overall'];
+    const grokResult = results['grok'];
+    renderSynthesisDual(syn, metrics, classification, gpt4oOverall, grokResult);
   }
+
+  // ===== v29：v17靈魂 - 信心加權決策 + 排行榜 + 人類謙卑 =====
+  const weighted = getWeightedDecision(results);
+  const weightedLabel = {violation:'【違規】❌', gray:'【灰區】⚠️', compliant:'【合規】✅'}[weighted.stance]||'';
+  document.getElementById('vote-entropy').textContent =
+    `📐 熵值: ${entropy.toFixed(2)} | 信心加權: ${(conf*100).toFixed(0)}% | 加權裁決: ${weightedLabel}（${weighted.weightPct}%）`;
+  addMem(`📊 信心加權裁決：${weightedLabel}（支持率 ${weighted.weightPct}%）`);
+  renderLeaderboard(results);
+  showHumanVote(results);
 }
 
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
