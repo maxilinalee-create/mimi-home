@@ -1695,12 +1695,11 @@ async function startFiveCourtPipeline(classification){
       true, classification
     );
 
-    // v31：每張圖輪流由五個AI審查（Claude→GPT-4o→Kimi→Gemma→DeepSeek→回到Claude）
+    // v31：逐圖輪替（只用有視覺能力的AI：Claude→GPT-4o→Kimi→DeepSeek→回Claude）
     const reviewAIs = [
       {id:'claude',   name:'Claude 📜',       avatar:'📜', cost:0.001,  isChallenger:false},
       {id:'gpt4o',    name:'夥伴醬 GPT-4o',   avatar:'🤖', cost:0.0025, isChallenger:false},
       {id:'kimi',     name:'Kimi 🌙',          avatar:'🌙', cost:0.0003, isChallenger:false},
-      {id:'gemma',    name:'Gemma 💎',          avatar:'💎', cost:0.0002, isChallenger:false},
       {id:'deepseek', name:'小鯨魚 DeepSeek 🐋',avatar:'🐋', cost:0.0002, isChallenger:false},
     ];
 
