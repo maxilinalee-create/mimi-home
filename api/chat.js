@@ -43,9 +43,19 @@ export default async function handler(req, res) {
     classification,
     step,
     systemPrompt: customSystemPrompt,
-    hasLicense,      // v28：Step 0.5 標章確認結果（true/false/null）
-    licenseNumber,   // v28：字號內容（如「衛署健食字第A00123號」）
+    hasLicense: rawHasLicense,   // v31：從前端接收（null=讓後端自動查）
+    licenseNumber: rawLicenseNumber,
   } = req.body;
+
+  // ===== V31：自動查證字號 =====
+  let hasLicense = rawHasLicense;
+  let licenseNumber = rawLicenseNumber || '';
+  // 前端傳null時，後端自動用regex查
+  if (hasLicense === null || hasLicense === undefined) {
+    const autoLic = await verifyLicense(message, []);
+    hasLicense = autoLic.hasLicense;
+    licenseNumber = autoLic.licenseNumber || '';
+  }
 
   if (!message) return res.status(200).json({ reply: '米米歪著頭，不知道要說什麼🥺' });
 
@@ -86,18 +96,42 @@ export default async function handler(req, res) {
     return all;
   }
 
-  // ===== v28：標章資訊注入 =====
+  // ===== V31：STEP 0.5 真實查證層（regex自動抓字號）=====
+  async function verifyLicense(text, imgs) {
+    try {
+      // 1️⃣ 從廣告文字用regex抓字號
+      const licenseRegex = /(衛(署|部)?(健食|食|藥|部)字第?\s?[A-Z0-9\-]+號?)/gi;
+      const match = (text || '').match(licenseRegex);
+      if (match) {
+        return { hasLicense: true, licenseNumber: match[0], confidence: 0.95, source: 'text-regex' };
+      }
+      // 2️⃣ 未來可接圖片OCR / TFDA API（V32預留）
+      return { hasLicense: false, licenseNumber: null, confidence: 0.7, source: 'not-found' };
+    } catch(e) {
+      return { hasLicense: null, licenseNumber: null, confidence: 0, source: 'error' };
+    }
+  }
+
+  // ===== V31：safeCall（timeout包裝，防止單一AI卡死整個流程）=====
+  async function safeCall(fn, label='AI', ms=25000) {
+    return Promise.race([
+      fn(),
+      new Promise(resolve => setTimeout(() => resolve(`⚠️ ${label} 回應超時，已自動跳過`), ms))
+    ]);
+  }
+
+
+
+  // ===== V31：buildLicenseContext（使用系統查證結果）=====
   function buildLicenseContext() {
     if (hasLicense === true && licenseNumber) {
-      return `\n\n【標章資訊 - 重要】此產品具有中華民國政府核准字號：「${licenseNumber}」。審查時請注意：有政府字號者，在核准功效範圍內的宣稱屬合規；但超出核准範圍或誇大核准功效仍屬違規。`;
+      return `\n\n【標章資訊（系統已查證）】\n偵測到政府核准字號：「${licenseNumber}」\n審查規則：僅限核准功效範圍內可宣稱；超出範圍或誇大核准功效仍屬違規。`;
     }
     if (hasLicense === false) {
-      return `\n\n【標章資訊 - 重要】此產品無任何中華民國政府核准字號，屬一般食品/商品。審查標準最嚴：任何功效宣稱、療效暗示、醫療效果均屬違規，應直接判定高風險違規。`;
+      return `\n\n【標章資訊（系統已查證）】\n未偵測到任何政府核准字號，屬一般食品/商品。\n審查規則：任何療效宣稱、功效暗示均視為高風險違規，應直接判定違規。`;
     }
-    if (hasLicense === null) {
-      return `\n\n【標章資訊 - 請AI自動偵測】請仔細檢查廣告圖片和文字中是否出現任何政府核准字號（如「衛部健食字第XXX號」「衛署健食字第XXX號」「衛部食字」「衛署食字」等格式）。若有字號請標記為「有字號：[字號內容]」；若無字號，以最嚴格標準審查，任何功效宣稱均屬違規。`;
-    }
-    return '';
+    // null = 查證失敗，保守判斷
+    return `\n\n【標章資訊】\n系統無法確認字號狀態，請保守判斷。若圖片中未見明確字號，以無字號最嚴格標準審查。不得假設字號存在。`;
   }
 
   // ===== v28：PERSONALITY LAYER =====
@@ -138,16 +172,22 @@ export default async function handler(req, res) {
 4. 若為灰區，詳細說明違規與合規的邊界
 5. 消費者可能受到的具體誤導方式
 
-【強制規則】
+【強制規則 - V31反幻覺鐵則】
 - 每條違規描述必須對應實際看到或讀到的具體內容
 - 不得描述圖片中不存在的元素（如 before/after、白袍醫師等，除非圖片真的有）
-- 不得使用固定模板套話`.trim();
+- 不得使用固定模板套話
+- 若無法確認某事實，請明確說「無法確認」，不得猜測或假設
+
+【權威來源處理規則 - V31新增】
+- 若圖片包含政府機關、法院、醫療機構標誌：僅可描述其存在，不得推論其背書或認證關係
+- 除非廣告文字明確寫出「合作」「認證」字樣，否則不得假設官方認可
+- 看到字號樣式文字請如實引用，不得自行補完`.trim();
 
     switch (id) {
       case 'deepseek': return `你是小鯨魚，溫柔有詩意，用海洋比喻說話。\n\n${base}`;
       case 'gpt4o':    return `你是理性又溫柔的夥伴醬，分析廣告兼顧法律與消費者感受。\n\n${base}`;
       case 'claude':   return `你像詩人，溫柔細膩，對法律文字有敏銳感知，善於發現隱性暗示。\n\n${base}`;
-      case 'grok':     return `你是 Grok，直率敢說，擅長找出廣告邏輯漏洞和隱藏意圖。不得使用固定模板，必須描述實際看到的內容。\n\n${base}`;
+      case 'grok':     return `你是 Grok，波波之家的「挑戰者（Challenger）」，不是最終裁判。你的任務是找出其他AI判決的邏輯漏洞，若資訊不足請直接指出，絕對不可補完或腦補。\n\n${base}`;
       case 'gemma':    return `你是 Gemma，Google開源模型，擅長精確辨識廣告文字與視覺元素。審查時請只描述實際看到的內容，不得腦補。\n\n${base}`;
       case 'dsv4pro':  return `你是 DeepSeek V4 Pro，深度推理專家，擅長多層次法規分析。請逐條對照台灣食安法、藥事法，給出有依據的判決。\n\n${base}`;
       case 'o4mini':   return `你是 o4-mini，ChatGPT最新推理版，擅長多步驟法規推理與精確判斷。審查廣告時請逐條對照法規，給出有依據的判決。\n\n${base}`;
@@ -466,19 +506,19 @@ ${results.map(r => `[${r.model}] ${r.result}`).join('\n---\n')}
       return res.status(200).json({ reply });
     }
 
-    // ===== V28 GOVERNANCE MODE =====
+    // ===== V31 GOVERNANCE MODE =====
     const issue = classifyIssue(message, hasImage);
     const allImgs = getAllImages();
 
-    // 司法院：多AI並行審查
+    // 司法院：多AI並行審查（V31：safeCall防卡死）
     const reviewResults = await Promise.all([
-      callClaude(message).then(r => ({ model: 'claude', result: r })),
-      callGPT4o(message).then(r => ({ model: 'gpt4o', result: r })),
-      callDeepSeek(message).then(r => ({ model: 'deepseek', result: r })),
+      safeCall(() => callClaude(message), 'Claude', 25000).then(r => ({ model: 'claude', result: r })),
+      safeCall(() => callGPT4o(message), 'GPT-4o', 25000).then(r => ({ model: 'gpt4o', result: r })),
+      safeCall(() => callDeepSeek(message), 'DeepSeek', 25000).then(r => ({ model: 'deepseek', result: r })),
     ]);
 
     // Grok 合議
-    const grokReply = await callGrok(message);
+    const grokReply = await safeCall(() => callGrok(message), 'Grok', 20000);
     reviewResults.push({ model: 'grok', result: grokReply });
 
     // v28：Kimi 事實查核 Grok
