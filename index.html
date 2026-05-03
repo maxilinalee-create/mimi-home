@@ -1630,7 +1630,12 @@ async function startFiveCourtPipeline(classification){
     // Grok固定參與司法院（純文字版）
     addMem('⚖️ 司法院：Grok固定參與合議');
     setCourt('judicial','running','Grok 審議中...');
-    const grokReply = await callGrok(prompt, classification, []);
+    let grokReply = 'Grok 暫時無法使用，已跳過';
+    try {
+      grokReply = await callGrok(prompt, classification, []);
+    } catch(e) {
+      console.error('Grok純文字呼叫異常', e);
+    }
     const grokStance = parseStance(grokReply);
     results['grok'] = {name:'Grok ⚖️',avatar:'⚖️',cost:0.005,isChallenger:true,stance:grokStance,reply:grokReply};
     cost += 0.005;
@@ -1684,7 +1689,12 @@ async function startFiveCourtPipeline(classification){
     );
     const primaryImg = allImgs[0];
     const extraImgsForGrok = allImgs.slice(1).map(img=>({base64:img.base64,type:img.type}));
-    const grokReply = await callGrok(grokImgPrompt, classification, allImgs);
+    let grokReply = 'Grok 暫時無法使用，已跳過';
+    try {
+      grokReply = await callGrok(grokImgPrompt, classification, allImgs);
+    } catch(e) {
+      console.error('Grok呼叫異常', e);
+    }
     const grokStance = parseStance(grokReply);
     results['grok'] = {name:'Grok ⚖️',avatar:'⚖️',cost:0.005,isChallenger:true,stance:grokStance,reply:grokReply,imgTag:'整體'};
     cost += 0.005;
