@@ -1348,67 +1348,55 @@ async function callAI(id,msg,b64='',mtype='',extraImgs=[]){
       body.hasLicense = licenseSelected;
       body.licenseNumber = licenseNumber || '';
     }
+    // v30：加入30秒timeout保護，防止卡死
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
     const r=await fetch(CHAT,{method:'POST',
       headers:{'Content-Type':'application/json','x-boba-secret':SECRET},
-      body:JSON.stringify(body)});
+      body:JSON.stringify(body),
+      signal: controller.signal});
+    clearTimeout(timeoutId);
     const d=await r.json();return d.reply||'無回應';
-  }catch(e){return 'API連線失敗';}
+  }catch(e){
+    if(e.name==='AbortError') return `⚠️ ${id} 回應超時，已自動跳過`;
+    return 'API連線失敗';
+  }
 }
 
-// ===== v26：callGrok 獨立函式（含Grok自訂鐵則prompt）=====
-const GROK_SYSTEM_PROMPT = `你是 Grok，在波波之家擔任「司法院」角色。
-
-【最重要鐵則 - 必須嚴格遵守】
-1. 只描述你「實際在圖片或文字中看到的具體內容」。絕對不要腦補、推論、或添加圖片中不存在的元素。
-2. 每提到一條違規，都必須直接引用廣告原文（用「」標示），或明確描述你看到的具體視覺元素。
-3. 開頭絕對不要用「我對這則廣告的判決是違規，以下是詳細的分析與理由」這種固定模板句。請直接從具體內容開始分析。
-4. 如果圖片中沒有明顯違規內容，就誠實說「本圖片未發現明確違規用語或視覺暗示」。
-5. 回答要自然、直接，像一個認真但不死板的法官在說話，不要過度正式或重複相同句型。
-6. 絕對不得提及圖片中不存在的元素（例如：圖片裡沒有before/after，就不要提；沒有白袍醫師，就不要說「有醫師形象」）。
-
-請嚴格遵守以上規則，只基於實際看到的內容進行判斷。`;
-
+// ===== v30：callGrok 穩定版（Grok建議：先不傳圖，18秒timeout）=====
 async function callGrok(prompt, classification, images){
+  if(!GROK_API_KEY) return 'Grok Key 未設定';
+  const isExit = classification?.exit === true;
+  const systemPrompt = isExit
+    ? '這是私人照片，不屬於廣告審查範圍，請友善回覆。'
+    : GROK_SYSTEM_PROMPT + `\n\n【重要】請直接根據提供的文字和圖片描述判斷。第一行只寫【違規】、【灰區】或【合規】。`;
+
   try{
-    const isExit = classification?.exit === true;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 18000); // 嚴格18秒
 
-    const systemPrompt = isExit
-      ? '這是一張私人照片、紀念內容或日常生活分享，不屬於廣告審查範圍。請用溫柔、有禮貌的方式回覆使用者，並明確告訴他這次不進行審查。'
-      : GROK_SYSTEM_PROMPT + `
-
-這是一則【${
-        {food_drug:'食品/藥品/保健品/化妝品', fraud:'詐騙/金融', service_ad:'服務類（課程/療程/直銷/工作坊）', other_ad:'其他'}[classification?.type] || '廣告'
-      }】類型的廣告。請給出【違規】【灰區】或【合規】判斷，第一行只寫判決標籤，第二行起說明理由（2500字以內）。`;
-
-    const fullPrompt = isExit
-      ? prompt
-      : `分類：${classification?.type||'unknown'}（${classification?.reason||''}）\n\n${prompt}`;
-
-    const body = {
-      apiId: 'grok',
-      message: fullPrompt,
-      systemPrompt: systemPrompt, // 傳給後端讓Grok使用
-      step: isExit ? 'step0_exit' : 'normal_review',
-      classification: classification,
-    };
-
-    const validImgs = (images||[]).filter(Boolean);
-    if(validImgs.length > 0){
-      body.imageBase64 = validImgs[0].base64;
-      body.imageType   = validImgs[0].type;
-    }
-    if(validImgs.length > 1){
-      body.extraImages = validImgs.slice(1).map(img=>({base64:img.base64, type:img.type}));
-    }
-
-    const r = await fetch(CHAT,{method:'POST',
+    const r = await fetch(CHAT,{
+      method:'POST',
       headers:{'Content-Type':'application/json','x-boba-secret':SECRET},
-      body:JSON.stringify(body)});
+      body:JSON.stringify({
+        apiId: 'grok',
+        message: prompt,
+        systemPrompt: systemPrompt,
+        step: isExit ? 'step0_exit' : 'normal_review',
+        classification: classification,
+        // v30暫時不傳圖片給Grok，避免payload過大卡住
+      }),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
     const d = await r.json();
-    return d.reply||'無回應';
-  }catch(e){ return 'Grok連線失敗'; }
+    return d.reply || 'Grok 無回應';
+  }catch(e){
+    console.error('Grok卡住:', e);
+    if(e.name==='AbortError') return '【灰區】⚠️ Grok審查超時，暫以其他AI判決為主';
+    return 'Grok連線失敗';
+  }
 }
-
 
 // ===== 投票卡 v26升級版 =====
 function renderVoteCards(results){
@@ -1664,7 +1652,12 @@ async function startFiveCourtPipeline(classification){
       addMem(`🔍 司法院審查圖${i+1}/${allImgs.length}（${ai.name}）`);
       setCourt('judicial','running',`審查圖${i+1}/${allImgs.length}...`);
 
-      const reply = await callAI(ai.id, perImgPrompt(i), img.base64, img.type, []);
+      let reply = `⚠️ ${ai.name} 圖${i+1} 審查超時，已跳過`;
+      try {
+        reply = await callAI(ai.id, perImgPrompt(i), img.base64, img.type, []);
+      } catch(e) {
+        console.error(`圖${i+1}審查失敗:`, e);
+      }
       const stance = parseStance(reply);
       const resultKey = `${ai.id}_img${i+1}`;
 
