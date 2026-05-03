@@ -318,7 +318,7 @@ export default async function handler(req, res) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': \`Bearer \${GROK_API_KEY}\` },
         body: JSON.stringify({
-          model: 'grok-2-vision-1212', // v30：升級到有視覺版本
+          model: 'grok-4.20-0309-non-reasoning', // v30：有視覺版本（BOBOHOUSE.md確認）
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: imgs.length > 0 ? userContent : String(contextMsg) }
