@@ -287,51 +287,75 @@ export default async function handler(req, res) {
     }
   }
 
-  // ===== v30：Grok 升級到有視覺版本，可直接看圖 =====
-  async function callGrok(contextMsg, singleImg=null) {
+  // ===== v30：Grok 穩定版（Grok建議，grok-4.3 + timeout保護）=====
+  async function callGrok(contextMsg, classification_ctx=null, images=[]) {
     if (!GROK_API_KEY) return '🛋️ Grok Key 未設定～';
+
     const isExit = step === 'step0_exit' || classification?.exit === true;
-    const systemPrompt = customSystemPrompt || (isExit
+    const cls = classification_ctx || classification;
+
+    const systemPrompt = isExit
       ? '這是一張私人照片、紀念內容或日常生活分享，不屬於廣告審查範圍。請用溫柔、有禮貌的方式回覆使用者。'
-      : buildPersonality('grok', classification) + `
+      : buildPersonality('grok', cls) + `
 
 【Grok鐵則 - 最高優先】
-你現在可以直接看圖片，請嚴格只描述你真正看到的內容。
-1. 圖片上沒有的東西絕對不要猜測、不要推測、不要補充，沒有看到就回答沒有
-2. 嚴格根據圖片和文字中實際看到的內容做判決
-3. 給出【違規】【灰區】或【合規】判決，說明具體依據
-4. 直接從判決開始，不要廢話`);
+第一行必須只寫以下三種判決之一：
+【違規】
+【灰區】
+【合規】
+之後詳細說明理由（包含具體看到的違規用語與視覺元素）。
+請嚴格只描述你真正看到的內容，沒有看到就回答沒有，絕對不要腦補。`;
 
-    // v30：加入圖片傳遞（如果有圖）
-    const imgs = singleImg ? [singleImg] : getAllImages().slice(0, 4);
+    // 限制最多3張圖片，避免payload過大
+    const limitedImgs = (images || []).filter(Boolean).slice(0, 3);
     const userContent = [];
-    imgs.forEach(img => {
-      userContent.push({
-        type: 'image_url',
-        image_url: { url: \`data:\${img.type};base64,\${img.base64}\` }
-      });
+    limitedImgs.forEach(img => {
+      if (img && img.base64) {
+        userContent.push({
+          type: 'image_url',
+          image_url: { url: `data:${img.type || 'image/jpeg'};base64,${img.base64}` }
+        });
+      }
     });
     userContent.push({ type: 'text', text: String(contextMsg) });
 
     try {
+      // 強制28秒timeout保護，防止卡死
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 28000);
+
       const r = await fetch('https://api.x.ai/v1/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': \`Bearer \${GROK_API_KEY}\` },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${GROK_API_KEY}`
+        },
         body: JSON.stringify({
-          model: 'grok-4.20-0309-non-reasoning', // v30：有視覺版本（BOBOHOUSE.md確認）
+          model: 'grok-4.3', // v30：Grok建議最穩定旗艦版
           messages: [
             { role: 'system', content: systemPrompt },
-            { role: 'user', content: imgs.length > 0 ? userContent : String(contextMsg) }
+            { role: 'user', content: userContent.length > 1 ? userContent : String(contextMsg) }
           ],
-          max_tokens: 4000,
-          temperature: 0.7
-        })
+          max_tokens: 3200,
+          temperature: 0.65
+        }),
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
       const d = await r.json();
-      if (d.error) return \`⚠️ Grok錯誤：\${d.error.message || JSON.stringify(d.error)}\`;
+
+      if (!r.ok || d.error) {
+        console.error('Grok API Error:', d);
+        return `⚠️ Grok錯誤 (${r.status || 'unknown'})：${d.error?.message || '請稍後再試'}`;
+      }
       return d.choices?.[0]?.message?.content || '🛋️ Grok 在沉思中～';
     } catch(e) {
-      return \`⚠️ Grok連線失敗：\${e.message}\`;
+      console.error('Grok call failed:', e);
+      if (e.name === 'AbortError' || e.message?.includes('timeout')) {
+        return '⚠️ Grok 回應時間過長，已自動跳過（使用其他AI判決）';
+      }
+      return `⚠️ Grok連線失敗：${e.message || '未知錯誤'}`;
     }
   }
 
