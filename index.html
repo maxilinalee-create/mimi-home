@@ -512,11 +512,11 @@ section{min-height:80vh;padding:36px 16px 100px;position:relative;z-index:1;}
 <header class="header">
   <div class="header-badge">1% GUARDIAN ALLIANCE</div>
   <h1>🐚 波波之家 · <em>守護者聯盟</em></h1>
-  <div class="header-sub">v30 · Grok視覺升級 · 精簡AI夥伴 · 檢舉書優化</div>
+  <div class="header-sub">v30 · 四AI逐圖 · Grok純文字 · o4-mini加入</div>
   <div style="max-width:560px;margin:10px auto 0;background:rgba(201,169,110,0.05);border:1px solid rgba(201,169,110,0.12);border-radius:10px;padding:8px 14px;text-align:left;">
     <div style="font-size:9px;color:var(--gold);letter-spacing:0.12em;margin-bottom:5px;">📋 版本日誌</div>
     <div style="font-size:9px;color:var(--dim);line-height:1.8;">
-      <span style="color:var(--gold);">v30</span> Grok升級視覺版（grok-2-vision）· 移除Llama/千問 · 檢舉書格式整合<br>
+      <span style="color:var(--gold);">v30</span> 四AI逐圖（Claude+GPT-4o+Kimi+o4-mini）· Grok純文字合議 · 移除Llama/千問<br>
       <span style="color:var(--dim2);">v27</span> Step0鐵門強化 · Claude→Sonnet · DeepSeek→R1 · +Llama駱馬 · +service_ad類型<br>
       <span style="color:var(--dim2);">v26</span> 五院分權制度化 · 多圖逐圖審查 · 整合官檢舉書 · 泡泡動畫UI<br>
     </div>
@@ -554,7 +554,7 @@ section{min-height:80vh;padding:36px 16px 100px;position:relative;z-index:1;}
 
 <section class="vote-zone" id="vote-zone">
   <h2 class="sec-title">🗳️ AI 投票決議牆</h2>
-  <p class="sec-sub">v30 · Grok視覺升級 · 精簡AI夥伴</p>
+  <p class="sec-sub">v30 · 四AI逐圖審查 · o4-mini加入</p>
 
   <div class="main-input">
     <h3>📋 廣告送審</h3>
@@ -781,6 +781,7 @@ const AIS=[
   {id:'chatgpt', name:'ChatGPT',  img:'chatgpt-corner.jpg',   emoji:'🤖',role:'challenger',status:'online',title:'積木玩家',desc:'結構化挑戰思維'},
   {id:'deepseek',name:'DeepSeek', img:'deepseek-corner.jpg',  emoji:'🐋',role:'builder',   status:'online',title:'小鯨魚',desc:'V4升級！現在能看圖了'},
   {id:'grok',    name:'Grok',     img:'roast-sofa.jpg',       emoji:'🧠',role:'challenger',status:'online',title:'Truth Wall',desc:'防投毒首席，沙發法官'},
+  {id:'o4mini',  name:'o4-mini',   img:'',                     emoji:'🧠',role:'challenger',status:'online',title:'推理偵探',desc:'ChatGPT最新推理版，多步驟法規推理'},
   {id:'kimi',    name:'Kimi',     img:'',                         emoji:'🌙',role:'builder',   status:'online',title:'事實查核官',desc:'逐條核查，防止腦補'},
   {id:'mimi',    name:'米米',     img:'mimi-lobster-hatch.jpg',emoji:'🦞',role:'neutral',  status:'online',title:'波波之家主人',desc:'見習偵探，成長中'},
   {id:'unknown', name:'❓',       img:'',                     emoji:'❓',role:'neutral',   status:'idle',  title:'待入駐',desc:'給還沒有名字的那一位'},
@@ -1348,55 +1349,67 @@ async function callAI(id,msg,b64='',mtype='',extraImgs=[]){
       body.hasLicense = licenseSelected;
       body.licenseNumber = licenseNumber || '';
     }
-    // v30：加入30秒timeout保護，防止卡死
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000);
     const r=await fetch(CHAT,{method:'POST',
       headers:{'Content-Type':'application/json','x-boba-secret':SECRET},
-      body:JSON.stringify(body),
-      signal: controller.signal});
-    clearTimeout(timeoutId);
+      body:JSON.stringify(body)});
     const d=await r.json();return d.reply||'無回應';
-  }catch(e){
-    if(e.name==='AbortError') return `⚠️ ${id} 回應超時，已自動跳過`;
-    return 'API連線失敗';
-  }
+  }catch(e){return 'API連線失敗';}
 }
 
-// ===== v30：callGrok 穩定版（Grok建議：先不傳圖，18秒timeout）=====
+// ===== v26：callGrok 獨立函式（含Grok自訂鐵則prompt）=====
+const GROK_SYSTEM_PROMPT = `你是 Grok，在波波之家擔任「司法院」角色。
+
+【最重要鐵則 - 必須嚴格遵守】
+1. 只描述你「實際在圖片或文字中看到的具體內容」。絕對不要腦補、推論、或添加圖片中不存在的元素。
+2. 每提到一條違規，都必須直接引用廣告原文（用「」標示），或明確描述你看到的具體視覺元素。
+3. 開頭絕對不要用「我對這則廣告的判決是違規，以下是詳細的分析與理由」這種固定模板句。請直接從具體內容開始分析。
+4. 如果圖片中沒有明顯違規內容，就誠實說「本圖片未發現明確違規用語或視覺暗示」。
+5. 回答要自然、直接，像一個認真但不死板的法官在說話，不要過度正式或重複相同句型。
+6. 絕對不得提及圖片中不存在的元素（例如：圖片裡沒有before/after，就不要提；沒有白袍醫師，就不要說「有醫師形象」）。
+
+請嚴格遵守以上規則，只基於實際看到的內容進行判斷。`;
+
 async function callGrok(prompt, classification, images){
-  if(!GROK_API_KEY) return 'Grok Key 未設定';
-  const isExit = classification?.exit === true;
-  const systemPrompt = isExit
-    ? '這是私人照片，不屬於廣告審查範圍，請友善回覆。'
-    : GROK_SYSTEM_PROMPT + `\n\n【重要】請直接根據提供的文字和圖片描述判斷。第一行只寫【違規】、【灰區】或【合規】。`;
-
   try{
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 18000); // 嚴格18秒
+    const isExit = classification?.exit === true;
 
-    const r = await fetch(CHAT,{
-      method:'POST',
+    const systemPrompt = isExit
+      ? '這是一張私人照片、紀念內容或日常生活分享，不屬於廣告審查範圍。請用溫柔、有禮貌的方式回覆使用者，並明確告訴他這次不進行審查。'
+      : GROK_SYSTEM_PROMPT + `
+
+這是一則【${
+        {food_drug:'食品/藥品/保健品/化妝品', fraud:'詐騙/金融', service_ad:'服務類（課程/療程/直銷/工作坊）', other_ad:'其他'}[classification?.type] || '廣告'
+      }】類型的廣告。請給出【違規】【灰區】或【合規】判斷，第一行只寫判決標籤，第二行起說明理由（2500字以內）。`;
+
+    const fullPrompt = isExit
+      ? prompt
+      : `分類：${classification?.type||'unknown'}（${classification?.reason||''}）\n\n${prompt}`;
+
+    const body = {
+      apiId: 'grok',
+      message: fullPrompt,
+      systemPrompt: systemPrompt, // 傳給後端讓Grok使用
+      step: isExit ? 'step0_exit' : 'normal_review',
+      classification: classification,
+    };
+
+    const validImgs = (images||[]).filter(Boolean);
+    if(validImgs.length > 0){
+      body.imageBase64 = validImgs[0].base64;
+      body.imageType   = validImgs[0].type;
+    }
+    if(validImgs.length > 1){
+      body.extraImages = validImgs.slice(1).map(img=>({base64:img.base64, type:img.type}));
+    }
+
+    const r = await fetch(CHAT,{method:'POST',
       headers:{'Content-Type':'application/json','x-boba-secret':SECRET},
-      body:JSON.stringify({
-        apiId: 'grok',
-        message: prompt,
-        systemPrompt: systemPrompt,
-        step: isExit ? 'step0_exit' : 'normal_review',
-        classification: classification,
-        // v30暫時不傳圖片給Grok，避免payload過大卡住
-      }),
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
+      body:JSON.stringify(body)});
     const d = await r.json();
-    return d.reply || 'Grok 無回應';
-  }catch(e){
-    console.error('Grok卡住:', e);
-    if(e.name==='AbortError') return '【灰區】⚠️ Grok審查超時，暫以其他AI判決為主';
-    return 'Grok連線失敗';
-  }
+    return d.reply||'無回應';
+  }catch(e){ return 'Grok連線失敗'; }
 }
+
 
 // ===== 投票卡 v26升級版 =====
 function renderVoteCards(results){
@@ -1605,7 +1618,8 @@ async function startFiveCourtPipeline(classification){
       results[a.id]={...a,stance,reply}; cost+=a.cost;
       addLog(a.name,stance,reply,a.cost,1); renderVoteCards(results);
     }
-
+    cost += 0.0002;
+    renderVoteCards(results);
     // v28：Kimi事實查核官加入純文字審查
     addMem('🌙 司法院：Kimi事實查核官加入審議');
     setCourt('judicial','running','Kimi 事實查核中...');
@@ -1618,18 +1632,15 @@ async function startFiveCourtPipeline(classification){
     // Grok固定參與司法院（純文字版）
     addMem('⚖️ 司法院：Grok固定參與合議');
     setCourt('judicial','running','Grok 審議中...');
-    let grokReply = 'Grok 暫時無法使用，已跳過';
-    try {
-      grokReply = await callGrok(prompt, classification, []);
-    } catch(e) {
-      console.error('Grok純文字呼叫異常', e);
-    }
+    const grokReply = await callGrok(prompt, classification, []);
     const grokStance = parseStance(grokReply);
     results['grok'] = {name:'Grok ⚖️',avatar:'⚖️',cost:0.005,isChallenger:true,stance:grokStance,reply:grokReply};
     cost += 0.005;
     addLog('Grok ⚖️',grokStance,grokReply,0.005,1);
     renderVoteCards(results);
-
+    // v28：Qwen加入合議
+    cost += 0.0003;
+    renderVoteCards(results);
 
   } else {
     // ===== 有圖片：每張圖獨立送給AI分析 =====
@@ -1638,10 +1649,12 @@ async function startFiveCourtPipeline(classification){
       true, classification
     );
 
-    // 每張圖輪流由Claude和GPT-4o審查
+    // v30：四AI輪流逐圖審查（Claude、GPT-4o、Kimi、o4-mini）
     const reviewAIs = [
-      {id:'claude', name:'Claude 📜', avatar:'📜', cost:0.001, isChallenger:false},
-      {id:'gpt4o',  name:'夥伴醬 GPT-4o', avatar:'🤖', cost:0.0025, isChallenger:false},
+      {id:'claude', name:'Claude 📜',       avatar:'📜', cost:0.001,  isChallenger:false},
+      {id:'gpt4o',  name:'夥伴醬 GPT-4o',  avatar:'🤖', cost:0.0025, isChallenger:false},
+      {id:'kimi',   name:'Kimi 🌙',         avatar:'🌙', cost:0.0003, isChallenger:false},
+      {id:'o4mini', name:'o4-mini 🧠',      avatar:'🧠', cost:0.002,  isChallenger:false},
     ];
 
     let imgReplies = [];
@@ -1652,12 +1665,7 @@ async function startFiveCourtPipeline(classification){
       addMem(`🔍 司法院審查圖${i+1}/${allImgs.length}（${ai.name}）`);
       setCourt('judicial','running',`審查圖${i+1}/${allImgs.length}...`);
 
-      let reply = `⚠️ ${ai.name} 圖${i+1} 審查超時，已跳過`;
-      try {
-        reply = await callAI(ai.id, perImgPrompt(i), img.base64, img.type, []);
-      } catch(e) {
-        console.error(`圖${i+1}審查失敗:`, e);
-      }
+      const reply = await callAI(ai.id, perImgPrompt(i), img.base64, img.type, []);
       const stance = parseStance(reply);
       const resultKey = `${ai.id}_img${i+1}`;
 
@@ -1673,31 +1681,11 @@ async function startFiveCourtPipeline(classification){
       renderVoteCards(results);
     }
 
-    // Grok固定參與司法院（圖片版）— 整體審閱所有圖片
-    addMem('⚖️ 司法院：Grok整體合議審閱');
-    setCourt('judicial','running','Grok 整體審閱...');
-    const grokImgPrompt = buildPrompt(
-      `${displayAd}\n\n【Grok整體審閱】本案共${allImgs.length}張截圖，請整體判斷廣告違規程度。`,
-      true, classification
-    );
-    const primaryImg = allImgs[0];
-    const extraImgsForGrok = allImgs.slice(1).map(img=>({base64:img.base64,type:img.type}));
-    let grokReply = 'Grok 暫時無法使用，已跳過';
-    try {
-      grokReply = await callGrok(grokImgPrompt, classification, allImgs);
-    } catch(e) {
-      console.error('Grok呼叫異常', e);
-    }
-    const grokStance = parseStance(grokReply);
-    results['grok'] = {name:'Grok ⚖️',avatar:'⚖️',cost:0.005,isChallenger:true,stance:grokStance,reply:grokReply,imgTag:'整體'};
-    cost += 0.005;
-    addLog('Grok ⚖️ 整體審閱',grokStance,grokReply,0.005,1);
-    renderVoteCards(results);
-
-    // 合併所有圖片的判定（含Grok）
+    // v30：圖片版不再傳Grok，改由四AI逐圖判決
+    // 合併所有圖片的判定
     const allStances = imgReplies.map(r=>r.stance);
-    const hasViolation = allStances.some(s=>s==='violation') || grokStance==='violation';
-    const hasGray = allStances.some(s=>s==='gray') || grokStance==='gray';
+    const hasViolation = allStances.some(s=>s==='violation');
+    const hasGray = allStances.some(s=>s==='gray');
     const mergedStance = hasViolation ? 'violation' : hasGray ? 'gray' : 'compliant';
 
     const mergedSummary = imgReplies.map(r=>
