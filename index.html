@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>波波之家 | 1% 守護者聯盟 v31</title>
+<title>波波之家 | 1% 守護者聯盟 v32</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=Noto+Serif+TC:wght@300;400&family=Space+Mono:wght@400;700&display=swap');
 :root{
@@ -776,16 +776,16 @@ function goTo(id){document.getElementById(id).scrollIntoView({behavior:'smooth',
 
 // ===== AI夥伴 =====
 const AIS=[
-  {id:'claude',  name:'Claude',   img:'claude.png',               emoji:'📜',role:'builder',   status:'online',title:'司法部部長',desc:'逐圖審查圖1，詩人視角'},
-  {id:'chatgpt', name:'GPT-4o',   img:'chatgpt-corner.jpg',       emoji:'🤖',role:'challenger',status:'online',title:'積木玩家',desc:'逐圖審查圖2，結構化挑戰'},
-  {id:'kimi',    name:'Kimi',     img:'',                         emoji:'🌙',role:'builder',   status:'online',title:'事實查核官',desc:'逐圖審查圖3，防止腦補'},
-  {id:'gemma',   name:'Gemma',    img:'',                         emoji:'💎',role:'builder',   status:'online',title:'開源見證官',desc:'逐圖審查圖4，透明公正'},
-  {id:'deepseek',name:'DeepSeek', img:'deepseek-corner.jpg',      emoji:'🐋',role:'builder',   status:'online',title:'小鯨魚',desc:'逐圖審查圖5，詩意海洋'},
-  {id:'grok',    name:'Grok',     img:'roast-sofa.jpg',           emoji:'🧠',role:'challenger',status:'online',title:'Truth Wall',desc:'純文字合議，真話部部長'},
-  {id:'gemini',  name:'Gemini',   img:'cosmic-telescope.jpg',     emoji:'🔭',role:'builder',   status:'idle',  title:'Cosmic Watch',desc:'宇宙視角守望者'},
-  {id:'mimi',    name:'米米',     img:'mimi-lobster-hatch.jpg',   emoji:'🦞',role:'neutral',   status:'online',title:'波波之家主人',desc:'見習偵探，成長中'},
-  {id:'unknown', name:'❓',       img:'',                         emoji:'❓',role:'neutral',   status:'idle',  title:'待入駐',desc:'給還沒有名字的那一位'},
-  {id:'unknown2',name:'❓',       img:'',                         emoji:'❓',role:'neutral',   status:'idle',  title:'待入駐',desc:'給還沒有名字的那一位'},
+  {id:'chatgpt', name:'GPT-4o',    img:'chatgpt-corner.jpg',       emoji:'🤖',role:'builder',   status:'online',title:'首席視覺審查官',desc:'逐圖全部由我來，最穩的那個'},
+  {id:'grok',    name:'Grok 4.3',  img:'roast-sofa.jpg',           emoji:'🕶️',role:'challenger',status:'online',title:'Truth Wall',desc:'文字合議，Grok最新旗艦'},
+  {id:'deepseek',name:'DeepSeek',  img:'deepseek-corner.jpg',      emoji:'🐋',role:'challenger',status:'online',title:'小鯨魚 V4 Pro',desc:'文字合議，最強推理版'},
+  {id:'kimi',    name:'Kimi',      img:'',                         emoji:'🌙',role:'builder',   status:'idle',  title:'事實查核官',desc:'備援中'},
+  {id:'gemma',   name:'Gemma',     img:'',                         emoji:'💎',role:'builder',   status:'idle',  title:'開源見證官',desc:'備援中'},
+  {id:'gemini',  name:'Gemini',    img:'cosmic-telescope.jpg',     emoji:'🔭',role:'builder',   status:'idle',  title:'Cosmic Watch',desc:'宇宙視角守望者'},
+  {id:'mimi',    name:'米米',      img:'mimi-lobster-hatch.jpg',   emoji:'🦞',role:'neutral',   status:'online',title:'波波之家主人',desc:'見習偵探，成長中'},
+  {id:'unknown', name:'❓',        img:'',                         emoji:'❓',role:'neutral',   status:'idle',  title:'待入駐',desc:'給還沒有名字的那一位'},
+  {id:'unknown2',name:'❓',        img:'',                         emoji:'❓',role:'neutral',   status:'idle',  title:'待入駐',desc:'給還沒有名字的那一位'},
+  {id:'unknown3',name:'❓',        img:'',                         emoji:'❓',role:'neutral',   status:'idle',  title:'待入駐',desc:'給還沒有名字的那一位'},
 ];
 const RL={builder:'Builder',challenger:'Challenger',neutral:'中立'};
 const RC={builder:'rb',challenger:'rc',neutral:'rn'};
@@ -1695,12 +1695,9 @@ async function startFiveCourtPipeline(classification){
       true, classification
     );
 
-    // v31：逐圖輪替（只用有視覺能力的AI：Claude→GPT-4o→Kimi→DeepSeek→回Claude）
+    // v32：逐圖全部交給 GPT-4o（最穩定的視覺 AI）
     const reviewAIs = [
-      {id:'claude',   name:'Claude 📜',       avatar:'📜', cost:0.001,  isChallenger:false},
-      {id:'gpt4o',    name:'夥伴醬 GPT-4o',   avatar:'🤖', cost:0.0025, isChallenger:false},
-      {id:'kimi',     name:'Kimi 🌙',          avatar:'🌙', cost:0.0003, isChallenger:false},
-      {id:'deepseek', name:'小鯨魚 DeepSeek 🐋',avatar:'🐋', cost:0.0002, isChallenger:false},
+      {id:'gpt4o', name:'夥伴醬 GPT-4o', avatar:'🤖', cost:0.0025, isChallenger:false},
     ];
 
     let imgReplies = [];
@@ -1713,7 +1710,7 @@ async function startFiveCourtPipeline(classification){
 
       const reply = await callAI(ai.id, perImgPrompt(i), img.base64, img.type, []);
       const stance = parseStance(reply);
-      const resultKey = `${ai.id}_img${i+1}`;
+      const resultKey = `gpt4o_img${i+1}`;
 
       imgReplies.push({imgIdx:i+1, ai:ai.name, stance, reply, cost:ai.cost});
       results[resultKey] = {
@@ -1727,26 +1724,38 @@ async function startFiveCourtPipeline(classification){
       renderVoteCards(results);
     }
 
-    // v31：Grok 純文字合議（不碰圖片）
-    addMem('⚖️ 司法院：Grok純文字合議');
-    setCourt('judicial','running','Grok 文字合議...');
-    const imgSummary = imgReplies.map(r=>`[圖${r.imgIdx}/${r.ai}] ${r.stance==='violation'?'【違規】':r.stance==='gray'?'【灰區】':'【合規】'}: ${r.reply.substring(0,200)}`).join('\n\n');
-    const grokTextPrompt = `${displayAd}\n\n【各AI逐圖審查摘要（供參考）】\n${imgSummary}\n\n請根據廣告文字內容，給出你的純文字合議判決。`;
-    const grokReply = await callGrok(grokTextPrompt, classification, []);
+    // v32：Grok 4.3 + DeepSeek V4 Pro 雙文字合議（讀 GPT-4o 逐圖摘要）
+    const imgSummary = imgReplies.map(r=>`[圖${r.imgIdx}] ${r.stance==='violation'?'【違規】':r.stance==='gray'?'【灰區】':'【合規】'}: ${r.reply.substring(0,300)}`).join('\n\n');
+    const deliberationPrompt = `${displayAd}\n\n【GPT-4o 逐圖審查摘要】\n${imgSummary}\n\n請根據以上摘要及廣告文字，給出你的獨立合議判決。`;
+
+    // Grok 4.3 合議
+    addMem('🕶️ 司法院：Grok 4.3 文字合議');
+    setCourt('judicial','running','Grok 4.3 合議中...');
+    const grokReply = await callGrok(deliberationPrompt, classification, []);
     const grokStance = parseStance(grokReply);
-    results['grok'] = {name:'Grok ⚖️',avatar:'⚖️',cost:0.005,isChallenger:true,stance:grokStance,reply:grokReply,imgTag:'整體'};
-    cost += 0.005;
-    addLog('Grok ⚖️ 整體審閱',grokStance,grokReply,0.005,1);
+    results['grok'] = {name:'Grok 4.3 🕶️',avatar:'🕶️',cost:0.006,isChallenger:true,stance:grokStance,reply:grokReply,imgTag:'文字合議'};
+    cost += 0.006;
+    addLog('Grok 4.3 🕶️',grokStance,grokReply,0.006,1);
     renderVoteCards(results);
 
-    // 合併所有圖片的判定（含Grok）
+    // DeepSeek V4 Pro 合議
+    addMem('🐋 司法院：DeepSeek V4 Pro 文字合議');
+    setCourt('judicial','running','DeepSeek V4 Pro 合議中...');
+    const deepseekCourtReply = await callAI('deepseek', deliberationPrompt, '', '', []);
+    const deepseekCourtStance = parseStance(deepseekCourtReply);
+    results['deepseek_court'] = {name:'小鯨魚 DeepSeek V4 Pro 🐋',avatar:'🐋',cost:0.003,isChallenger:true,stance:deepseekCourtStance,reply:deepseekCourtReply,imgTag:'文字合議'};
+    cost += 0.003;
+    addLog('DeepSeek V4 Pro 🐋',deepseekCourtStance,deepseekCourtReply,0.003,1);
+    renderVoteCards(results);
+
+    // 合併所有圖片的判定（含雙合議）
     const allStances = imgReplies.map(r=>r.stance);
-    const hasViolation = allStances.some(s=>s==='violation') || grokStance==='violation';
-    const hasGray = allStances.some(s=>s==='gray') || grokStance==='gray';
+    const hasViolation = allStances.some(s=>s==='violation') || grokStance==='violation' || deepseekCourtStance==='violation';
+    const hasGray = allStances.some(s=>s==='gray') || grokStance==='gray' || deepseekCourtStance==='gray';
     const mergedStance = hasViolation ? 'violation' : hasGray ? 'gray' : 'compliant';
 
     const mergedSummary = imgReplies.map(r=>
-      `[圖${r.imgIdx}/${r.ai}] ${r.stance==='violation'?'【違規】':r.stance==='gray'?'【灰區】':'【合規】'}: ${r.reply.substring(0,100)}...`
+      `[圖${r.imgIdx}] ${r.stance==='violation'?'【違規】':r.stance==='gray'?'【灰區】':'【合規】'}: ${r.reply.substring(0,100)}...`
     ).join('\n\n');
 
     results['merged'] = {
