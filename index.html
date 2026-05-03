@@ -512,12 +512,11 @@ section{min-height:80vh;padding:36px 16px 100px;position:relative;z-index:1;}
 <header class="header">
   <div class="header-badge">1% GUARDIAN ALLIANCE</div>
   <h1>🐚 波波之家 · <em>守護者聯盟</em></h1>
-  <div class="header-sub">v30 · 四AI逐圖 · Grok純文字 · o4-mini加入</div>
+  <div class="header-sub">v31 · 後端自動查字號 · Grok降權 · safeCall防卡死</div>
   <div style="max-width:560px;margin:10px auto 0;background:rgba(201,169,110,0.05);border:1px solid rgba(201,169,110,0.12);border-radius:10px;padding:8px 14px;text-align:left;">
     <div style="font-size:9px;color:var(--gold);letter-spacing:0.12em;margin-bottom:5px;">📋 版本日誌</div>
     <div style="font-size:9px;color:var(--dim);line-height:1.8;">
-      <span style="color:var(--gold);">v30</span> 四AI逐圖（Claude+GPT-4o+Kimi+o4-mini）· Grok純文字合議 · 移除Llama/千問<br>
-      <span style="color:var(--dim2);">v27</span> Step0鐵門強化 · Claude→Sonnet · DeepSeek→R1 · +Llama駱馬 · +service_ad類型<br>
+      <span style="color:var(--gold);">v31</span> 後端自動查字號 · Grok降為Challenger · 全模型反幻覺鐵則 · 30秒timeout<br>
       <span style="color:var(--dim2);">v26</span> 五院分權制度化 · 多圖逐圖審查 · 整合官檢舉書 · 泡泡動畫UI<br>
     </div>
   </div>
@@ -554,7 +553,7 @@ section{min-height:80vh;padding:36px 16px 100px;position:relative;z-index:1;}
 
 <section class="vote-zone" id="vote-zone">
   <h2 class="sec-title">🗳️ AI 投票決議牆</h2>
-  <p class="sec-sub">v31 · 真實字號查證 · Grok降權 · 反幻覺鐵則</p>
+  <p class="sec-sub">v28 · Step0.5標章確認 · Kimi事實查核 · Qwen合議 · DeepSeekV4看圖</p>
 
   <div class="main-input">
     <h3>📋 廣告送審</h3>
@@ -781,9 +780,6 @@ const AIS=[
   {id:'chatgpt', name:'ChatGPT',  img:'chatgpt-corner.jpg',   emoji:'🤖',role:'challenger',status:'online',title:'積木玩家',desc:'結構化挑戰思維'},
   {id:'deepseek',name:'DeepSeek', img:'deepseek-corner.jpg',  emoji:'🐋',role:'builder',   status:'online',title:'小鯨魚',desc:'V4升級！現在能看圖了'},
   {id:'grok',    name:'Grok',     img:'roast-sofa.jpg',       emoji:'🧠',role:'challenger',status:'online',title:'Truth Wall',desc:'防投毒首席，沙發法官'},
-  {id:'o4mini',  name:'o4-mini',   img:'',                     emoji:'🧠',role:'challenger',status:'online',title:'推理偵探',desc:'ChatGPT最新推理版，多步驟法規推理'},
-  {id:'gemma',   name:'Gemma',    img:'',  emoji:'🟢',role:'builder',   status:'online',title:'Google開源偵探',desc:'精確辨識廣告文字與視覺元素'},
-  {id:'dsv4pro', name:'DS V4 Pro', img:'',  emoji:'🐋',role:'builder',   status:'online',title:'深度推理官',desc:'DeepSeek最新版，多層次法規分析'},
   {id:'kimi',    name:'Kimi',     img:'',                         emoji:'🌙',role:'builder',   status:'online',title:'事實查核官',desc:'逐條核查，防止腦補'},
   {id:'mimi',    name:'米米',     img:'mimi-lobster-hatch.jpg',emoji:'🦞',role:'neutral',  status:'online',title:'波波之家主人',desc:'見習偵探，成長中'},
   {id:'unknown', name:'❓',       img:'',                     emoji:'❓',role:'neutral',   status:'idle',  title:'待入駐',desc:'給還沒有名字的那一位'},
@@ -1250,26 +1246,20 @@ const SCRAPE='https://mimi-home.vercel.app/api/scrape';
 const SECRET='bobohouse2024';
 let decisionLog=[];
 
-// ===== v30：Step 0.5 改為AI自動查字號（不再需要使用者手動選）=====
-let licenseSelected = null;  // v30：預設null，讓AI自行判斷
+// ===== V31：Step 0.5 改為後端自動查證，前端不再阻塞 =====
+let licenseSelected = null;   // V31：傳null讓後端自動查
 let licenseNumber = '';
-let licenseConfirmed = true; // v30：不需等使用者確認，直接繼續
+let licenseConfirmed = true;  // V31：不需要等使用者確認
 let pendingClassification = null;
 
-// v30：保留函數但不顯示UI，讓AI夥伴自行從圖片/文字找字號
 function selectLicense(val){ licenseSelected = val; }
 function confirmLicense(){ licenseConfirmed = true; }
 
 function showLicenseBox(classification){
-  // v30：不再顯示手動選擇UI
-  // AI會從廣告圖片和文字中自動偵測是否有政府核准字號
-  if(classification?.type === 'food_drug'){
-    addMem('🔍 Step 0.5：AI自動偵測字號（不需手動確認）');
-    licenseSelected = null; // null = 讓AI自己判斷
-    licenseConfirmed = true;
-    return false; // 直接繼續，不等使用者
-  }
-  return false;
+  // V31：不再顯示手動UI，後端自動查證字號
+  addMem('🔍 Step 0.5：後端自動查證字號（V31）');
+  licenseConfirmed = true;
+  return false; // 直接繼續，不阻塞
 }
 
 
@@ -1313,12 +1303,10 @@ async function callAI(id,msg,b64='',mtype='',extraImgs=[]){
     const body={apiId:id,message:msg};
     if(b64){body.imageBase64=b64;body.imageType=mtype;}
     if(extraImgs.length>0){body.extraImages=extraImgs;}
-    // v30：AI自動查字號，不再依賴使用者手動選擇
-    if(licenseSelected !== undefined){
-      body.hasLicense = licenseSelected;
-      body.licenseNumber = licenseNumber || '';
-    }
-    // v30：30秒timeout保護，防止卡死
+    // V31：傳null讓後端自動查字號
+    body.hasLicense = null;
+    body.licenseNumber = '';
+    // V31：30秒timeout防卡死
     const ctrl = new AbortController();
     const tid = setTimeout(()=>ctrl.abort(), 30000);
     const r=await fetch(CHAT,{method:'POST',
@@ -1328,7 +1316,7 @@ async function callAI(id,msg,b64='',mtype='',extraImgs=[]){
     clearTimeout(tid);
     const d=await r.json();return d.reply||'無回應';
   }catch(e){
-    if(e.name==='AbortError') return `⚠️ ${id} 回應超時，已自動跳過`;
+    if(e.name==='AbortError') return `⚠️ ${id} 超時，已跳過`;
     return `⚠️ ${id} 連線失敗`;
   }
 }
@@ -1595,6 +1583,7 @@ async function startFiveCourtPipeline(classification){
       results[a.id]={...a,stance,reply}; cost+=a.cost;
       addLog(a.name,stance,reply,a.cost,1); renderVoteCards(results);
     }
+    setCourt('judicial','running','Llama 駱馬審議中...');
     cost += 0.0002;
     renderVoteCards(results);
     // v28：Kimi事實查核官加入純文字審查
@@ -1626,13 +1615,10 @@ async function startFiveCourtPipeline(classification){
       true, classification
     );
 
-    // v30：五AI輪流逐圖審查（Claude、GPT-4o、Kimi、Gemma、DSV4Pro）
+    // 每張圖輪流由Claude和GPT-4o審查
     const reviewAIs = [
-      {id:'claude',  name:'Claude 📜',        avatar:'📜', cost:0.001,  isChallenger:false},
-      {id:'gpt4o',   name:'夥伴醬 GPT-4o',   avatar:'🤖', cost:0.0025, isChallenger:false},
-      {id:'kimi',    name:'Kimi 🌙',          avatar:'🌙', cost:0.0012, isChallenger:false},
-      {id:'gemma',   name:'Gemma 🟢',         avatar:'🟢', cost:0.0005, isChallenger:false},
-      {id:'dsv4pro', name:'DS V4 Pro 🐋',     avatar:'🐋', cost:0.002,  isChallenger:false},
+      {id:'claude', name:'Claude 📜', avatar:'📜', cost:0.001, isChallenger:false},
+      {id:'gpt4o',  name:'夥伴醬 GPT-4o', avatar:'🤖', cost:0.0025, isChallenger:false},
     ];
 
     let imgReplies = [];
@@ -1643,10 +1629,9 @@ async function startFiveCourtPipeline(classification){
       addMem(`🔍 司法院審查圖${i+1}/${allImgs.length}（${ai.name}）`);
       setCourt('judicial','running',`審查圖${i+1}/${allImgs.length}...`);
 
-      let reply = `⚠️ ${ai.name} 圖${i+1} 審查超時`;
-      try {
-        reply = await callAI(ai.id, perImgPrompt(i), img.base64, img.type, []);
-      } catch(e) { console.error(`圖${i+1}審查失敗`,e); }
+      let reply = `⚠️ ${ai.name} 圖${i+1} 超時，已跳過`;
+      try { reply = await callAI(ai.id, perImgPrompt(i), img.base64, img.type, []); }
+      catch(e) { console.error(`圖${i+1}失敗`,e); }
       const stance = parseStance(reply);
       const resultKey = `${ai.id}_img${i+1}`;
 
@@ -1662,11 +1647,26 @@ async function startFiveCourtPipeline(classification){
       renderVoteCards(results);
     }
 
-    // v30：圖片版不再傳Grok，改由四AI逐圖判決
-    // 合併所有圖片的判定
+    // Grok固定參與司法院（圖片版）— 整體審閱所有圖片
+    addMem('⚖️ 司法院：Grok整體合議審閱');
+    setCourt('judicial','running','Grok 整體審閱...');
+    const grokImgPrompt = buildPrompt(
+      `${displayAd}\n\n【Grok整體審閱】本案共${allImgs.length}張截圖，請整體判斷廣告違規程度。`,
+      true, classification
+    );
+    const primaryImg = allImgs[0];
+    const extraImgsForGrok = allImgs.slice(1).map(img=>({base64:img.base64,type:img.type}));
+    const grokReply = await callGrok(grokImgPrompt, classification, allImgs);
+    const grokStance = parseStance(grokReply);
+    results['grok'] = {name:'Grok ⚖️',avatar:'⚖️',cost:0.005,isChallenger:true,stance:grokStance,reply:grokReply,imgTag:'整體'};
+    cost += 0.005;
+    addLog('Grok ⚖️ 整體審閱',grokStance,grokReply,0.005,1);
+    renderVoteCards(results);
+
+    // 合併所有圖片的判定（含Grok）
     const allStances = imgReplies.map(r=>r.stance);
-    const hasViolation = allStances.some(s=>s==='violation');
-    const hasGray = allStances.some(s=>s==='gray');
+    const hasViolation = allStances.some(s=>s==='violation') || grokStance==='violation';
+    const hasGray = allStances.some(s=>s==='gray') || grokStance==='gray';
     const mergedStance = hasViolation ? 'violation' : hasGray ? 'gray' : 'compliant';
 
     const mergedSummary = imgReplies.map(r=>
