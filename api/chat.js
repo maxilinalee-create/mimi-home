@@ -1,11 +1,8 @@
-// chat-v32-GPT4O讚.js (修改版)
-
+// chat-v34-fixed.js
 /**
-
- * 波波之家 chat.js v33
-
- * 修復 DeepSeek 超時問題
-
+ * 波波之家 chat.js v34
+ * 修復 DeepSeek 腦補問題：移除 msg.length < 800 的錯誤判斷
+ * 改用明確的 isDirectReview flag 控制是否傳圖
  */
 
 export const config = {
@@ -296,29 +293,23 @@ export default async function handler(req, res) {
 
   }
 
-  // ===== v33：優化 DeepSeek 調用（更快、更穩定）=====
+  // ===== v34：修復 DeepSeek 腦補問題 =====
+  // 問題根源：msg.length < 800 這個判斷不可靠
+  // 廣告審查的 prompt 本身就很長，導致圖片永遠不被傳入，AI只能猜圖片內容
+  // 修正：改用明確的 isDirectReview flag，由呼叫方決定要不要傳圖
 
-  async function callDeepSeek(msg) {
+  async function callDeepSeek(msg, isDirectReview = false) {
 
     if (!DEEPSEEK_API_KEY) return '🐋 小鯨魚還在深海游泳～（DEEPSEEK_API_KEY 未設定）';
-
-    
-
-    // v33：文字合議模式不傳圖，只傳純文字摘要，速度更快
 
     const userContent = [];
 
     const allImgs = getAllImages();
 
-    
-
-    // ⚡ 關鍵優化：只有當前端明確要求看圖時才傳圖
-
-    // 文字合議 mode 下，msg 已經包含 GPT-4o 摘要，不需要再傳原始圖片
-
-    const shouldSendImages = allImgs.length > 0 && msg.length < 800; // 短訊息才可能是直接審圖
-
-    
+    // ✅ 修正：用明確的 flag 判斷，不靠訊息長度猜測
+    // isDirectReview = true 時才傳圖（直接審圖模式）
+    // isDirectReview = false 時純文字（文字合議模式，讀 GPT-4o 摘要即可）
+    const shouldSendImages = isDirectReview && allImgs.length > 0;
 
     if (shouldSendImages) {
 
@@ -348,7 +339,7 @@ export default async function handler(req, res) {
 
         body: JSON.stringify({
 
-          model: 'deepseek-chat',  // v33：使用更穩定的 deepseek-chat
+          model: 'deepseek-chat',
 
           messages: [
 
@@ -358,7 +349,7 @@ export default async function handler(req, res) {
 
           ],
 
-          max_tokens: 3000,  // 稍微降低，加快回應
+          max_tokens: 3000,
 
           temperature: 0.6
 
@@ -372,7 +363,7 @@ export default async function handler(req, res) {
 
       return d.choices?.[0]?.message?.content || '🐋 小鯨魚睡著了～';
 
-    }, 45000, '⚠️ DeepSeek 回應較慢，請稍後重試');  // 45秒超時
+    }, 45000, '⚠️ DeepSeek 回應較慢，請稍後重試');
 
   }
 
@@ -584,7 +575,7 @@ export default async function handler(req, res) {
 
         body: JSON.stringify({
 
-          model: 'moonshotai/Kimi-K2.5',
+          model: 'moonshotai/Kimi-K2.6',
 
           messages: [
 
@@ -690,7 +681,7 @@ export default async function handler(req, res) {
 
       let reply = '';
 
-      if (apiId === 'deepseek') reply = await callDeepSeek(message);
+      if (apiId === 'deepseek') reply = await callDeepSeek(message, hasImage);
 
       else if (apiId === 'gpt4o' || apiId === 'chatgpt') reply = await callGPT4o(message);
 
@@ -732,7 +723,7 @@ export default async function handler(req, res) {
 
       safeCall(() => callGrok(textCtx), 45000, '⚠️ Grok 超時'),
 
-      safeCall(() => callDeepSeek(textCtx), 45000, '⚠️ DeepSeek 超時'),
+      safeCall(() => callDeepSeek(textCtx, false), 45000, '⚠️ DeepSeek 超時'),
 
     ]);
 
