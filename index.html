@@ -846,7 +846,7 @@ section{min-height:80vh;padding:36px 16px 100px;position:relative;z-index:1;}
     <div class="synthesis-card">
       <div class="syn-title">⚖️ Cloudy 司法部 · 公文起草</div>
       <div id="synthesis-content"></div>
-      <button class="syn-copy-btn" onclick="copySynthesis()">📋 複製檢舉公文草稿</button>
+      <button class="syn-copy-btn" onclick="copySynthesis()">📋 AI審查總結</button>
     </div>
   </div>
 
@@ -1670,7 +1670,7 @@ function copySynthesis(){
   navigator.clipboard.writeText(text).then(()=>{
     const btn = document.querySelector('.syn-copy-btn');
     btn.textContent = '✅ 已複製！';
-    setTimeout(()=>btn.textContent='📋 複製檢舉公文草稿',2000);
+    setTimeout(()=>btn.textContent='📋 AI審查總結',2000);
   });
 }
 
