@@ -485,7 +485,7 @@ export default async function handler(req, res) {
 
       return d.content?.[0]?.text || '📜 Claude 在思考中～';
 
-    }, 45000, '⚠️ Claude 超時');
+    }, 120000, '⚠️ Claude 超時');
 
   }
 
