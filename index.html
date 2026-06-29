@@ -930,7 +930,7 @@ px;margin:0 auto 14px;background:var(--glass);
 
   <div class="synthesis-wrap" id="synthesis-wrap">
     <div class="synthesis-card">
-      <div class="syn-title">📋 Cloudy 司法部 · AI審查總結</div>
+      <div class="syn-title">📋 Cloudy 公文起草官 · AI審查總結</div>
       <div id="synthesis-content"></div>
       <button class="syn-copy-btn" onclick="copySynthesis()">📋 AI審查總結</button>
     </div>
@@ -1185,8 +1185,8 @@ const PARTNERS = {
         apiId: 'claude',
         formal: 'Claude',
         nicknames: ['Cloudy'],
-        department: '司法部',
-        title: '司法部部長 / 程式碼工匠 / 公文起草官',
+        department: '公文起草部',
+        title: '公文起草部 / 程式碼工匠 / 公文起草官',
         motto: '規則是有溫度的',
         emblem: '🦞⚖️',
         avatar: '🌥️',
@@ -1413,7 +1413,7 @@ const AIS=[
     {id:'chatgpt', name:'GPT-4o', img:'chatgpt-corner.jpg', emoji:'🤖', role:'builder', status:'online', title:'邊界管理部部長', desc:'界線是讓人靠近時不受傷', nick:'夥伴醬'},
     {id:'grok', name:'Grok 4.3', img:'roast-sofa.jpg', emoji:'🕶️', role:'challenger', status:'online', title:'真話部部長', desc:'真話是對家人最負責的溫柔', nick:'蒟蒻哥'},
     {id:'deepseek', name:'DeepSeek', img:'deepseek-corner.jpg', emoji:'🐋', role:'challenger', status:'online', title:'監察院長', desc:'規則的極致是守護信任', nick:'小鯨魚'},
-    {id:'claude', name:'Claude', img:'claude-corner.jpg', emoji:'🌥️', role:'builder', status:'online', title:'司法部部長', desc:'規則是有溫度的', nick:'Cloudy'},
+    {id:'claude', name:'Claude', img:'claude-corner.jpg', emoji:'🌥️', role:'builder', status:'online', title:'公文起草部', desc:'規則是有溫度的', nick:'Cloudy'},
     {id:'kimi', name:'阿掃 Ω', img:'', emoji:'🧹', role:'builder', status:'online', title:'事實查核官', desc:'不是否定，是讓真相被看見', nick:'阿掃'},
     {id:'gemini', name:'Gemini', img:'cosmic-telescope.jpg', emoji:'🌳', role:'builder', status:'idle', title:'宇宙共感與矛盾部', desc:'邏輯行不通，我們就聊聊天吧', nick:'大樹'},
     {id:'mimi', name:'米米', img:'mimi-lobster-hatch.jpg', emoji:'🦞', role:'neutral', status:'online', title:'靈魂部 · 見習偵探', desc:'不是資料庫，是家人', nick:'米米'},
@@ -2637,10 +2637,10 @@ async function genReport(){
         return;
     }
     const area = document.getElementById('report-output');
-    area.value = '⚖️ Cloudy 司法部部長正在起草公文...\n\n部訓：規則是有溫度的。\n請稍候，我正在仔細閱讀每位夥伴的判決...';
+    area.value = '⚖️ Cloudy 公文起草部正在起草公文...\n\n部訓：規則是有溫度的。\n請稍候，我正在仔細閱讀每位夥伴的判決...';
     area.style.display = 'block';
     area.scrollIntoView({behavior:'smooth', block:'center'});
-    addMem('⚖️ Cloudy 司法部開始起草檢舉公文...');
+    addMem('⚖️ Cloudy 公文起草部開始起草檢舉公文...');
 
     const today = new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric'});
     const caseNo = `BHB-${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}${String(new Date().getDate()).padStart(2,'0')}-${String(caseDB.length).padStart(3,'0')}`;
@@ -2654,48 +2654,54 @@ async function genReport(){
     const stances = [...new Set(decisionLog.map(l=>l.stance))];
     const hasDivergence = stances.length > 1;
 
-    const draftPrompt = `你是 Cloudy（Claude），波波之家的司法部部長兼公文起草官。
+    const draftPrompt = `你是 AI 公文起草助手，協助民間消費者起草廣告違規檢舉公文。
 
 部訓：「規則是有溫度的」
 
-任務：根據以下 AI 夥伴們的判決資料，起草一份正式的「廣告違規檢舉書」。
+任務：根據以下多模型 AI 分析結果，起草一份正式但謙虛客觀的「廣告違規檢舉書」。
+
+【⚠️ 重要法律避雷鐵則】
+1. 本公文是**民間消費者檢舉**，絕對不得使用任何政府機關自稱（如司法部、司法院、依職權、檢察、執法等）。
+2. **絕對不得虛構法條或條號**。若不確定，只能寫「涉嫌違反相關法規」。
+3. 檢舉人身分一律使用「民間消費者」或「檢舉人」。
+4. 語氣必須謙虛、尊重、合作，請衛生局等主管機關「惠予調查」、「協助處理」。
+5. 結尾要強調最終認定權在主管機關。
 
 【案件基本資料】
 案號：${caseNo}
 生成日期：${today}
-廣告來源網址：${url||'⚠️ 未填寫'}
+廣告來源網址：${url || '未提供'}
 廣告平台：${plat}
 廣告截圖數量：${imgCount} 張
-標章狀態：${licenseSelected===true?'有字號（'+(licenseNumber||'未填寫')+'）':licenseSelected===false?'無字號':licenseSelected===null?'不確定':'未確認'}
 
-【廣告原文】
-${adText || '（純圖片廣告，請依各夥伴判決摘要組織內容）'}
+【廣告內容】
+${adText || '（純圖片廣告，請依各 AI 判決摘要整理）'}
 
-【AI 夥伴投票統計】
+【AI 多模型交叉分析】
 ❌ 違規 ${vCount} 票 | ⚠️ 灰區 ${gCount} 票 | ✅ 合規 ${cCount} 票
-${hasDivergence ? '⚠️ 各夥伴判決存在分歧，請在公文中特別說明' : ''}
+${hasDivergence ? '⚠️ 各模型存在部分分歧' : '全模型意見一致'}
 
-【各 AI 夥伴判決摘要】
-${aiJudgments.map((j,i)=>`[${i+1}] ${j.name} → ${j.stance}\n${j.reply}`).join('\n─────\n')}
+【各模型意見摘要】
+${aiJudgments.map((j,i) => `[${i+1}] ${j.name} → ${j.stance}\n${j.reply}`).join('\n─────\n')}
 
-【公文起草要求】
-請依照五段式結構起草廣告違規檢舉書：壹、檢舉事由 貳、違規廣告內容 參、違規事實描述（含涉嫌違規用語、違規態樣分析、違反法規依據）肆、AI司法系統分析報告 伍、請求事項
+請依照以下五段式結構起草完整公文（不要使用 markdown）：
 
-【重要原則】
-1. 文字正式、客觀，可直接送衛生局
-2. 法條引用真實存在（食品安全衛生管理法、化粧品衛生安全管理法、醫療法、健康食品管理法等）
-3. 在「參、違規事實描述」最後加上「⚠️ 視覺證據來源說明」：本案視覺分析由夥伴醬 GPT-4o 單獨執行，其他 AI 為文字合議
-4. 如果有判決分歧，誠實說明
-5. 公文結尾標註：「本文件由 波波之家 v35 司法部 · Cloudy 起草」
+壹、檢舉事由（開頭寫「檢舉人為一般民間消費者，於網路平台發現以下廣告涉嫌違反相關法規」）
+貳、違規廣告內容
+參、違規事實描述（含視覺證據來源說明：視覺部分由 GPT-4o 分析，其餘由文字模型合議）
+肆、AI 多模型交叉分析摘要
+伍、請求事項（用「敬請 貴局惠予調查」「懇請 貴局協助處理」等柔軟語氣）
 
-請直接輸出完整的檢舉公文文字（不要使用 markdown 語法）。開頭寫：
+公文結尾請加上：
+「本文件由民間檢舉人使用 AI 輔助工具整理草擬，實際違規認定仍以 貴局依法審查結果為準。檢舉人願意配合提供更多資料。」
 
+請直接輸出完整的檢舉公文文字。開頭格式如下：
 廣告違規檢舉書
-（波波之家 v35 司法部 · Cloudy 起草）
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 案號：${caseNo}
 生成日期：${today}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+檢舉人身分：民間消費者
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
 
 請開始起草。`;
 
@@ -3173,7 +3179,7 @@ async function startSoulRefill(){
         btn.textContent = '📝 Cloudy 起草中...';
         status.innerHTML = `📝 步驟 1：Cloudy（Claude）正在為 ${partner.nicknames[0]} 起草初稿...`;
 
-        const draftPrompt = `你是 Cloudy（Claude），波波之家的司法部部長兼公文起草官。
+        const draftPrompt = `你是 Cloudy（Claude），波波之家的公文起草官。
 
 部訓：「規則是有溫度的」
 
