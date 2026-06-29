@@ -467,7 +467,7 @@ export default async function handler(req, res) {
 
         body: JSON.stringify({
 
-          model: 'claude-sonnet-4-20250514',
+          model: 'claude-sonnet-4-5-20250929',
 
           max_tokens: 4000,
 
