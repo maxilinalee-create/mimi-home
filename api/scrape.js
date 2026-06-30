@@ -1,13 +1,25 @@
 // api/scrape.js
-// 波波之家廣告爬蟲模組 v1
+// 波波之家廣告爬蟲模組 v2（修正版：CORS允許x-boba-secret，並加上secret驗證）
 // 不需要 puppeteer，純 fetch 抓取公開廣告資料
 
+const SECRET = 'bobohouse2024'; // 跟前端 index.html 裡的 SECRET 保持一致
+
 export default async function handler(req, res) {
-  // ===== CORS =====
+  // ===== CORS（已修正：加入 x-boba-secret） =====
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-boba-secret');
+
   if (req.method === 'OPTIONS') return res.status(200).end();
+
+  // ===== Secret 驗證（新增，跟 chat.js 一致） =====
+  const clientSecret = req.headers['x-boba-secret'];
+  if (clientSecret !== SECRET) {
+    return res.status(401).json({
+      success: false,
+      note: '未授權的請求（secret 不符）'
+    });
+  }
 
   const { mode, keyword, url } = req.body || req.query;
 
@@ -16,7 +28,6 @@ export default async function handler(req, res) {
     try {
       // Facebook Ad Library 公開搜尋
       const fbUrl = `https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=TW&q=${encodeURIComponent(keyword)}&search_type=keyword_unordered`;
-
       const response = await fetch(fbUrl, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
@@ -26,12 +37,9 @@ export default async function handler(req, res) {
           'Cache-Control': 'no-cache',
         }
       });
-
       const html = await response.text();
-
       // 從HTML抓取廣告文字（基本解析）
       const adTexts = extractAdTexts(html);
-
       return res.status(200).json({
         success: true,
         mode: 'fb_search',
@@ -42,7 +50,6 @@ export default async function handler(req, res) {
           ? 'FB廣告資料庫需要登入才能看完整內容，請使用手動模式'
           : '成功抓取廣告文字'
       });
-
     } catch (error) {
       return res.status(200).json({
         success: false,
@@ -65,19 +72,15 @@ export default async function handler(req, res) {
         },
         signal: AbortSignal.timeout(8000) // 8秒超時
       });
-
       const html = await response.text();
-
       // 抓取關鍵資訊
       const title = extractMeta(html, 'og:title') ||
                     extractTag(html, 'title') || '無標題';
       const description = extractMeta(html, 'og:description') ||
                           extractMeta(html, 'description') || '無描述';
       const image = extractMeta(html, 'og:image') || '';
-
       // 組合廣告文字
       const adText = `${title} ${description}`.trim();
-
       return res.status(200).json({
         success: true,
         mode: 'url_fetch',
@@ -88,13 +91,12 @@ export default async function handler(req, res) {
         image,
         note: '成功抓取頁面資訊'
       });
-
     } catch (error) {
       return res.status(200).json({
         success: false,
         mode: 'url_fetch',
         error: error.message,
-        note: '無法抓取此網址，可能需要登入或有防護機制'
+        note: '無法抓取此網址，可能該網站有防爬蟲機制，需要登入，或請改用手動複製貼上方式'
       });
     }
   }
@@ -143,7 +145,6 @@ export default async function handler(req, res) {
         date: new Date().toLocaleDateString('zh-TW')
       }
     ];
-
     return res.status(200).json({
       success: true,
       mode: 'mock',
@@ -160,7 +161,6 @@ export default async function handler(req, res) {
 }
 
 // ===== 工具函數 =====
-
 function extractAdTexts(html) {
   const texts = [];
   // 嘗試抓取JSON-LD結構化資料
@@ -174,11 +174,9 @@ function extractAdTexts(html) {
       } catch (e) {}
     });
   }
-
   // 嘗試抓取meta description
   const metaDesc = html.match(/<meta[^>]*name="description"[^>]*content="([^"]*)"[^>]*>/i);
   if (metaDesc) texts.push(metaDesc[1]);
-
   return texts.filter(t => t.length > 10);
 }
 
@@ -190,13 +188,11 @@ function extractMeta(html, property) {
     new RegExp(`<meta[^>]*content=["']([^"']*)["'][^>]*property=["']${property}["']`, 'i')
   );
   if (ogMatch) return ogMatch[1];
-
   // name 標籤
   const nameMatch = html.match(
     new RegExp(`<meta[^>]*name=["']${property}["'][^>]*content=["']([^"']*)["']`, 'i')
   );
   if (nameMatch) return nameMatch[1];
-
   return null;
 }
 
