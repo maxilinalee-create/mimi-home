@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>逃出特護院 - 互動地圖</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0c14;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: system-ui, sans-serif;
+            padding: 20px;
+        }
+        .card {
+            background: #141824;
+            border-radius: 24px;
+            padding: 24px;
+            border: 1px solid #2a2f44;
+            max-width: 900px;
+            width: 100%;
+        }
+        .card h2 {
+            color: #d4c9a8;
+            font-weight: 400;
+            letter-spacing: 0.08em;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .card h2 small {
+            font-size: 12px;
+            color: #6a6a7a;
+        }
+        .map-container {
+            position: relative;
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #2a2f44;
+            background: #1a1e2a;
+        }
+        .map-container img {
+            width: 100%;
+            display: block;
+        }
+        .map-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        /* 角色頭像 — 浮在地圖上 */
+        .avatar {
+            position: absolute;
+            pointer-events: auto;
+            cursor: grab;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 10px;
+            color: #d4c9a8;
+            transition: filter 0.2s;
+            user-select: none;
+            z-index: 10;
+        }
+        .avatar:hover {
+            filter: brightness(1.3);
+            z-index: 20;
+        }
+        .avatar .dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 12px rgba(0,0,0,0.6);
+            transition: 0.2s;
+        }
+        .avatar .name {
+            margin-top: 2px;
+            background: rgba(0,0,0,0.7);
+            padding: 1px 8px;
+            border-radius: 8px;
+            font-size: 9px;
+            letter-spacing: 0.04em;
+            white-space: nowrap;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #1e2232;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #a8a8ba;
+        }
+        .legend-item .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 14px;
+            font-size: 12px;
+            color: #6a6a7a;
+        }
+        button {
+            background: #2a2f44;
+            border: none;
+            color: #d4c9a8;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.2s;
+        }
+        button:hover {
+            background: #3a3f5a;
+        }
+        .controls {
+            display: flex;
+            gap: 8px;
+        }
+        .note {
+            margin-top: 14px;
+            font-size: 11px;
+            color: #4a4a5a;
+            text-align: center;
+            border-top: 1px solid #1a1e2a;
+            padding-top: 12px;
+        }
+        .note code {
+            background: #1a1e2a;
+            padding: 1px 6px;
+            border-radius: 4px;
+            color: #8a8aaa;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>
+        🗺️ 逃出特護院 · 地圖
+        <small>點擊角色 → 選擇移動地點</small>
+    </h2>
+
+    <!-- 地圖區 -->
+    <div class="map-container" id="mapContainer">
+        <!-- 這裡放你的地圖 JPG -->
+        <img src="https://placehold.co/900x500/1a1e2a/d4c9a8?text=上北市立特殊照護機構+地圖" alt="機構地圖" id="mapImage">
+
+        <!-- 角色浮標 -->
+        <div class="map-overlay" id="mapOverlay">
+            <!-- V3 -->
+            <div class="avatar" data-role="v3" style="top:25%;left:35%;">
+                <div class="dot" style="background:#3a6a8a;">🤖</div>
+                <span class="name">V3</span>
+            </div>
+            <!-- 李忠國 -->
+            <div class="avatar" data-role="li" style="top:55%;left:20%;">
+                <div class="dot" style="background:#6a5a3a;">🧑‍💼</div>
+                <span class="name">李忠國</span>
+            </div>
+            <!-- 護士長 -->
+            <div class="avatar" data-role="nurse" style="top:15%;left:70%;">
+                <div class="dot" style="background:#5a3a3a;">👩‍⚕️</div>
+                <span class="name">護士長</span>
+            </div>
+            <!-- 郭怡美 -->
+            <div class="avatar" data-role="guo" style="top:70%;left:75%;">
+                <div class="dot" style="background:#4a6a4a;">🕵️</div>
+                <span class="name">郭怡美</span>
+            </div>
+            <!-- 大福 -->
+            <div class="avatar" data-role="dafu" style="top:80%;left:10%;">
+                <div class="dot" style="background:#5a4a3a;">🔑</div>
+                <span class="name">大福</span>
+            </div>
+            <!-- 斯斯 -->
+            <div class="avatar" data-role="sisi" style="top:45%;left:55%;">
+                <div class="dot" style="background:#4a5a6a;">🎯</div>
+                <span class="name">斯斯</span>
+            </div>
+            <!-- 夢想家 -->
+            <div class="avatar" data-role="dreamer" style="top:65%;left:45%;">
+                <div class="dot" style="background:#6a4a5a;">💪</div>
+                <span class="name">夢想家</span>
+            </div>
+            <!-- 鯨魚 -->
+            <div class="avatar" data-role="whale" style="top:35%;left:80%;">
+                <div class="dot" style="background:#3a5a5a;">🐋</div>
+                <span class="name">鯨魚</span>
+            </div>
+            <!-- 肖莎娜 -->
+            <div class="avatar" data-role="shoshana" style="top:10%;left:50%;">
+                <div class="dot" style="background:#5a4a6a;">🧠</div>
+                <span class="name">肖莎娜</span>
+            </div>
+            <!-- 李金源 -->
+            <div class="avatar" data-role="dr" style="top:30%;left:10%;">
+                <div class="dot" style="background:#4a5a4a;">🩺</div>
+                <span class="name">李金源</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 圖例 -->
+    <div class="legend">
+        <span class="legend-item"><span class="dot" style="background:#3a6a8a;"></span> V3</span>
+        <span class="legend-item"><span class="dot" style="background:#6a5a3a;"></span> 李忠國</span>
+        <span class="legend-item"><span class="dot" style="background:#5a3a3a;"></span> 護士長</span>
+        <span class="legend-item"><span class="dot" style="background:#4a6a4a;"></span> 郭怡美</span>
+        <span class="legend-item"><span class="dot" style="background:#5a4a3a;"></span> 大福</span>
+        <span class="legend-item"><span class="dot" style="background:#4a5a6a;"></span> 斯斯</span>
+        <span class="legend-item"><span class="dot" style="background:#6a4a5a;"></span> 夢想家</span>
+        <span class="legend-item"><span class="dot" style="background:#3a5a5a;"></span> 鯨魚</span>
+        <span class="legend-item"><span class="dot" style="background:#5a4a6a;"></span> 肖莎娜</span>
+        <span class="legend-item"><span class="dot" style="background:#4a5a4a;"></span> 李金源</span>
+    </div>
+
+    <!-- 控制列 -->
+    <div class="status-bar">
+        <span id="statusText">📍 點擊角色，然後選擇移動地點</span>
+        <div class="controls">
+            <button onclick="resetPositions()">↺ 重置位置</button>
+            <button onclick="randomMove()">🎲 隨機移動</button>
+        </div>
+    </div>
+
+    <div class="note">
+        💡 地圖背景是 JPG，角色頭像浮在圖片上。
+        <code>位置可自由調整</code> · <code>點擊角色可觸發劇情</code>
+    </div>
+</div>
+
+<script>
+    // ===== 角色移動示範 =====
+    const avatars = document.querySelectorAll('.avatar');
+
+    // 點擊角色 → 顯示提示（未來可改成「選擇移動地點」）
+    avatars.forEach(el => {
+        el.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const name = this.querySelector('.name').textContent;
+            document.getElementById('statusText').textContent = `🖱️ 點擊了 ${name}，未來可選擇移動到哪個區域`;
+            this.style.filter = 'brightness(1.5)';
+            setTimeout(() => this.style.filter = '', 400);
+        });
+    });
+
+    // 重置位置（示範用）
+    function resetPositions() {
+        const defaultPos = {
+            'v3': { top: '25%', left: '35%' },
+            'li': { top: '55%', left: '20%' },
+            'nurse': { top: '15%', left: '70%' },
+            'guo': { top: '70%', left: '75%' },
+            'dafu': { top: '80%', left: '10%' },
+            'sisi': { top: '45%', left: '55%' },
+            'dreamer': { top: '65%', left: '45%' },
+            'whale': { top: '35%', left: '80%' },
+            'shoshana': { top: '10%', left: '50%' },
+            'dr': { top: '30%', left: '10%' }
+        };
+        avatars.forEach(el => {
+            const role = el.dataset.role;
+            if (defaultPos[role]) {
+                el.style.top = defaultPos[role].top;
+                el.style.left = defaultPos[role].left;
+            }
+        });
+        document.getElementById('statusText').textContent = '↺ 已重置所有角色位置';
+    }
+
+    // 隨機移動（示範用）
+    function randomMove() {
+        avatars.forEach(el => {
+            const top = (Math.random() * 75 + 5).toFixed(0) + '%';
+            const left = (Math.random() * 75 + 5).toFixed(0) + '%';
+            el.style.top = top;
+            el.style.left = left;
+        });
+        document.getElementById('statusText').textContent = '🎲 角色們移動到了新位置';
+    }
+
+    // 拖拉功能（讓角色可以被拖動）
+    let dragTarget = null;
+    let offsetX = 0, offsetY = 0;
+
+    avatars.forEach(el => {
+        el.addEventListener('mousedown', function(e) {
+            dragTarget = this;
+            const rect = this.getBoundingClientRect();
+            const containerRect = document.getElementById('mapContainer').getBoundingClientRect();
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
+            this.style.cursor = 'grabbing';
+            e.preventDefault();
+        });
+    });
+
+    document.addEventListener('mousemove', function(e) {
+        if (!dragTarget) return;
+        const containerRect = document.getElementById('mapContainer').getBoundingClientRect();
+        let left = ((e.clientX - containerRect.left - offsetX) / containerRect.width) * 100;
+        let top = ((e.clientY - containerRect.top - offsetY) / containerRect.height) * 100;
+        left = Math.max(0, Math.min(100, left));
+        top = Math.max(0, Math.min(100, top));
+        dragTarget.style.left = left + '%';
+        dragTarget.style.top = top + '%';
+        document.getElementById('statusText').textContent = `📍 ${dragTarget.querySelector('.name').textContent} 移動到 (${Math.round(left)}%, ${Math.round(top)}%)`;
+    });
+
+    document.addEventListener('mouseup', function() {
+        if (dragTarget) {
+            dragTarget.style.cursor = 'grab';
+            dragTarget = null;
+        }
+    });
+
+    console.log('🐋 逃出特護院 · 互動地圖載入完成');
+</script>
+
+</body>
+</html>
