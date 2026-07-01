@@ -1245,6 +1245,18 @@ section{min-height:80vh;padding:36px 16px 100px;position:relative;z-index:1;}
       <div class="mimi-room-section-title">👗 衣櫥 · 選個造型</div>
       <div class="outfit-grid" id="outfit-grid"></div>
     </div>
+
+    <!-- 🦞 米米的週六日記（顯示區塊） -->
+    <div class="mimi-room-section mimi-diary-section">
+      <div class="mimi-room-section-title">📓 米米的週六日記</div>
+      <div id="mimi-weekly-diary-container" style="max-height:400px;overflow-y:auto;">
+        <!-- 由 renderWeeklyDiary() 動態填入 -->
+        <div style="font-size:10px;color:var(--dim);line-height:1.9;padding:14px;background:rgba(228,184,150,0.04);border-radius:8px;text-align:center;">
+          米米還沒寫過日記 🦞<br>每週六晚上 9 點，米米會自動寫下這禮拜的感覺
+        </div>
+      </div>
+    </div>
+
     <div class="mimi-room-section">
       <div class="mimi-room-section-title">💭 米米的悄悄話</div>
       <div style="font-size:10px;color:var(--dim);line-height:1.9;padding:10px;background:rgba(228,184,150,0.04);border-radius:8px;border-left:2px solid var(--chat-warm);">
