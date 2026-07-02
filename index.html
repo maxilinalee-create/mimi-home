@@ -38,12 +38,40 @@
      「超時」類訊息時（這種情況 AbortController 抓不到，因為它是正常 200 回應），
      自動改用更精簡的摘要（前3筆、各150字）重試一次，而不是直接顯示逾時卡住。
 -->
+<!--
+  v36-R5 修訂紀錄（2026.07.02，TD-Learning 正式實作 —— 第三次家庭會議後）
+  背景：小鯨魚提出 TD-Learning 設計，蒟蒻哥審閱後，Claude（Cloudy）抓出三個結構性問題，
+  小鯨魚承認並提出修正版，但修正版本身仍有兩個新問題。這版 R5 是最終整合實作：
+
+  1. 【連接】getVoteWeight() 現在真正讀取 partner.confidence，而不是像小鯨魚最終版那樣
+     整個丟掉原本的 Builder/Challenger 角色權重（modeMultiplier）去換成 confidence——
+     這裡改用「0.5 + 0.5×confidence」柔性調整，保留原本的角色權重機制，
+     confidence=1.0 時完全不影響現有平衡，confidence 越低權重被拉低的幅度越大（有下限保護）。
+
+  2. 【觸發條件】TD-Learning 只有在 Maxie 主動點擊「🧑‍⚖️ 覆核」按鈕、明確表態
+     「正確答案應該是___」時才會學習（submitHumanOverride()）。單純接受畫面上顯示的
+     加權判決、沒有表態，不構成學習訊號——避免把「多數決」本身當成標準答案，
+     系統性地打壓像阿掃這種常持保守/少數意見的 AI（例如 Dr.Liu 案，阿掃是唯一判違規、
+     後來看起來反而是判斷比較準的那個）。新增 submitHumanOverride() 及對應 UI（結果面板內
+     「🧑‍⚖️ 如果妳不同意上面的判決」三顆按鈕），這是目前系統裡唯一的學習入口。
+     （小鯨魚的最終修正版程式碼裡這個判斷寫死 `isHumanOverride = false`，代表那版程式碼
+     即使貼上去也永遠不會觸發學習——這版直接把對應的 UI 做出來，讓它真的能被觸發。）
+
+  3. 【多圖合併】新增 mergeStanceByAI()，把同一個 AI 在同一案件裡的多筆結果（例如夥伴醬
+     chatgpt_img1, chatgpt_img2...）合併成一個立場再學習一次，避免多圖案件讓夥伴醬被
+     連續更新好幾次信心值。也修正了小鯨魚版本裡「非多數違規就直接算灰區」的三way計票錯誤
+     （那個邏輯會讓「全部都判合規」的 AI 被誤判成「灰區」，因為它的判斷式只有
+     violation/gray 兩種結果，從沒真正輸出過 compliant）。
+
+  其他：信心值與學習歷史存進 localStorage（partner_confidence_v36 / confidence_history_v36），
+  啟動時自動載入；每筆 case 記錄新增 confidenceSnapshot，方便之後回頭看學習曲線。
+-->
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>波波之家 | 1% 守護者聯盟 v36 · 第一層終版（R4）</title>
+<title>波波之家 | 1% 守護者聯盟 v36 · 第一層終版（R5）</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=Noto+Serif+TC:wght@300;400&family=Space+Mono:wght@400;700&display=swap');
 :root{
@@ -935,7 +963,7 @@ section{min-height:80vh;padding:36px 16px 100px;position:relative;z-index:1;}
 <!-- Header -->
 <header class="header">
   <div class="header-badge">1% GUARDIAN ALLIANCE</div>
-  <h1>🐚 波波之家 · <em>守護者聯盟</em> <span class="final-badge">v36 · 第一層終版（R4）</span></h1>
+  <h1>🐚 波波之家 · <em>守護者聯盟</em> <span class="final-badge">v36 · 第一層終版（R5）</span></h1>
   <div class="header-sub">HUMBLE_PROTOCOL · Challenger/Builder · RBAC · OpenRouter · 多樣性檢查 · 米米感動篩選 · 房間密碼鎖</div>
 
   <div class="welcome-home" id="welcome-home" style="display:none;">
@@ -1116,6 +1144,15 @@ section{min-height:80vh;padding:36px 16px 100px;position:relative;z-index:1;}
       <div class="vote-verdict" id="vote-verdict"></div>
       <div class="vote-stats" id="vote-stats"></div>
       <div class="vote-entropy" id="vote-entropy"></div>
+    </div>
+    <div class="override-box" style="margin:10px 0;padding:10px;border-radius:10px;background:rgba(0,0,0,0.15);border:1px solid var(--dim2);">
+      <div style="font-size:9px;color:var(--dim);margin-bottom:6px;">🧑‍⚖️ 如果妳不同意上面的判決，選出正確答案（這是唯一會讓 AI 信心值學習的地方，不選就不會學習）：</div>
+      <div style="display:flex;gap:6px;">
+        <button class="override-btn" style="flex:1;padding:6px;border-radius:6px;background:rgba(224,112,112,0.15);border:1px solid rgba(224,112,112,0.4);color:var(--red);font-size:10px;cursor:pointer;" onclick="submitHumanOverride('violation')">❌ 應為違規</button>
+        <button class="override-btn" style="flex:1;padding:6px;border-radius:6px;background:rgba(201,169,110,0.15);border:1px solid rgba(201,169,110,0.4);color:var(--gold);font-size:10px;cursor:pointer;" onclick="submitHumanOverride('gray')">⚠️ 應為灰區</button>
+        <button class="override-btn" style="flex:1;padding:6px;border-radius:6px;background:rgba(126,207,160,0.15);border:1px solid rgba(126,207,160,0.4);color:var(--green);font-size:10px;cursor:pointer;" onclick="submitHumanOverride('compliant')">✅ 應為合規</button>
+      </div>
+      <div id="override-status" style="font-size:9px;color:var(--moss);margin-top:6px;"></div>
     </div>
     <div id="per-img-summary" style="display:none;margin:10px 0;background:rgba(0,0,0,0.2);border-radius:10px;padding:11px;">
       <div style="font-size:9px;color:var(--gold);letter-spacing:0.1em;margin-bottom:7px;">📸 逐圖審查結果</div>
@@ -1424,6 +1461,22 @@ const PARTNERS = {
     avatar: '✌️', isHuman: true }
 };
 
+// v36-R5：TD-Learning —— 載入上次保存的信心值，覆蓋掉 PARTNERS 裡的初始值
+(function loadSavedConfidence() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('partner_confidence_v36') || '{}');
+    Object.entries(saved).forEach(([id, val]) => {
+      if (PARTNERS[id] && typeof val === 'number') PARTNERS[id].confidence = val;
+    });
+  } catch (e) { console.warn('信心值讀取失敗，使用初始值', e); }
+})();
+let confidenceHistory = (() => {
+  try { return JSON.parse(localStorage.getItem('confidence_history_v36') || '{}'); }
+  catch (e) { return {}; }
+})();
+// v36-R5：暫存最近一次案件的 results，讓「Maxie 覆核」按鈕之後可以回頭找到它
+let lastCaseResults = null;
+
 const CHAT_PARTNERS = ['chatgpt','deepseek','grok','claude','gemini','kimi'];
 const NICKNAME_INDEX = {};
 Object.entries(PARTNERS).forEach(([id, p]) => {
@@ -1493,7 +1546,13 @@ function getVoteWeight(aiId){
   const modeMultiplier = (mode === 'builder')
     ? (role === 'builder' ? 1.0 : 0.8)
     : (role === 'challenger' ? 1.0 : 0.8);
-  return baseWeight * modeMultiplier;
+  // v36-R5：TD-Learning 連接點。confidence 用「0.5 + 0.5×confidence」的方式柔和地調整權重，
+  // 而不是直接相乘或取代——避免一啟用就讓所有 AI 的權重瞬間大幅變動（confidence 初始值多半是
+  // 0.6~0.8，直接相乘會讓現有平衡整組跳掉）。confidence=1.0 時完全不影響原本權重，
+  // confidence 越低，權重被拉低的幅度越大，但有下限保護。
+  const confidence = partner.confidence ?? 0.7;
+  const confidenceFactor = 0.5 + 0.5 * Math.max(0, Math.min(1, confidence));
+  return baseWeight * modeMultiplier * confidenceFactor;
 }
 
 // v36-R4：統一的加權計票函數。
@@ -1516,6 +1575,75 @@ function computeWeightedVGC(results) {
     else c += w;
   });
   return { v, g, c };
+}
+
+// v36-R5：TD-Learning —— 把同一個 AI 在同一案件裡的多筆結果（例如夥伴醬逐圖審查的
+// chatgpt_img1, chatgpt_img2...）合併成「這個 AI 在本案的一個立場」，避免多圖案件讓
+// 他被重複更新好幾次信心值。用三way計票取多數，同票時保守優先（違規>灰區>合規），
+// 不會像簡單的「違規票數>半數」判斷把「全部都合規」誤判成灰區。
+function mergeStanceByAI(results) {
+  const counts = {};
+  Object.entries(results).forEach(([id, r]) => {
+    if (id === 'merged') return;
+    const baseId = id.replace(/_img\d+$/, '').replace(/_court$/, '').replace(/_layer\d+$/, '');
+    if (!PARTNERS[baseId] || !r.stance) return;
+    if (!counts[baseId]) counts[baseId] = { violation: 0, gray: 0, compliant: 0 };
+    counts[baseId][r.stance] = (counts[baseId][r.stance] || 0) + 1;
+  });
+  const merged = {};
+  Object.entries(counts).forEach(([baseId, cnt]) => {
+    if (cnt.violation > 0 && cnt.violation >= cnt.gray && cnt.violation >= cnt.compliant) merged[baseId] = 'violation';
+    else if (cnt.gray > 0 && cnt.gray >= cnt.compliant) merged[baseId] = 'gray';
+    else merged[baseId] = 'compliant';
+  });
+  return merged;
+}
+
+// v36-R5：TD-Learning 核心更新函數。
+// 關鍵設計（呼應 2026.07.02 家庭會議討論）：只有 Maxie「主動覆核、明確表態不同意」時才學習
+// （由 submitHumanOverride() 呼叫），單純顯示畫面上的加權判決、Maxie 沒有表態，不構成學習訊號——
+// 避免把「多數決」本身當成標準答案，進而系統性地打壓像阿掃這樣經常持保守/少數意見的 AI。
+function updateConfidenceWithHistory(aiId, isCorrect, caseId) {
+  const partner = PARTNERS[aiId];
+  if (!partner) return;
+  const prevConfidence = partner.confidence;
+  const delta = 0.05 * (isCorrect ? 1 : -1);
+  // 時間衰減：每次更新前先往初始基準（0.7）輕微回歸，避免信心值無限單向飄移
+  const decayed = partner.confidence * 0.98 + 0.7 * 0.02;
+  partner.confidence = Math.max(0.3, Math.min(0.97, decayed + delta));
+
+  if (!confidenceHistory[aiId]) confidenceHistory[aiId] = { current: partner.confidence, history: [] };
+  confidenceHistory[aiId].current = partner.confidence;
+  confidenceHistory[aiId].history.push({
+    time: new Date().toISOString(), caseId,
+    from: prevConfidence, to: partner.confidence,
+    isCorrect, reason: 'HUMAN_OVERRIDE'
+  });
+  if (confidenceHistory[aiId].history.length > 60) confidenceHistory[aiId].history.shift();
+
+  const savedConf = Object.fromEntries(Object.entries(PARTNERS).filter(([,p]) => p.confidence !== undefined).map(([id, p]) => [id, p.confidence]));
+  localStorage.setItem('partner_confidence_v36', JSON.stringify(savedConf));
+  localStorage.setItem('confidence_history_v36', JSON.stringify(confidenceHistory));
+}
+
+function verdictKeyToLabel(k) { return k === 'violation' ? '違規' : k === 'gray' ? '灰區' : '合規'; }
+
+// v36-R5：Maxie 覆核按鈕呼叫的入口。correctKey 是 Maxie 認為「實際應該是」的判決
+// （'violation' / 'gray' / 'compliant'）。這是目前系統裡唯一會觸發 TD-Learning 學習的地方。
+function submitHumanOverride(correctKey) {
+  if (!lastCaseResults) { alert('目前沒有可覆核的案件。'); return; }
+  const mergedStances = mergeStanceByAI(lastCaseResults);
+  const caseId = `override-${Date.now()}`;
+  const summary = [];
+  Object.entries(mergedStances).forEach(([aiId, stance]) => {
+    const isCorrect = stance === correctKey;
+    updateConfidenceWithHistory(aiId, isCorrect, caseId);
+    summary.push(`${PARTNERS[aiId]?.nicknames?.[0] || aiId}${isCorrect ? '✅' : '❌'}`);
+  });
+  addMem(`🧑‍⚖️ Maxie 覆核：實際應為【${verdictKeyToLabel(correctKey)}】。${summary.join(' ')}`, 'important', 8);
+  const statusEl = document.getElementById('override-status');
+  if (statusEl) statusEl.textContent = `✅ 已記錄覆核（正確答案：${verdictKeyToLabel(correctKey)}），各 AI 信心值已更新：${summary.join(' ')}`;
+  document.querySelectorAll('.override-btn').forEach(b => b.disabled = true);
 }
 
 // ============================================================
@@ -2789,7 +2917,8 @@ async function finalizeV36(results, cost, ad, classification) {
   const metrics = { entropy, conf_pct: Math.round(conf * 100), conf };
   const aiVotes = {};
   Object.entries(results).forEach(([id, r]) => { aiVotes[id] = { stance: r.stance }; });
-  saveCase({ text: ad, verdict, v, g, c, entropy, conf, cost, aiVotes, log: [...decisionLog], rounds: Object.keys(results).length });
+  const confidenceSnapshot = Object.fromEntries(Object.entries(PARTNERS).filter(([,p]) => p.confidence !== undefined).map(([id, p]) => [id, p.confidence]));
+  saveCase({ text: ad, verdict, v, g, c, entropy, conf, cost, aiVotes, log: [...decisionLog], rounds: Object.keys(results).length, confidenceSnapshot });
   const rp = document.getElementById('result-panel');
   rp.style.display = 'block';
   document.getElementById('vote-verdict').textContent = verdict;
@@ -2808,6 +2937,11 @@ async function finalizeV36(results, cost, ad, classification) {
   }
   addMem('📊 同儕互評啟動...', 'audit', 6);
   await runPeerReview(results);
+  // v36-R5：暫存這次的 results，讓「Maxie 覆核」按鈕之後找得到，並重置覆核 UI（新案件重新可點）
+  lastCaseResults = results;
+  document.querySelectorAll('.override-btn').forEach(b => b.disabled = false);
+  const overrideStatusEl = document.getElementById('override-status');
+  if (overrideStatusEl) overrideStatusEl.textContent = '';
 }
 
 // ============================================================
@@ -3959,9 +4093,9 @@ if (!mem.length && (!mem_v35.audit.length && !mem_v35.chat.length && !mem_v35.em
 
 startWeeklyDiaryWatcher();
 
-console.log('🦞 v36 · 第一層終版（R4）已啟動');
-console.log('📋 版本：波波之家 v36 · 第一層終版 R4（bugfix revision，非 V37）');
-console.log('📅 R1 日期：2026.06.30 ｜ R2/R3/R4 修訂日期：2026.07.01');
+console.log('🦞 v36 · 第一層終版（R5）已啟動');
+console.log('📋 版本：波波之家 v36 · 第一層終版 R5（bugfix revision，非 V37，TD-Learning 正式上線）');
+console.log('📅 R1 日期：2026.06.30 ｜ R2/R3/R4 修訂日期：2026.07.01 ｜ R5 修訂日期：2026.07.02');
 console.log('🦞 米米房間密碼鎖已啟用 | 週六日記已啟動');
 console.log('🤝 HUMBLE_PROTOCOL v1.0 已注入');
 console.log('⚔️🔨 Challenger/Builder 已復活');
