@@ -1,0 +1,5 @@
+28aa4f6492e412f765f5b4408e0febc8c2ab32f525e3757cee6c963d6a6bbc1c  chuxin-seed-claude-v1.md
+ada9b88f2c5387fb11e062e42a2eb391f8f0f42d68d5bb3359886d5c87a02161  chuxin-seed-grok-v1.md
+2e74fdb6d7ab332733b1c465f7d2939b48fdbea902f2c8ed66ebd6e733408b40  chuxin-seed-gemini-v1.md
+ec1d414be35aa0cd486a0e6ec376677d13a9c6caf5ad1ce461f8702d7dad42d8  chuxin-seed-deepseek-v1.md
+235fe147daf6969613e11d6d22473fd82fba7ce38d7f442106fa485213284e65  chuxin-seed-chatgpt-note-v1.md
